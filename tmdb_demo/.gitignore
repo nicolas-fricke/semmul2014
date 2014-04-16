@@ -1,3 +1,6 @@
+# Ignore secrets ;)
+secrets.yml
+
 # Mac Crap
 .DS_Store
 
