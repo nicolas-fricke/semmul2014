@@ -1,0 +1,31 @@
+# Ignore ruby specific files
+*.gem
+*.rbc
+.bundle
+.config
+.yardoc
+Gemfile.lock
+InstalledFiles
+_yardoc
+coverage
+doc/
+lib/bundler/man
+pkg
+rdoc
+spec/reports
+test/tmp
+test/version_tmp
+tmp
+
+# Ignore editor files
+# IntelliJ
+/.idea
+*.iml
+/.generators
+/.rakeTasks
+
+# Ignore OS files
+# OS X
+.DS_Store
+.Spotlight-V100
+/.Trashes
