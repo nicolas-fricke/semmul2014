@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY lom "http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#" >
+    <!ENTITY schema "http://schema.rdfs.org/" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+]>
+
+<rdf:RDF
+  xmlns:lom="http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#"
+  xmlns:schema="http://schema.rdfs.org/"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:rdf="http://www.w3.org/2001/XMLSchema#"
+  xmlns:owl="http://www.w3.org/2002/07/owl#">
+ 
+  <!-- OWL Header -->
+  <owl:Ontology rdf:about="http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#">
+    <dc:title>The LOD of Movies Ontology</dc:title>
+    <dc:description>Ontology for movies based on schema.org</dc:description>
+    <owl:imports rdf:resource="http://schema.rdfs.org/"/>
+  </owl:Ontology>
+
+  <!-- Extensions for schema.org from here on ... -->
+
+  <!-- CLASSES -->
+
+  <!-- Actor -->
+  <owl:Class rdf:about="&lom;Actor">
+    <rdfs:label xml:lang="en">Actor</rdfs:label>
+    <rdfs:comment xml:lang="en">Describes an actor of a movie or a television series.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&schema;Person"/>
+  </owl:Class>
+
+  <!-- Director -->
+  <owl:Class rdf:about="&lom;Director">
+    <rdfs:label xml:lang="en">Director</rdfs:label>
+    <rdfs:comment xml:lang="en">Describes the director of a movie or a television series.</rdfs:comment>
+    <rdfs:subClassOf rdf:resource="&schema;Person"/>
+  </owl:Class>
+
+  <!-- PROPERTIES -->
+
+  <!-- First Air Date-->
+  <owl:DatatypeProperty rdf:about="&lom;first_air_date">
+    <rdfs:label xml:lang="en">First Air Date</rdfs:label>
+    <rdfs:comment xml:lang="en">Describes the first air date of a television series.</rdfs:comment>
+    <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+    <rdfs:domain rdf:resource="&schema;TVSeries"/>
+    <rdfs:range rdf:resource="&xsd;date"/>
+  </owl:DatatypeProperty>
+
+  <!-- Last Air Date-->
+  <owl:DatatypeProperty rdf:about="&lom;last_air_date">
+    <rdfs:label xml:lang="en">Last Air Date</rdfs:label>
+    <rdfs:comment xml:lang="en">Describes the last air date of a television series.</rdfs:comment>
+    <rdf:type rdf:resource="&owl;FunctionalProperty"/>
+    <rdfs:domain rdf:resource="&schema;TVSeries"/>
+    <rdfs:range rdf:resource="&xsd;date"/>
+  </owl:DatatypeProperty>
+
+</rdf:RDF>
