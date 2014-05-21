@@ -44,22 +44,4 @@
 
   <!-- PROPERTIES -->
 
-  <!-- First Air Date-->
-  <owl:DatatypeProperty rdf:about="&lom;first_air_date">
-    <rdfs:label xml:lang="en">First Air Date</rdfs:label>
-    <rdfs:comment xml:lang="en">Describes the first air date of a television series.</rdfs:comment>
-    <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-    <rdfs:domain rdf:resource="&schema;TVSeries"/>
-    <rdfs:range rdf:resource="&xsd;date"/>
-  </owl:DatatypeProperty>
-
-  <!-- Last Air Date-->
-  <owl:DatatypeProperty rdf:about="&lom;last_air_date">
-    <rdfs:label xml:lang="en">Last Air Date</rdfs:label>
-    <rdfs:comment xml:lang="en">Describes the last air date of a television series.</rdfs:comment>
-    <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-    <rdfs:domain rdf:resource="&schema;TVSeries"/>
-    <rdfs:range rdf:resource="&xsd;date"/>
-  </owl:DatatypeProperty>
-
 </rdf:RDF>
