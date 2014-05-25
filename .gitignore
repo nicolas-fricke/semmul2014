@@ -29,3 +29,6 @@ tmp
 .DS_Store
 .Spotlight-V100
 /.Trashes
+
+# File copies
+*~

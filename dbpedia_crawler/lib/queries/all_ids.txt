@@ -1,0 +1,8 @@
+# TODO: use a more complex query
+
+SELECT ?movie 
+WHERE { 
+  ?movie a <http://dbpedia.org/ontology/Film> .
+} 
+ORDER BY ?movie 
+LIMIT 100
