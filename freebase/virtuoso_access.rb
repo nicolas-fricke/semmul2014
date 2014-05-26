@@ -12,9 +12,13 @@ end
 def query_virtuoso(query)
   result = query_sparql(VIRTUOSO_SPARQL_ENDPOINT, query)
   yield result if block_given?
+  result
 end
 
 query = "SELECT * FROM <urn:owl:inference:tests> WHERE { ?s ?p ?o . }"
-query_virtuoso query do |results|
-  p results
+query_virtuoso query do |solutions|
+  solutions.each_solution do |soution|
+    p soution.bindings
+  end
 end
+
