@@ -1,15 +1,24 @@
+# taken from https://developers.google.com/freebase/v1/mql-overview
 require 'rubygems'
 require 'cgi'
 require 'httparty'
 require 'json'
 require 'addressable/uri'
 
+require 'bunny'
+
 class FreebaseCrawler
   # load API key from secrets.yml
   secrets = YAML.load_file 'secrets.yml'
   API_KEY = secrets['services']['freebase']['api_key']
 
-  def self.retrieve_film_ids
+  def initialize
+    #open film_id_queue on localhost
+    connection = Bunny.new(:automatically_recover => false).start
+    @film_id_queue = connection.create_channel.queue("semmul.film_ids.freebase", :durable => true)
+  end
+
+  def retrieve_film_ids
     # retrieve mid of every topic typed film
     query = [{
                  'type' => '/film/film',
@@ -31,6 +40,8 @@ class FreebaseCrawler
       response = HTTParty.get(url, :format => :json)
       response['result'].each { |topic|
         film_ids << topic['mid']
+        # write film_id to queue
+        @film_id_queue.publish(topic['mid'], :persistent => true)
       }
 
       # set cursor from last response
@@ -47,11 +58,9 @@ class FreebaseCrawler
       end
     end until response['cursor'] == false # stop on last frame
 
-    puts "number of fetched pages: #{pages}"
-    puts "number of fetched elements: #{film_ids.size}"
-
     film_ids
   end
 end
 
-FreebaseCrawler.retrieve_film_ids
+crawler = FreebaseCrawler.new
+crawler.retrieve_film_ids
