@@ -33,17 +33,45 @@
   <!-- Actor -->
   <owl:Class rdf:about="&lom;Actor">
     <rdfs:label xml:lang="en">Actor</rdfs:label>
-    <rdfs:comment xml:lang="en">Describes an actor of a movie or a television series.</rdfs:comment>
+    <rdfs:comment xml:lang="en">Defines an actor of a movie or a television series.</rdfs:comment>
     <rdfs:subClassOf rdf:resource="&schema;Person"/>
+  </owl:Class>
+
+  <!-- Character -->
+  <owl:Class rdf:about="&lom;Character">
+    <rdfs:label xml:lang="en">Character</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the character in a movie or television series.</rdfs:comment>
   </owl:Class>
 
   <!-- Director -->
   <owl:Class rdf:about="&lom;Director">
     <rdfs:label xml:lang="en">Director</rdfs:label>
-    <rdfs:comment xml:lang="en">Describes the director of a movie or a television series.</rdfs:comment>
+    <rdfs:comment xml:lang="en">Defines the director of a movie or a television series.</rdfs:comment>
     <rdfs:subClassOf rdf:resource="&schema;Person"/>
   </owl:Class>
 
+  <!-- Performance -->
+  <owl:Class rdf:about="&lom;Performance">
+    <rdfs:label xml:lang="en">Performance</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the performances of a movie or television series.</rdfs:comment>
+  </owl:Class>
+
   <!-- PROPERTIES -->
+
+  <!-- Performance: character -->
+  <owl:ObjectProperty rdf:about="&lom;character">
+    <rdfs:label xml:lang="en">character</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the fictional character of a performance.</rdfs:comment>
+    <rdfs:range rdf:resource="&lom;Actor"/>
+    <rdfs:domain rdf:resource="&lom;Performance"/>
+  </owl:ObjectProperty>
+
+  <!-- Performance: actor -->
+  <owl:ObjectProperty rdf:about="&lom;actor">
+    <rdfs:label xml:lang="en">actor</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the actor of a performance.</rdfs:comment>
+    <rdfs:range rdf:resource="&lom;Actor"/>
+    <rdfs:domain rdf:resource="&lom;Performance"/>
+  </owl:ObjectProperty>
 
 </rdf:RDF>
