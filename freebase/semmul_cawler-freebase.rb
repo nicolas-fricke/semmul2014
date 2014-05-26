@@ -18,13 +18,28 @@ class FreebaseCrawler
     @film_id_queue = connection.create_channel.queue("semmul.film_ids.freebase", :durable => true)
   end
 
+
   def retrieve_film_ids
     # retrieve mid of every topic typed film
     query = [{
-                 'type' => '/film/film',
-                 'mid' => nil
-             }]
+    'type' => '/film/film', # testing: 'type' => '/fashion/fashion_designer',
+    'mid' => nil
+    }]
 
+    @film_ids = []
+    execute query do |page_results|
+      page_results.each do |topic|
+        @film_ids << topic['mid']
+        # write film_id to queue
+        @film_id_queue.publish(topic['mid'], :persistent => true)
+      end
+    end
+
+    @film_ids
+  end
+
+  private
+  def execute(query)
     # set empty cursor
     url = Addressable::URI.parse('https://www.googleapis.com/freebase/v1/mqlread')
     url.query_values = {
@@ -34,15 +49,12 @@ class FreebaseCrawler
     }
 
     pages = 0
-    film_ids = []
     puts "fetching elements..."
     begin
       response = HTTParty.get(url, :format => :json)
-      response['result'].each { |topic|
-        film_ids << topic['mid']
-        # write film_id to queue
-        @film_id_queue.publish(topic['mid'], :persistent => true)
-      }
+
+      # process results
+      yield response['result'] if block_given?
 
       # set cursor from last response
       url.query_values = {
@@ -50,17 +62,14 @@ class FreebaseCrawler
           'key'=> API_KEY,
           'cursor'=>response['cursor']
       }
-
       #debug output
       pages +=1
       if pages % 10 == 0
         puts "current page: #{pages}"
       end
     end until response['cursor'] == false # stop on last frame
-
-    film_ids
   end
 end
 
 crawler = FreebaseCrawler.new
-crawler.retrieve_film_ids
+p crawler.retrieve_film_ids
