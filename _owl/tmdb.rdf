@@ -1,0 +1,1444 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY tmdb "http://www.hpi.uni-potsdam.de/semmul2014/themoviedb.owl#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/terms/" >
+]>
+
+<rdf:RDF
+  xmlns:tmdb="http://www.hpi.uni-potsdam.de/semmul2014/themoviedb.owl#"
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+  xmlns:owl="http://www.w3.org/2002/07/owl#"
+  xmlns:dc="http://purl.org/dc/terms/">
+ 
+  <!-- OWL Header -->
+  <owl:Ontology rdf:about="http://www.hpi.uni-potsdam.de/semmul2014/themoviedb.owl#">
+    <dc:title>The Movie Database (TMDb) Ontology</dc:title>
+    <dc:description>Ontology for The Movie Database that contains all attributes taken from the TMDb API. There are additional classes to represent lists. Prefixes (separated with two hyphens) make the attributes unique. The last part of the properties' name (after the last two hyphens) matches exactly the name in the JSON format. To map a list (e.g. 'genres'), use the property (e.g. 'movie/genres')</dc:description>
+  </owl:Ontology>
+
+  <!-- CLASSES -->
+
+  <!-- Alternative_Title -->
+  <owl:Class rdf:about="&tmdb;Alternative_Title">
+    <rdfs:label xml:lang="en">Alternative_Title</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the alternative titles class. This class represents an alternative title of the list movie/alternative_titles.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Cast -->
+  <owl:Class rdf:about="&tmdb;Cast">
+    <rdfs:label xml:lang="en">Cast</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the cast class for a movie or tv series. This class represents a cast member of the list movie/credits/cast or tv/credits/cast.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Combined_Cast -->
+  <owl:Class rdf:about="&tmdb;Combined_Cast">
+    <rdfs:label xml:lang="en">Combined_Cast</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the combined cast class for a person. This class represents a cast from a person of the list person/combined_credits/cast.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Combined_Crew -->
+  <owl:Class rdf:about="&tmdb;Combined_Crew">
+    <rdfs:label xml:lang="en">Combined_Crew</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the combined crew class for a person. This class represents a crew from a person of the list person/combined_credits/crew.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Creator -->
+  <owl:Class rdf:about="&tmdb;Creator">
+    <rdfs:label xml:lang="en">Creator</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the creators class. This class represents a creator of the list tv/created_by.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Crew -->
+  <owl:Class rdf:about="&tmdb;Crew">
+    <rdfs:label xml:lang="en">Crew</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the crew class for a movie or tv series. This class represents a crew member of the list movie/credits/crew or tv/credits/crew.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Genre -->
+  <owl:Class rdf:about="&tmdb;Genre">
+    <rdfs:label xml:lang="en">Genre</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the genres class. This class represents a genre of the list movie/genres or tv/genres.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Movie -->
+  <owl:Class rdf:about="&tmdb;Movie">
+    <rdfs:label xml:lang="en">Movie</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the movie class.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Network -->
+  <owl:Class rdf:about="&tmdb;Network">
+    <rdfs:label xml:lang="en">Network</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the networks class. This class represents a production company of the list tv/networks.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Person -->
+  <owl:Class rdf:about="&tmdb;Person">
+    <rdfs:label xml:lang="en">Person</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the person class.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Production_Company -->
+  <owl:Class rdf:about="&tmdb;Production_Company">
+    <rdfs:label xml:lang="en">Production_Company</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the production companies class. This class represents a production company of the list movie/production_companies.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Production_Country -->
+  <owl:Class rdf:about="&tmdb;Production_Country">
+    <rdfs:label xml:lang="en">Production_Country</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the production country class. This class represents a production country of the list movie/production_countries.</rdfs:comment>
+  </owl:Class>
+
+   <!-- Release_Country -->
+  <owl:Class rdf:about="&tmdb;Release_Country">
+    <rdfs:label xml:lang="en">Release_Country</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the release countries class. This class represents a release country of the list movie/releases/countries.</rdfs:comment>
+  </owl:Class>
+
+  <!-- Spoken_Language -->
+  <owl:Class rdf:about="&tmdb;Spoken_Language">
+    <rdfs:label xml:lang="en">Spoken_Language</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the spoken languages class. This class represents a spoken language of the list movie/spoken_languages.</rdfs:comment>
+  </owl:Class>
+
+  <!-- TV -->
+  <owl:Class rdf:about="&tmdb;TV">
+    <rdfs:label xml:lang="en">TV</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the tv (series) class.</rdfs:comment>
+  </owl:Class>
+
+  <!-- TV_Season -->
+  <owl:Class rdf:about="&tmdb;TV_Season">
+    <rdfs:label xml:lang="en">TV_Season</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the tv seasons class.</rdfs:comment>
+  </owl:Class>
+
+  <!-- TV_Episode -->
+  <owl:Class rdf:about="&tmdb;TV_Episode">
+    <rdfs:label xml:lang="en">TV_Episode</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the tv episodes class.</rdfs:comment>
+  </owl:Class>
+
+  <!-- PROPERTIES -->
+
+  <!-- cast: cast_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;cast/cast_id">
+    <rdfs:label xml:lang="en">cast: cast_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the cast id of the cast member.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- cast: character -->
+  <owl:ObjectProperty rdf:about="&tmdb;cast/character">
+    <rdfs:label xml:lang="en">cast: character</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the character of the cast member.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- cast: credit_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;cast/credit_id">
+    <rdfs:label xml:lang="en">cast: credit_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the credit id of the cast member.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- cast: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;cast/id">
+    <rdfs:label xml:lang="en">cast: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the cast member.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- cast: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;cast/name">
+    <rdfs:label xml:lang="en">cast: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of the cast member.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- cast: order -->
+  <owl:ObjectProperty rdf:about="&tmdb;cast/order">
+    <rdfs:label xml:lang="en">cast: order</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the order of the cast member.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- cast: profile_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;cast/profile_path">
+    <rdfs:label xml:lang="en">cast: profile_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the profile path of the cast member.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- crew: credit_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;crew/credit_id">
+    <rdfs:label xml:lang="en">crew: credit_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the credit id of the crew member.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- crew: department -->
+  <owl:ObjectProperty rdf:about="&tmdb;crew/department">
+    <rdfs:label xml:lang="en">crew: department</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the department of the crew member.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- crew: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;crew/id">
+    <rdfs:label xml:lang="en">crew: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the crew member.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- crew: job -->
+  <owl:ObjectProperty rdf:about="&tmdb;crew/job">
+    <rdfs:label xml:lang="en">crew: job</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the job of the crew member.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- crew: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;crew/name">
+    <rdfs:label xml:lang="en">crew: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of the crew member.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- crew: profile_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;crew/profile_path">
+    <rdfs:label xml:lang="en">crew: profile_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the profile path of the crew member.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- genres: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;genres/id">
+    <rdfs:label xml:lang="en">genres: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of a genre.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Genre"/>
+  </owl:ObjectProperty>
+
+  <!-- genres: name-->
+  <owl:ObjectProperty rdf:about="&tmdb;genres/name">
+    <rdfs:label xml:lang="en">genres: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of a genre.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Genre"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: adult -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/adult">
+    <rdfs:label xml:lang="en">movie: adult</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies if the movie is for adults only.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;boolean"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: alternative_titles: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/alternative_titles/id">
+    <rdfs:label xml:lang="en">movie: alternative_titles: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of alternative titles of the movie. This property is identical with the id of the movie (movie/id).</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: alternative_titles: titles  -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/alternative_titles/titles">
+    <rdfs:label xml:lang="en">movie: alternative_titles: titles</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the alternative titles of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Alternative_Title"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: alternative_titles: titles: iso_3166_1  -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/alternative_titles/titles/iso_3166_1">
+    <rdfs:label xml:lang="en">movie: alternative_titles: titles: iso_3166_1</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the ISO for an alternative title of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Alternative_Title"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: alternative_titles: titles: title  -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/alternative_titles/titles/title">
+    <rdfs:label xml:lang="en">movie: alternative_titles: titles: title</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the title for an alternative title of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Alternative_Title"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: backdrop_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/backdrop_path">
+    <rdfs:label xml:lang="en">movie: backdrop_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the backdrop path of a movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: belongs_to_collection: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/belongs_to_collection/id">
+    <rdfs:label xml:lang="en">movie: belongs_to_collection: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of a collection a movie belongs to. If belongs_to_collection has the value 'null', this property should not be used.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: belongs_to_collection: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/belongs_to_collection/name">
+    <rdfs:label xml:lang="en">movie: belongs_to_collection: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of a collection a movie belongs to. If belongs_to_collection has the value 'null', this property should not be used.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: belongs_to_collection: poster_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/belongs_to_collection/poster_path">
+    <rdfs:label xml:lang="en">movie: belongs_to_collection: poster_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the poster path of a collection a movie belongs to. If belongs_to_collection has the value 'null', this property should not be used.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: belongs_to_collection: backdrop_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/belongs_to_collection/backdrop_path">
+    <rdfs:label xml:lang="en">movie: belongs_to_collection: backdrop_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the backdrop path of a collection a movie belongs to. If belongs_to_collection has the value 'null', this property should not be used.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: budget -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/budget">
+    <rdfs:label xml:lang="en">movie: budget</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the budget of a movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;long"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: credits: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/credits/id">
+    <rdfs:label xml:lang="en">movie: credits: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the credits of the movie. This property is identical with the id of the movie (movie/id).</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;long"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: credits: cast -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/credits/cast">
+    <rdfs:label xml:lang="en">movie: credits: cast</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the cast of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Cast"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: credits: cast: cast_id -->
+  <!-- use 'cast/cast_id' -->
+
+  <!-- movie: credits: cast: character -->
+  <!-- use 'cast/character' -->
+
+  <!-- movie: credits: cast: credit_id -->
+  <!-- use 'cast/credit_id' -->
+
+  <!-- movie: credits: cast: id -->
+  <!-- use 'cast/id' -->
+
+  <!-- movie: credits: cast: name -->
+  <!-- use 'cast/name' -->
+
+  <!-- movie: credits: cast: order -->
+  <!-- use 'cast/order' -->
+
+  <!-- movie: credits: cast: profile_path -->
+  <!-- use 'cast/profile_path' -->
+
+  <!-- movie: credits: crew -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/credits/crew">
+    <rdfs:label xml:lang="en">movie: credits: crew</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the crew of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Crew"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: credits: crew: credit_id -->
+  <!-- use 'crew/credit_id' -->
+
+  <!-- movie: credits: crew: department -->
+  <!-- use 'crew/department' -->
+
+  <!-- movie: credits: crew: id -->
+  <!-- use 'crew/id' -->
+
+  <!-- movie: credits: crew: job -->
+  <!-- use 'crew/job' -->
+
+  <!-- movie: credits: crew: name -->
+  <!-- use 'crew/name' -->
+
+  <!-- movie: credits: crew: profile_path -->
+  <!-- use 'crew/profile_path' -->
+
+  <!-- movie: genres -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/genres">
+    <rdfs:label xml:lang="en">movie: genres: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the genre of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Genre"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: genres: id -->
+  <!-- use 'genres/id' -->
+
+  <!-- movie: genres: name -->
+  <!-- use 'genres/name' -->
+
+  <!-- movie: homepage -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/homepage">
+    <rdfs:label xml:lang="en">movie: homepage</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the homepage of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/id">
+    <rdfs:label xml:lang="en">movie: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: imdb_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/imdb_id">
+    <rdfs:label xml:lang="en">movie: imdb_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the IMDb id of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: original_title -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/original_title">
+    <rdfs:label xml:lang="en">movie: original_title</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the original title of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: overview -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/overview">
+    <rdfs:label xml:lang="en">movie: overview</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies an overview (a short description) of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: popularity -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/popularity">
+    <rdfs:label xml:lang="en">movie: popularity</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the popularity of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;decimal"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: poster_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/poster_path">
+    <rdfs:label xml:lang="en">movie: poster_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the poster path of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: production_companies -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/production_companies">
+    <rdfs:label xml:lang="en">movie: production_companies</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the production companies of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Production_Company"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: production_companies: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/production_companies/id">
+    <rdfs:label xml:lang="en">movie: production_companies: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of a production company of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;long"/>
+    <rdfs:domain rdf:resource="&tmdb;Production_Company"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: production_companies: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/production_companies/name">
+    <rdfs:label xml:lang="en">movie: production_companies: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of a production company of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Production_Company"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: production_countries -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/production_countries">
+    <rdfs:label xml:lang="en">movie: production_countries</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the production countries of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Production_Country"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: production_countries: iso_639_1 -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/production_countries/iso_639_1">
+    <rdfs:label xml:lang="en">movie: production_countries: iso_639_1</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the ISO of a production country of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Production_Country"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: production_countries: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/production_countries/name">
+    <rdfs:label xml:lang="en">movie: production_countries: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of a production country of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Production_Country"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: release_date -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/release_date">
+    <rdfs:label xml:lang="en">movie: release_date</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the release date of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: releases: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/releases/id">
+    <rdfs:label xml:lang="en">movie: releases: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the releases of the movie. This property is identical with the id of the movie (movie/id).</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: releases: countries -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/releases/countries">
+    <rdfs:label xml:lang="en">movie: releases: countries</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the countries of the releases of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Release_Country"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: releases: countries: iso_3166_1 -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/releases/countries/iso_3166_1">
+    <rdfs:label xml:lang="en">movie: releases: countries: iso_3166_1</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the ISO of the release country of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Release_Country"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: releases: countries: certification -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/releases/countries/certification">
+    <rdfs:label xml:lang="en">movie: releases: countries: certification</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the certification of the release country of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Release_Country"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: releases: countries: release_date -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/releases/countries/release_date">
+    <rdfs:label xml:lang="en">movie: releases: countries: release_date</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the release date of the release country of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Release_Country"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: revenue -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/revenue">
+    <rdfs:label xml:lang="en">movie: revenue</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the revenue of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;long"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: runtime -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/runtime">
+    <rdfs:label xml:lang="en">movie: runtime</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the runtime of the movie in minutes.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: similar -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/runtime">
+    <rdfs:label xml:lang="en">movie: runtime</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the runtime of the movie in minutes.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: spoken_languages -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/spoken_languages">
+    <rdfs:label xml:lang="en">movie: spoken_languages</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the spoken languages of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Spoken_Language"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: spoken_languages -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/spoken_languages">
+    <rdfs:label xml:lang="en">movie: spoken_languages</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the spoken languages of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Spoken_Language"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: spoken_languages: iso_639_1 -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/spoken_languages/iso_639_1">
+    <rdfs:label xml:lang="en">movie: spoken_languages: iso_639_1</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the ISO of a spoken language of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Spoken_Language"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: spoken_languages: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/spoken_languages/name">
+    <rdfs:label xml:lang="en">movie: spoken_languages: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of a spoken language of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Spoken_Language"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: status -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/status">
+    <rdfs:label xml:lang="en">movie: status</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the status of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: tagline -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/tagline">
+    <rdfs:label xml:lang="en">movie: tagline</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the tagline of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: title -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/title">
+    <rdfs:label xml:lang="en">movie: title</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the title of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: translations: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/translations/id">
+    <rdfs:label xml:lang="en">movie: translations: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the translations of the movie. This property is identical with the id of the movie (movie/id).</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: translations: translations -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/translations/translations">
+    <rdfs:label xml:lang="en">movie: translations: translations</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the translations of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;Translation"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: translations: translations: iso_639_1 -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/translations/translations/iso_639_1">
+    <rdfs:label xml:lang="en">movie: translations: translations: iso_639_1</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the ISO of the translation of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Translation"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: translations: translations: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/translations/translations/name">
+    <rdfs:label xml:lang="en">movie: translations: translations: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of the translation of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Translation"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: translations: translations: english_name -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/translations/translations/english_name">
+    <rdfs:label xml:lang="en">movie: translations: translations: english_name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the English name of the translation of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Translation"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: vote_average -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/vote_average">
+    <rdfs:label xml:lang="en">movie: vote_average</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the vote average of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;decimal"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- movie: vote_count -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/vote_count">
+    <rdfs:label xml:lang="en">movie: vote_count</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the vote count of the movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
+  <!-- person: adult -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/adult">
+    <rdfs:label xml:lang="en">person: adult</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies if the person is for adults only.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;boolean"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: also_known_as -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/also_known_as">
+    <rdfs:label xml:lang="en">person: also_known_as</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies other names the person is also known as.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: biography -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/biography">
+    <rdfs:label xml:lang="en">person: biography</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the biography of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: birthday -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/birthday">
+    <rdfs:label xml:lang="en">person: birthday</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the birthday of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/id">
+    <rdfs:label xml:lang="en">person: combined_credits: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the combined credits of the person. This property is identical to the ID of the person (person/id).</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast">
+    <rdfs:label xml:lang="en">person: combined_credits: cast</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the combined cast of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Combined_Cast"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast: adult -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/adult">
+    <rdfs:label xml:lang="en">person: combined_credits: cast: adult</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies if the cast's film of the person is for adults only.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;boolean"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast: character -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/character">
+    <rdfs:label xml:lang="en">person: combined_credits: cast: character</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the character of the cast of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;boolean"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast: credit_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/credit_id">
+    <rdfs:label xml:lang="en">person: combined_credits: cast: credit_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the credit id of the cast of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/id">
+    <rdfs:label xml:lang="en">person: combined_credits: cast: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the cast of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast: original_title -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/original_title">
+    <rdfs:label xml:lang="en">person: combined_credits: cast: original_title</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the original title of the cast of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast: poster_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/poster_path">
+    <rdfs:label xml:lang="en">person: combined_credits: cast: poster_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the poster path of the cast of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast: release_date -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/release_date">
+    <rdfs:label xml:lang="en">person: combined_credits: cast: release_date</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the release date of the cast's film of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast: title -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/title">
+    <rdfs:label xml:lang="en">person: combined_credits: cast: title</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the title of the cast's film of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: cast: media_type -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/media_type">
+    <rdfs:label xml:lang="en">person: combined_credits: cast: media_type</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the media type of the cast of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew">
+    <rdfs:label xml:lang="en">person: combined_credits: crew</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the combined crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Combined_Crew"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: deathday -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/deathday">
+    <rdfs:label xml:lang="en">person: deathday</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the deathday of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: external_ids: imdb_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/external_ids/imdb_id">
+    <rdfs:label xml:lang="en">person: external_ids: imdb_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the IMDb-ID of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: external_ids: freebase_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/external_ids/freebase_id">
+    <rdfs:label xml:lang="en">person: external_ids: freebase_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the Freebase-ID of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: external_ids: freebase_mid -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/external_ids/freebase_mid">
+    <rdfs:label xml:lang="en">person: external_ids: freebase_mid</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the Freebase-MID of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: external_ids: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/external_ids/id">
+    <rdfs:label xml:lang="en">person: external_ids: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the ID of the person. This property is identical with the ID of the person (person/id).</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: external_ids: tvrage_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/external_ids/tvrage_id">
+    <rdfs:label xml:lang="en">person: external_ids: tvrage_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the TVrage-ID of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: homepage -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/homepage">
+    <rdfs:label xml:lang="en">person: homepage</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the homepage of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/id">
+    <rdfs:label xml:lang="en">person: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the ID of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/name">
+    <rdfs:label xml:lang="en">person: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: place_of_birth -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/place_of_birth">
+    <rdfs:label xml:lang="en">person: place_of_birth</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the place of birth of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: profile_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/profile_path">
+    <rdfs:label xml:lang="en">person: profile_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the profile path of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: backdrop_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/backdrop_path">
+    <rdfs:label xml:lang="en">tv: backdrop_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the backdrop path of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: created_by -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/created_by">
+    <rdfs:label xml:lang="en">tv: created_by</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the creators of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Creator"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: created_by: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/created_by/id">
+    <rdfs:label xml:lang="en">tv: created_by: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the creator of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Creator"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: created_by: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/created_by/name">
+    <rdfs:label xml:lang="en">tv: created_by: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of the creator of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Creator"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: created_by: profile_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/created_by/profile_path">
+    <rdfs:label xml:lang="en">tv: created_by: profile_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the profile path of the creator of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Creator"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: credits: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/credits/id">
+    <rdfs:label xml:lang="en">tv: credits: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the credits of the tv series. This property is identical with the id of the movie (tv/id).</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: credits: cast -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/credits/cast">
+    <rdfs:label xml:lang="en">tv: credits: cast</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the cast of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Cast"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: credits: cast: cast_id -->
+  <!-- use 'cast/cast_id' -->
+
+  <!-- tv: credits: cast: character -->
+  <!-- use 'cast/character' -->
+
+  <!-- tv: credits: cast: credit_id -->
+  <!-- use 'cast/credit_id' -->
+
+  <!-- tv: credits: cast: id -->
+  <!-- use 'cast/id' -->
+
+  <!-- tv: credits: cast: name -->
+  <!-- use 'cast/name' -->
+
+  <!-- tv: credits: cast: order -->
+  <!-- use 'cast/order' -->
+
+  <!-- tv: credits: cast: profile_path -->
+  <!-- use 'cast/profile_path' -->
+
+  <!-- tv: credits: crew -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/credits/crew">
+    <rdfs:label xml:lang="en">tv: credits: crew</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the crew of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Crew"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: credits: crew: credit_id -->
+  <!-- use 'crew/credit_id' -->
+
+  <!-- tv: credits: crew: department -->
+  <!-- use 'crew/department' -->
+
+  <!-- tv: credits: crew: id -->
+  <!-- use 'crew/id' -->
+
+  <!-- tv: credits: crew: job -->
+  <!-- use 'crew/job' -->
+
+  <!-- tv: credits: crew: name -->
+  <!-- use 'crew/name' -->
+
+  <!-- tv: credits: crew: profile_path -->
+  <!-- use 'crew/profile_path' -->
+
+  <!-- tv: episode_run_time -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/episode_run_time">
+    <rdfs:label xml:lang="en">tv: episode_run_time</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the episode runtime of the tv series in minutes. Can have several runtimes.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: external_ids: imdb_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/external_ids/imdb_id">
+    <rdfs:label xml:lang="en">tv: external_ids: imdb_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the IMDb-ID of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: external_ids: freebase_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/external_ids/freebase_id">
+    <rdfs:label xml:lang="en">tv: external_ids: freebase_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the Freebase-ID of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: external_ids: freebase_mid -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/external_ids/freebase_mid">
+    <rdfs:label xml:lang="en">tv: external_ids: freebase_mid</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the Freebase-MID of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: external_ids: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/external_ids/id">
+    <rdfs:label xml:lang="en">tv: external_ids: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the ID of the tv series. This property is identical with the ID of the tv series (tv/id).</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: external_ids: tvdb_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/external_ids/tvdb_id">
+    <rdfs:label xml:lang="en">tv: external_ids: tvdb_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the TVDb-ID of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: external_ids: tvrage_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/external_ids/tvrage_id">
+    <rdfs:label xml:lang="en">tv: external_ids: tvrage_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the TVrage-ID of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: first_air_date -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/first_air_date">
+    <rdfs:label xml:lang="en">tv: first_air_date</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the first air date of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: genres -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/genres">
+    <rdfs:label xml:lang="en">tv: genres</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the genres of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Genre"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: genres: id -->
+  <!-- use 'genres/id' -->
+
+  <!-- tv: genres: name -->
+  <!-- use 'genres/name' -->
+
+  <!-- tv: homepage -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/homepage">
+    <rdfs:label xml:lang="en">tv: homepage</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the homepage of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/id">
+    <rdfs:label xml:lang="en">tv: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: in_production -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/in_production">
+    <rdfs:label xml:lang="en">tv: in_production</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies if the tv series is still in production.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;boolean"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: languages -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/languages">
+    <rdfs:label xml:lang="en">tv: languages</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the languages of the tv series. Often ISO format is given. (Could propably be mapped to class Spoken_Language.)</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: last_air_date -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/last_air_date">
+    <rdfs:label xml:lang="en">tv: last_air_date</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the last air date of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/name">
+    <rdfs:label xml:lang="en">tv: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: networks -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/networks">
+    <rdfs:label xml:lang="en">tv: networks</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the networks of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Network"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: networks: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/networks/id">
+    <rdfs:label xml:lang="en">tv: networks: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the network of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Network"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: networks: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/networks/name">
+    <rdfs:label xml:lang="en">tv: networks: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of the network of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Network"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: number_of_episodes -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/number_of_episodes">
+    <rdfs:label xml:lang="en">tv: number_of_episodes</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the number of episodes of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: number_of_seasons -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/number_of_seasons">
+    <rdfs:label xml:lang="en">tv: number_of_seasons</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the number of seasons of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: original_name -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/original_name">
+    <rdfs:label xml:lang="en">tv: original_name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the original name of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: origin_country -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/origin_country">
+    <rdfs:label xml:lang="en">tv: origin_country</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the origin country of the tv series. Can occur several times for one TV series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: overview -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/overview">
+    <rdfs:label xml:lang="en">tv: overview</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies an overview (a short description) of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: popularity -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/popularity">
+    <rdfs:label xml:lang="en">tv: popularity</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the popularity of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;decimal"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: poster_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/poster_path">
+    <rdfs:label xml:lang="en">tv: poster_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the poster path of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: air_date -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/air_date">
+    <rdfs:label xml:lang="en">tv: season: air_date</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the air date of the tv season.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Season"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: air_date -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/air_date">
+    <rdfs:label xml:lang="en">tv: season: episode: air_date</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the air date of the tv episode.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: episode_number -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/episode_number">
+    <rdfs:label xml:lang="en">tv: season: episode: episode_number</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the episode number of the tv episode.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/name">
+    <rdfs:label xml:lang="en">tv: season: episode: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of the tv episode.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: overview -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/overview">
+    <rdfs:label xml:lang="en">tv: season: episode: overview</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies an overview (a short description) of the tv episode.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/id">
+    <rdfs:label xml:lang="en">tv: season: episode: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the tv episode.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: production_code -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/production_code">
+    <rdfs:label xml:lang="en">tv: season: episode: production_code</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the production code of the tv episode. (Note: No episode containing the production code was found so far. But it should be a string.)</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: season_number -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/season_number">
+    <rdfs:label xml:lang="en">tv: season: episode: season_number</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the season number of the tv episode.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: still_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/still_path">
+    <rdfs:label xml:lang="en">tv: season: episode: still_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the still path of the tv episode.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: vote_average -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/vote_average">
+    <rdfs:label xml:lang="en">tv: season: episode: vote_average</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the vote average of the tv episode.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;decimal"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episode: vote_count -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episode/vote_count">
+    <rdfs:label xml:lang="en">tv: season: episode: vote_count</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the vote count of the tv episode.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Episode"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episodes -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/episodes">
+    <rdfs:label xml:lang="en">tv: season: episodes</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the episodes of the tv season.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;TV_Episode"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Season"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: episodes: air_date -->
+  <!-- use 'tv/season/episode/air_date' -->
+
+  <!-- tv: season: episodes: episode_number -->
+  <!-- use 'tv/season/episode/episode_number' -->
+
+  <!-- tv: season: episodes: name -->
+  <!-- use 'tv/season/episode/name' -->
+
+  <!-- tv: season: episodes: overview -->
+  <!-- use 'tv/season/episode/overview' -->
+
+  <!-- tv: season: episodes: still_path -->
+  <!-- use 'tv/season/episode/still_path' -->
+
+  <!-- tv: season: episodes: vote_average -->
+  <!-- use 'tv/season/episode/vote_average' -->
+
+  <!-- tv: season: episodes: vote_count -->
+  <!-- use 'tv/season/episode/vote_count' -->
+
+  <!-- tv: season: name -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/name">
+    <rdfs:label xml:lang="en">tv: season: name</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the name of the tv season.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Season"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: overview -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/overview">
+    <rdfs:label xml:lang="en">tv: season: overview</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies an overview (a short description) of the tv season.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Season"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/id">
+    <rdfs:label xml:lang="en">tv: season: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the tv season.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Season"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: poster_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/poster_path">
+    <rdfs:label xml:lang="en">tv: season: poster_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the poster path of the tv season.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Season"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: season: season_number -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/season/season_number">
+    <rdfs:label xml:lang="en">tv: season: season_number</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the season number of the tv season.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV_Season"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: seasons -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/seasons">
+    <rdfs:label xml:lang="en">tv: seasons</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the seasons of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;TV_Season"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: seasons: air_date -->
+  <!-- use 'tv/season/air_date' -->
+
+  <!-- tv: seasons: poster_path -->
+  <!-- use 'tv/season/poster_path' -->
+
+  <!-- tv: seasons: season_number -->
+  <!-- use 'tv/season/season_number' -->
+
+  <!-- tv: status -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/status">
+    <rdfs:label xml:lang="en">tv: status</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the status of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: translations: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/translations/id">
+    <rdfs:label xml:lang="en">tv: translations: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of translations of the tv series. This property is identical with the ID of the tv series (tv/id).</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: translations: translations -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/translations/translations">
+    <rdfs:label xml:lang="en">tv: translations: translations</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the translations of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Translation"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: vote_average -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/vote_average">
+    <rdfs:label xml:lang="en">tv: vote_average</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the vote average of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;decimal"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+  <!-- tv: vote_count -->
+  <owl:ObjectProperty rdf:about="&tmdb;tv/vote_count">
+    <rdfs:label xml:lang="en">tv: vote_count</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the vote count of the tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;TV"/>
+  </owl:ObjectProperty>
+
+</rdf:RDF>
