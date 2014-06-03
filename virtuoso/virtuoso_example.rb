@@ -7,11 +7,11 @@ require 'rdf/virtuoso'
 class VirtuosoExample
   def initialize
     @secrets ||= YAML.load_file 'secrets.yml'
-    @repo       = RDF::Virtuoso::Repository.new("http://localhost:8890/sparql",
-                                               update_uri: "http://localhost:8890/sparql-auth",
-                                               username: 'SPARQL',
-                                               password: @secrets['services']['virtuoso']['users']['SPARQL'],
-                                               auth_method: 'digest')
+    @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
+                                           update_uri: 'http://localhost:8890/sparql-auth',
+                                           username: @secrets['services']['virtuoso']['username'],
+                                           password: @secrets['services']['virtuoso']['password'],
+                                           auth_method: 'digest')
   end
 
 
@@ -31,9 +31,9 @@ class VirtuosoExample
     #query = RDF::Virtuoso::Query.select.where([:s, predicate, :o]).graph(graph)
 
     #or as string
-    query_2 = "select * where {?s ?p ?o}"
+    query_2 = 'select * where {?s ?p ?o}'
 
-    endpoint = "http://localhost:8890/sparql"
+    endpoint = 'http://localhost:8890/sparql'
     #endpoint = "http://dbpedia.org/sparql"
 
     run_query(endpoint, query).each_solution do |solution|
@@ -44,12 +44,12 @@ class VirtuosoExample
 
 
   def write_example
-    graph = RDF::URI.new("http://test.com")
+    graph = RDF::URI.new('http://test.com')
 
-    subject = RDF::URI.new("http://subject")
-    predicate = RDF::URI.new("http://predicate")
+    subject = RDF::URI.new('http://subject')
+    predicate = RDF::URI.new('http://predicate')
 
-    query = RDF::Virtuoso::Query.insert([subject, predicate, "literal_object"]).graph(graph)
+    query = RDF::Virtuoso::Query.insert([subject, predicate, 'literal_object']).graph(graph)
     p @repo.insert(query)
   end
 end
