@@ -11,7 +11,7 @@ it should be running):
 
 	sudo apt-get install rabbitmq-server
 
-Install the bunny gem:
+Install the bunny gem (or use bundle install):
 
 	sudo gem install bunny
 
@@ -25,7 +25,7 @@ Includes query mechanisms, adapters for several storage systems
 as well as several data formats (RDF/XML, Turtle et cetera).
 
 Install the linkeddata gem, which incorporates the core gems (this takes a while,
-like several minutes):
+like several minutes) (or use bundle install):
 
 	sudo gem install linkeddata 
 
