@@ -1,0 +1,12 @@
+crawler:
+  empty_queue_sleep_seconds: 5
+
+queue:
+  agent_id: "dbpedia_crawler"
+
+source:
+  endpoint: "http://dbpedia.org/sparql"
+
+writer:
+  endpoint: "http://localhost:8890/sparql"
+  graph: "http://example.com/raw/"

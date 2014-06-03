@@ -4,6 +4,6 @@ task :default => [:test]
 
 Rake::TestTask.new do |test| 
   test.libs << "test" 
-  test.test_files = Dir["lib/test/test_*.rb"] 
-  test.verbose = true
+  test.test_files = Dir["test/test_*.rb"] 
+  test.verbose = false
 end
