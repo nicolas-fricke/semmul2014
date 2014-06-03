@@ -2,3 +2,5 @@ source 'https://rubygems.org'
 
 gem 'themoviedb', '~> 0.0.21'
 gem 'bunny', '~> 1.2.2'
+gem 'rdf', '~> 1.1.4'
+gem 'sparql', '~> 1.1.3'

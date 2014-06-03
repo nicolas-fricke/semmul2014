@@ -3,36 +3,26 @@ require 'themoviedb'
 
 class Updater
   def initialize
-    @receiver = MsgReceiver.new
     initialize_tmdb_api
+    @receiver = MsgConsumer.new
+    @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
   end
 
-  def fetch_movies_recursively(page: 1, verbose: false)
-    tmdb_search = Tmdb::Search.new('/discover/movie')
-    tmdb_search.filter(page: page)
-    tmdb_result = tmdb_search.fetch_response
-    tmdb_result['results'].each do |movie|
-      @publisher.enqueue_id :movie_id, movie['id']
-    end
+  def update(movie_id)
+    movie_details = get_info_for_movie_with_id movie_id
+    puts movie_details
+  end
 
-    if page < tmdb_result['total_pages']
-      next_page = page + 1
+  def get_info_for_movie_with_id(movie_id, attempt: 0)
+    Tmdb::Movie.detail movie_id
+  rescue SocketError => e
+    if attempt < 10
+      puts "  !!! A socket error occurred, retrying (#{attempt} retries already, id: #{movie_id})"
+      get_info_for_movie_with_id movie_id, attempt: (attempt + 1)
     else
-      next_page = 1
+      puts "  !!! A socket error occurred 10 times, cancel retry for movie with id #{movie_id}"
+      raise e
     end
-
-    puts "  Fetched page #{page}, continuing with page #{next_page}" if verbose
-
-    fetch_movies_recursively(page: next_page, verbose: verbose)
-  rescue SocketError
-    puts '  !!! A socket error occurred, retrying'
-    fetch_movies_recursively(page: page, verbose: verbose)
-  end
-
-  def fetch_movie_ids(verbose: false)
-    puts 'Start fetching movie ids...' if verbose
-
-    fetch_movies_recursively(verbose: verbose)
   end
 
   private
