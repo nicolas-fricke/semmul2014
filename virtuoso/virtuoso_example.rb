@@ -6,14 +6,13 @@ require 'rdf/virtuoso'
 
 class VirtuosoExample
   def initialize
-    @secrets ||= YAML.load_file 'secrets.yml'
+    secrets = YAML.load_file 'secrets.yml'
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                            update_uri: 'http://localhost:8890/sparql-auth',
-                                           username: @secrets['services']['virtuoso']['username'],
-                                           password: @secrets['services']['virtuoso']['password'],
+                                           username: secrets['services']['virtuoso']['username'],
+                                           password: secrets['services']['virtuoso']['password'],
                                            auth_method: 'digest')
   end
-
 
   def run_query(endpoint, query)
     result = SPARQL::Client.new(endpoint).query(query)
