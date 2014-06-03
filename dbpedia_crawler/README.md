@@ -38,7 +38,7 @@ building Ruby extensions):
 
 	sudo apt-get install ruby-dev
 
-## Using RDF::Client with Virtuoso:
+## Using RDF::Client with Virtuoso
 
 For Virtuoso to accept SPARQL Updates, the user SPARQL must belong to the group SPARQL_UPDATE
 (System Admin => User Accounts => Edit user SPARQL).
