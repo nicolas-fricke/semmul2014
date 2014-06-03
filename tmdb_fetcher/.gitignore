@@ -1,3 +1,14 @@
+# Ignore secrets ;)
+secrets.yml
+
+# Mac Crap
+.DS_Store
+
+# IntelliJ Files
+.idea
+*.iml
+
+# Ruby Stuff
 *.gem
 *.rbc
 .bundle
@@ -15,8 +26,3 @@ spec/reports
 test/tmp
 test/version_tmp
 tmp
-*.bundle
-*.so
-*.o
-*.a
-mkmf.log
