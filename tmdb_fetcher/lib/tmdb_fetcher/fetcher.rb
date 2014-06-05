@@ -1,9 +1,9 @@
 require 'yaml'
 require 'themoviedb'
 
-class Fetcher
+class TMDbFetcher::Fetcher
   def initialize
-    @publisher = MsgPublisher.new
+    @publisher = TMDbFetcher::MsgPublisher.new
     initialize_tmdb_api
   end
 
@@ -26,6 +26,7 @@ class Fetcher
     fetch_movies_recursively(page: next_page, verbose: verbose)
   rescue SocketError
     puts '  !!! A socket error occurred, retrying'
+    sleep 0.5
     fetch_movies_recursively(page: page, verbose: verbose)
   end
 
