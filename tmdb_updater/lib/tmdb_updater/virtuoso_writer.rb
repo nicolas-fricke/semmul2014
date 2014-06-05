@@ -4,7 +4,7 @@ require 'sparql/client'
 require 'rdf'
 require 'rdf/virtuoso'
 
-class VirtuosoWriter
+class TMDbUpdater::VirtuosoWriter
   def initialize
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                            update_uri: 'http://localhost:8890/sparql-auth',

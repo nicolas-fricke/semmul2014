@@ -1,6 +1,6 @@
 require 'bunny'
 
-class MsgPublisher
+class TMDbUpdater::MsgPublisher
   def initialize
     @connection = Bunny.new
   end

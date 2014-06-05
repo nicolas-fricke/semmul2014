@@ -1,10 +1,13 @@
 require 'yaml'
 require 'themoviedb'
 
-class Updater
+class TMDbUpdater::Updater
   def initialize
     initialize_tmdb_api
-    @receiver = MsgConsumer.new
+  end
+
+  def register_receiver
+    @receiver = TMDbUpdater::MsgConsumer.new
     @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
   end
 
@@ -18,6 +21,7 @@ class Updater
   rescue SocketError => e
     if attempt < 10
       puts "  !!! A socket error occurred, retrying (#{attempt} retries already, id: #{movie_id})"
+      sleep 0.5
       get_info_for_movie_with_id movie_id, attempt: (attempt + 1)
     else
       puts "  !!! A socket error occurred 10 times, cancel retry for movie with id #{movie_id}"

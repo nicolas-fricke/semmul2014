@@ -1,6 +1,6 @@
 require 'bunny'
 
-class MsgConsumer
+class TMDbUpdater::MsgConsumer
   def initialize
     @connection = Bunny.new
   end
@@ -12,7 +12,7 @@ class MsgConsumer
     queue   = channel.queue "lom.source.tmdb.#{type.to_s}", durable: true
     queue.subscribe(manual_ack: true, block: true) do |delivery_info, properties, body|
       block.call body
-      channel.ack(delivery_info.delivery_tag)
+      channel.ack delivery_info.delivery_tag
     end
   rescue Interrupt => _
     @connection.close
