@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 require 'yaml'
-require_relative '../lib/dbpedia_crawler/crawler'
+require_relative '../lib/dbpedia_crawler'
 
 # Command line application:
 #
