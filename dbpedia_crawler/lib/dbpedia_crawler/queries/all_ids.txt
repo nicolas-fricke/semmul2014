@@ -1,3 +1,6 @@
+#
+# Get all movie IDs.
+#
 SELECT DISTINCT ?movie 
 WHERE {
   {SELECT ?movie WHERE {

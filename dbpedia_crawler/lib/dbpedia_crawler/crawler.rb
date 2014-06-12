@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require "linkeddata"
 require_relative "queue"
 require_relative "source"
@@ -13,11 +15,11 @@ require_relative "writer"
 #
 # TODO: query all movie IDs
 # TODO: query all relevant IDs (movies + shows)
-# TODO: query entity data and add it to the data store
-# TODO: define an interface of commands
-#
-# TODO: use a gemfile
-# TODO: for all components: check that configuration options are present and valid
+# TODO: query related entity data and add it to the data store
+# 
+# TODO: check bunny options
+# TODO: interface of bunny queues / commands
+# TODO: validate configuration options
 # TODO: logging
 # TODO: error handling
 # TODO: testing :)
@@ -40,7 +42,9 @@ module DBpediaCrawler
     # symbols which denote queries
     QUERIES = [
       # query the IRIs of relevant entities
-      :all_ids
+      :all_ids,
+      :count_ids,
+      :ids_limit_offset
     ]
 
     # load query strings from files
@@ -70,15 +74,21 @@ module DBpediaCrawler
     def execute(command)
       type = command[:command]
       params = command[:params]
-      if type == :all_ids
-        # query all IDs and add corresponding commands to the queue
-        query_all_ids.each do |uri|
-          @queue.push(:crawl_entity, [uri])
+      begin
+        if type == :all_ids
+          raise "Nevermore!"
+          # query all IDs and add corresponding commands to the queue
+          query_all_ids.each do |uri|
+            @queue.push(:crawl_entity, [uri])
+          end
+        elsif type == :crawl_entity
+          uri = params[0]
+          @writer.insert @source.triples_for(uri) if uri
         end
-      elsif type == :crawl_entity
-        # TODO: crawl linked entities (actors, locations...) as well
-        uri = params[0]
-        @writer.insert DBpediaCrawler::Source.triples_for(uri) if uri
+      rescue StandardError => e
+        puts "Execution of command failed: " + e.message
+        puts "Pushing command to the queue again."
+        @queue.push(type, params)
       end
     end
 
@@ -90,7 +100,7 @@ module DBpediaCrawler
 
     # Create a new Crawler using the given configuration hash.
     def initialize(configuration)
-      @sleep_time = configuration["crawler"]["empty_queue_sleep_seconds"]
+      @sleep_time = configuration["crawler"]["sleep_seconds"]
       # create other components with the given configuration
       @queue = DBpediaCrawler::Queue.new configuration["queue"]
       @source = DBpediaCrawler::Source.new configuration["source"]

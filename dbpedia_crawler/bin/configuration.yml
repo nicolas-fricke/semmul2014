@@ -1,12 +1,14 @@
 crawler:
-  empty_queue_sleep_seconds: 5
+  sleep_seconds: 5    # seconds to sleep if command queue is empty
 
 queue:
-  agent_id: "dbpedia_crawler"
+  agent_id: "dbpedia_crawler"    # identifier of this crawler (to determine the queue)
+  purge: true                    # whether to purge the queue on start
 
 source:
-  endpoint: "http://dbpedia.org/sparql"
+  endpoint: "http://dbpedia.org/sparql"    # URI of the SPARQL endpoint
+  query_retries: 5    # number of retries for failed data retrieval
 
 writer:
-  endpoint: "http://localhost:8890/sparql"
-  graph: "http://example.com/raw/"
+  endpoint: "http://localhost:8890/sparql"    # URI of the SPARQL endpoint
+  graph: "http://example.com/raw/"            # named graph for storing data
