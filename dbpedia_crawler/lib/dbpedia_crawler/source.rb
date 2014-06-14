@@ -3,9 +3,6 @@
 require "linkeddata"
 
 # Class Source provides access to a DBpedia.
-#
-# Use Source.query to execute a SPARQL query.
-# Use Source::triples_for for HTTP access to linked data.
 class DBpediaCrawler::Source
 
 private

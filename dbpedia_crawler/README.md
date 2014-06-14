@@ -2,6 +2,19 @@
 
 For crawling DBpedia data (RDF).
 
+## Running several crawlers
+
+The crawler can be run several times (as independent processes) to achieve a
+greater throughput of commands:
+
+First crawler (working directory does not matter, adjust the path as necessary):
+
+	ruby bin/dbpedia_crawler.rb
+
+Further crawlers ("do not push the initial command / do not purge the queue"):
+
+	ruby bin/dbpedia_crawler.rb -crawler:crawl_all_ids:false -queue:purge:false
+
 ## Using Bunny
 
 See https://github.com/ruby-amqp/bunny.
