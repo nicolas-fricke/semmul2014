@@ -8,9 +8,8 @@
 # - Source: provides access to the data of DBpedia
 # - Writer: provides means of persisting crawled data
 #
-# TODO: query all movie IDs
-# TODO: query all relevant IDs (movies + shows)
 # TODO: query related entity data and add it to the data store
+# TODO: query all relevant IDs (movies + shows)
 # TODO: search for updates
 # 
 # TODO: try with other DBpedias
@@ -18,6 +17,7 @@
 # TODO: interface of bunny queues / commands
 # TODO: validate configuration options
 # TODO: logging
+# TODO: (maybe) handle SignalExceptions for proper termination
 # TODO: testing :)
 module DBpediaCrawler
 

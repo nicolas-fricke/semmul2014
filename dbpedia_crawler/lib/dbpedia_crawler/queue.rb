@@ -7,12 +7,38 @@ require "yaml"
 # and allows handling of commands for the crawler.
 class DBpediaCrawler::Queue
 
+  private
+
+  # Purge the queue (i.e., delete all messages from it).
+  # For a very large number of messages, this can cause an exception 
+  # "execution expired", so sleep for a while until the purge is finished.
+  def purge(retries, seconds)
+    puts "Purging the command queue..."
+    begin
+      @queue.purge
+    rescue StandardError => e
+      puts "Purging the query raises exception: " + e.message
+      if retries > 0
+        puts "Sleeping (retries: " + retries.to_s + ")..."
+        sleep seconds
+        retries -= 1
+        retry
+      else
+        raise "purging failed"
+      end
+    end
+  end
+
+  public
+
   # Create a new Queue
   #   configuration: hash
   def initialize(configuration)
     @agent_id = configuration["agent_id"]
     @queue = Bunny.new.start.create_channel.queue("semmul." + @agent_id, durable: true)
-    @queue.purge if configuration["purge"] === true
+    if configuration["purge"] === true
+      purge(configuration["purge_retries"], configuration["purge_sleep_seconds"])
+    end
   end
 
   # Get the next command, converted to a hash.

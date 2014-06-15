@@ -120,7 +120,7 @@ public
   # executes commands.
   def run
     # initial command: query all ids
-    @queue.push :all_ids if @crawl_all_ids
+    @queue.push :all_ids if @crawl_all_ids === true
     # loop: get and execute commands
     loop do
       command = @queue.pop

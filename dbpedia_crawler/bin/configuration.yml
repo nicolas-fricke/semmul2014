@@ -6,6 +6,8 @@ crawler:
 queue:
   agent_id: "dbpedia_crawler"                 # identifier of this crawler (to determine the queue)
   purge: true                                 # whether to purge the queue on start
+  purge_retries: 5                            # retries if purge raises exception for very large queue
+  purge_sleep_seconds: 10                     # how long to sleep before attempting another purge
 
 source:
   endpoint: "http://dbpedia.org/sparql"       # URI of the SPARQL endpoint
