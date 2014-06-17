@@ -42,7 +42,7 @@ public
   end
 
   # Get the next command, converted to a hash.
-  #   result: { command: symbol, params: array } or nil (no message)
+  #   result: { command: symbol, retries: integer, ... } or nil (no message)
   def pop
     begin
       yaml_string = @queue.pop[2] # delivery info, message properties, message content
@@ -56,16 +56,17 @@ public
 
   # Create a command and push it to the queue. The command hash is
   # stringified using yaml (which can be parsed into a hash again without
-  # using the evil "eval").
-  #   command: symbol (e.g. :crawl_ids)
-  #   params: array of strings (may be empty)
-  def push(command, params = [])
-    hash = {command: command, params: params}
+  # using the evil "eval"). The hash may contain:
+  #   command: symbol (e.g. :all_ids), mandatory
+  #   retries: integer (remaining retries), optional (default: 0)
+  #   arbitrary further key/value pairs (options for the command)
+  def push(hash)
+    command = {command: nil, retries: 0}.merge hash
     begin
-      @queue.publish(hash.to_yaml, persistent: true)
+      @queue.publish(command.to_yaml, persistent: true)
     rescue StandardError => e
       puts "# Error while publishing command to queue:"
-      p hash
+      p command
       puts e.message, e.backtrace
     end
   end

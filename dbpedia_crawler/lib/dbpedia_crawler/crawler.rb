@@ -52,8 +52,12 @@ private
     shows = @source.query_with_pagination(@queries[:shows], @queries[:count_shows])
     # create commands for fetching
     puts "Creating commands for fetching..."
-    movies.each { |uri| @queue.push(:crawl_entity, [uri, :movie]) }
-    shows.each { |uri| @queue.push(:crawl_entity, [uri, :show]) }
+    movies.each do |uri| 
+      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: :movie)
+    end
+    shows.each do |uri| 
+      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: :movie) 
+    end
   end
 
   # Query linked data on the given entity and write it to the data store.
@@ -61,22 +65,33 @@ private
     @writer.insert @source.triples_for(uri) if uri
   end
 
-  # Execute a given command
+  # Execute a given command # TODO: retries
   #   command: { command: symbol, params: array }
   def execute(command)
     type = command[:command]
-    params = command[:params]
     begin
       case type
       when :all_ids
         query_all_ids
       when :crawl_entity
-        crawl_entity params[0]
+        crawl_entity command[:uri]
       end
     rescue StandardError => e
       puts "Execution of command failed: " + e.message
-      puts "Pushing command to the queue again."
-      @queue.push(type, params)
+      retry_command command
+    end
+  end
+
+  # Push the given command hash to the queue again if it may be retried.
+  # Otherwise, discard it.
+  def retry_command(command)
+    retries = command[:retries].is_a?(Integer) ? command[:retries] : 0
+    if retries > 0
+      puts "Remaining retries: " + retries.to_s + ". Pushing to the queue again."
+      retries -= 1
+      @queue.push command.merge({retries: retries})
+    else
+      puts "No retries. Discarding command."
     end
   end
 
@@ -103,7 +118,9 @@ public
   # executes commands.
   def run
     # initial command: query all ids
-    @queue.push :all_ids if @config["crawl_all_ids"] === true
+    if @config["crawl_all_ids"] === true
+      @queue.push(command: :all_ids, retries: @config["command_retries"])
+    end
     # loop: get and execute commands
     loop do
       command = @queue.pop

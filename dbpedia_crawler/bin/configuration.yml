@@ -1,5 +1,6 @@
 crawler:
   crawl_all_ids: true                         # whether to push the initial command on start
+  command_retries: 1                          # number of retries for failed commands
   sleep_seconds: 5                            # seconds to sleep if command queue is empty
 
 queue:
