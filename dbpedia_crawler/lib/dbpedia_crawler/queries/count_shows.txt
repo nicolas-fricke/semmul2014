@@ -1,0 +1,14 @@
+#
+# Count distinct shows.
+# Result from 17.06.2014: 25630
+#
+SELECT (COUNT(DISTINCT ?show) AS ?result)
+WHERE {
+  {SELECT DISTINCT ?show WHERE {
+      {
+        SELECT ?show WHERE { ?show rdf:type/rdfs:subClassOf* dbpedia-owl:TelevisionShow . }
+      }
+    FILTER NOT EXISTS { ?show dbpedia-owl:wikiPageDisambiguates ?other . }
+    FILTER NOT EXISTS { ?show dbpedia-owl:wikiPageRedirects ?other . }
+  }}
+}

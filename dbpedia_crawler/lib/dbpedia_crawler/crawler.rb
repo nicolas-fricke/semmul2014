@@ -21,9 +21,10 @@ private
 
   # symbols which denote queries
   QUERIES = [
-    :all_ids,          # query all relevant IDs
-    :count_ids,        # query number of relevant IDs
-    :ids_limit_offset  # query a specific part of relevant IDs
+    :count_movies,  # query number of distinct movies
+    :movies,        # query a page of movies
+    :count_shows,   # query number of distinct shows
+    :shows          # query a page of shows
   ]
 
   # load query strings from files
@@ -40,35 +41,19 @@ private
   # commands
   #
 
-  # Helper for printing a message like
-  # "Querying results 10000 - 19999...",
-  # while handling a paginated query.
-  def print_query_page_message(count, limit, offset)
-    first_string = offset.to_s.rjust(count.to_s.length)
-    last_string = [count, offset + limit - 1].min.to_s.rjust(count.to_s.length)
-    puts "Querying results " + first_string + " to " + last_string + "..."
-  end
-
   # Query all IDs of relevant entities. Add corresponding commands (fetch
-  # linked data on these IDs) to the queue. Pagination is used.
+  # linked data on these IDs) to the queue. Pagination is used for querying
+  # but fetching commands are created after querying to achieve atomicity.
   def query_all_ids
-    # get the number of URIs
-    count = @source.query(@queries[:count_ids])[0][:result].to_s.to_i
-    puts "Number of URIs: " + count.to_s
-    # query with pages
-    result = []
-    (0..(count / @page_size).floor).each do |page_number|
-      # get query string and apply parameters
-      query = @queries[:ids_limit_offset].clone
-      query["<<limit>>"]= @page_size.to_s
-      query["<<offset>>"]= (page_number * @page_size).to_s
-      # query and append results
-      print_query_page_message(count, @page_size, page_number * @page_size)
-      result.concat(@source.query(query).map { |solution| solution[:movie].to_s })
-    end
+    # get all movies
+    puts "Fetching movies..."
+    movies = @source.query_with_pagination(@queries[:movies], @queries[:count_movies])
+    puts "Fetching shows..."
+    shows = @source.query_with_pagination(@queries[:shows], @queries[:count_shows])
     # create commands for fetching
     puts "Creating commands for fetching..."
-    result.each { |uri| @queue.push(:crawl_entity, [uri]) }
+    movies.each { |uri| @queue.push(:crawl_entity, [uri, :movie]) }
+    shows.each { |uri| @queue.push(:crawl_entity, [uri, :show]) }
   end
 
   # Query linked data on the given entity and write it to the data store.
@@ -82,9 +67,10 @@ private
     type = command[:command]
     params = command[:params]
     begin
-      if type == :all_ids
+      case type
+      when :all_ids
         query_all_ids
-      elsif type == :crawl_entity
+      when :crawl_entity
         crawl_entity params[0]
       end
     rescue StandardError => e
@@ -102,11 +88,8 @@ public
 
   # Create a new Crawler using the given configuration hash.
   def initialize(configuration)
-    # get configuration values
-    config = configuration["crawler"]
-    @crawl_all_ids = config["crawl_all_ids"]
-    @page_size = config["page_size"]
-    @sleep_time = config["sleep_seconds"]
+    # get configuration
+    @config = configuration["crawler"]
     # create other components with the given configuration
     @queue = DBpediaCrawler::Queue.new configuration["queue"]
     @source = DBpediaCrawler::Source.new configuration["source"]
@@ -120,7 +103,7 @@ public
   # executes commands.
   def run
     # initial command: query all ids
-    @queue.push :all_ids if @crawl_all_ids === true
+    @queue.push :all_ids if @config["crawl_all_ids"] === true
     # loop: get and execute commands
     loop do
       command = @queue.pop
@@ -130,7 +113,7 @@ public
       else
         # no command available: sleep
         puts "Sleeping..."
-        sleep @sleep_time
+        sleep @config["sleep_seconds"]
       end
     end
   end

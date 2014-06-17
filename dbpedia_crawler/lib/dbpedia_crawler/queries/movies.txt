@@ -1,11 +1,11 @@
 #
-# Get a range of IDs specified by limit and offset.
+# Get a range of IDs of movies specified by limit and offset.
 # The inner SELECT is necessary to avoid a problem with Virtuoso
 # which can arise when ORDER and OFFSET are combined, e.g.
 #   Virtuoso 22023 Error SR353: Sorted TOP clause specifies more then 77010 rows to sort. 
 #   Only 40000 are allowed.
 #
-SELECT ?movie
+SELECT (?movie as ?result)
 WHERE {
   {SELECT DISTINCT ?movie WHERE {
       {

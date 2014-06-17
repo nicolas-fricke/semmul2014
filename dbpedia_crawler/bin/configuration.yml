@@ -1,6 +1,5 @@
 crawler:
   crawl_all_ids: true                         # whether to push the initial command on start
-  page_size: 10000                            # number of IDs queried at a time, <= 50,000 (Ruby.rdf limit)
   sleep_seconds: 5                            # seconds to sleep if command queue is empty
 
 queue:
@@ -11,6 +10,7 @@ queue:
 
 source:
   endpoint: "http://dbpedia.org/sparql"       # URI of the SPARQL endpoint
+  page_size: 10000                            # number of IDs queried at a time, <= 50,000 (Ruby.rdf limit)
   query_retries: 5                            # number of retries for failed data retrieval
 
 writer:

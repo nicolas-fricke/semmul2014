@@ -27,8 +27,9 @@ public
   # Create a new Writer
   #   configuration: hash
   def initialize(configuration)
-    @client = SPARQL::Client.new configuration["endpoint"]
-    @graph = configuration["graph"]
+    @config = configuration
+    @client = SPARQL::Client.new @config["endpoint"]
+    @graph = @config["graph"]
   end
 
   # Insert all statements in the given graph into this Writer's graph of 

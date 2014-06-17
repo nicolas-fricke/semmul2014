@@ -14,7 +14,7 @@ require_relative '../lib/dbpedia_crawler'
 # So, to overwrite the "endpoint" of the "source" component, the argument is:
 #   -source:endpoint:"http://live.dbpedia.org/sparql"
 # Arguments should overwrite options from the configuration file. Other
-# arguments will not be filtered (they are just irrelevant to the application).
+# arguments are irrelevant.
 
 def parse_arguments
   args = {}
