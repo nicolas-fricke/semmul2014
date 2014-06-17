@@ -5,7 +5,6 @@ require 'httparty'
 require 'json'
 require 'addressable/uri'
 
-require 'bunny'
 
 class FreebaseCrawler
   # load API key from secrets.yml
@@ -13,32 +12,9 @@ class FreebaseCrawler
   API_KEY = secrets['services']['freebase']['api_key']
 
   def initialize
-    #open film_id_queue on localhost
-    connection = Bunny.new(:automatically_recover => false).start
-    @film_id_queue = connection.create_channel.queue("semmul.film_ids.freebase", :durable => true)
+
   end
 
-
-  def retrieve_film_ids
-    # retrieve mid of every topic typed film
-    query = [{
-    'type' => '/film/film', # testing: 'type' => '/fashion/fashion_designer',
-    'mid' => nil
-    }]
-
-    @film_ids = []
-    execute query do |page_results|
-      page_results.each do |topic|
-        @film_ids << topic['mid']
-        # write film_id to queue
-        @film_id_queue.publish(topic['mid'], :persistent => true)
-      end
-    end
-
-    @film_ids
-  end
-
-  private
   def execute(query)
     # set empty cursor
     url = Addressable::URI.parse('https://www.googleapis.com/freebase/v1/mqlread')
@@ -49,6 +25,7 @@ class FreebaseCrawler
     }
 
     pages = 0
+    error_counter = 0
     puts "fetching elements..."
     begin
       response = HTTParty.get(url, :format => :json)
@@ -67,9 +44,17 @@ class FreebaseCrawler
       if pages % 10 == 0
         puts "current page: #{pages}"
       end
+    rescue SocketError => e
+      error_counter += 1
+      if error_counter <= 3
+        p "SocketError occured: #{e} --> repeating query"
+        redo
+      else
+        error_counter = 0
+        p "Too many errors --> stop"
+        return
+      end
     end until response['cursor'] == false # stop on last frame
   end
 end
 
-crawler = FreebaseCrawler.new
-p crawler.retrieve_film_ids
