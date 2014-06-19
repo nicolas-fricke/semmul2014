@@ -4,15 +4,11 @@ require 'cgi'
 require 'httparty'
 require 'json'
 require 'addressable/uri'
+require 'yaml'
 
-
-class FreebaseCrawler
-  # load API key from secrets.yml
-  secrets = YAML.load_file 'secrets.yml'
-  API_KEY = secrets['services']['freebase']['api_key']
-
+class FreebaseFetcher::Crawler
   def initialize
-
+    @publisher = FreebaseFetcher::MsgPublisher.new
   end
 
   def execute(query)
@@ -20,7 +16,7 @@ class FreebaseCrawler
     url = Addressable::URI.parse('https://www.googleapis.com/freebase/v1/mqlread')
     url.query_values = {
         'query' => query.to_json,
-        'key'=> API_KEY,
+        'key'=> api_key,
         'cursor'=>nil
     }
 
@@ -36,7 +32,7 @@ class FreebaseCrawler
       # set cursor from last response
       url.query_values = {
           'query' => query.to_json,
-          'key'=> API_KEY,
+          'key'=> api_key,
           'cursor'=>response['cursor']
       }
       #debug output
@@ -56,5 +52,12 @@ class FreebaseCrawler
       end
     end until response['cursor'] == false # stop on last frame
   end
+
+  private
+  def api_key
+    @secrets ||= YAML.load_file '../config/secrets.yml'
+    @secrets['services']['freebase']['api_key']
+  end
+
 end
 
