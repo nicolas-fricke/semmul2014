@@ -11,16 +11,14 @@ class FreebaseFetcher::Crawler
     @publisher = FreebaseFetcher::MsgPublisher.new
   end
 
-  def execute(query)
-    # set empty cursor
+  def execute(query, page: 1, cursor: nil)
     url = Addressable::URI.parse('https://www.googleapis.com/freebase/v1/mqlread')
     url.query_values = {
         'query' => query.to_json,
         'key'=> api_key,
-        'cursor'=>nil
+        'cursor'=>cursor
     }
 
-    pages = 0
     error_counter = 0
     puts "fetching elements..."
     begin
@@ -35,22 +33,19 @@ class FreebaseFetcher::Crawler
           'key'=> api_key,
           'cursor'=>response['cursor']
       }
+
       #debug output
-      pages +=1
-      if pages % 10 == 0
-        puts "current page: #{pages}"
+      puts "current page: #{page}"
+
+      unless response['cursor']  # is false if no more pages available
+        execute query, page: page + 1, cursor: response['cursor']
       end
+
     rescue SocketError => e
-      error_counter += 1
-      if error_counter <= 3
         p "SocketError occured: #{e} --> repeating query"
-        redo
-      else
-        error_counter = 0
-        p "Too many errors --> stop"
-        return
-      end
-    end until response['cursor'] == false # stop on last frame
+        sleep 0.5
+        execute query, page: page, cursor: cursor
+    end
   end
 
   private
