@@ -7,20 +7,13 @@ require 'addressable/uri'
 require 'yaml'
 
 class FreebaseFetcher::Crawler
-  def initialize
-    @publisher = FreebaseFetcher::MsgPublisher.new
-  end
-
-  def execute(query, page: 1, cursor: nil)
+  def execute(query, page: 1, cursor: nil, &block)
     url = Addressable::URI.parse('https://www.googleapis.com/freebase/v1/mqlread')
     url.query_values = {
         'query' => query.to_json,
         'key'=> api_key,
         'cursor'=>cursor
     }
-
-    error_counter = 0
-    puts "fetching elements..."
     begin
       response = HTTParty.get(url, :format => :json)
 
@@ -35,16 +28,16 @@ class FreebaseFetcher::Crawler
       }
 
       #debug output
-      puts "current page: #{page}"
+      puts "fetching elements, current page: #{page}"
 
-      unless response['cursor']  # is false if no more pages available
-        execute query, page: page + 1, cursor: response['cursor']
+      if response['cursor']  # is false if no more pages available
+        execute query, page: page + 1, cursor: response['cursor'],  &block
       end
 
     rescue SocketError => e
-        p "SocketError occured: #{e} --> repeating query"
-        sleep 0.5
-        execute query, page: page, cursor: cursor
+      p "SocketError occured: #{e} --> repeating query"
+      sleep 0.5
+      execute query, page: page, cursor: cursor
     end
   end
 
