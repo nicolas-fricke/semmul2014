@@ -1,17 +1,35 @@
 actor:
+  # not needed yet
 
 character:
+  # not needed yet
 
 director:
+  # not needed yet
 
 episode:
+  # TODO: include
 
-organisation:
+organization:
+  # nothing specified
 
 person:
+  "http://dbpedia.org/ontology/birthPlace": place
+  "http://dbpedia.org/ontology/placeOfBirth": place
 
 place:
+  # nothing specified
 
 root:
+  "http://dbpedia.org/ontology/director": person # later: director
+  "http://dbpedia.org/property/director": person # later: director
+  "http://dbpedia.org/ontology/distributor": organization
+  "http://dbpedia.org/property/distributor": organization
+  "http://dbpedia.org/property/studio": organization
+  "http://dbpedia.org/ontology/starring": person # later: actor
+  "http://dbpedia.org/property/starring": person # later: actor
+  # TODO: backlinks (from season to root (show))
 
 season:
+  # TODO: include
+

@@ -33,7 +33,7 @@ private
   def retry_command(command)
     retries = command[:retries].is_a?(Integer) ? command[:retries] : 0
     if retries > 0
-      puts "Remaining retries: " + retries.to_s + ". Pushing to the queue again."
+      puts "Remaining retries: #{retries}. Pushing to the queue again."
       retries -= 1
       @queue.push command.merge({retries: retries})
     else
@@ -63,7 +63,10 @@ private
   # Query linked data on the given entity and write it to the data store.
   #   command: hash
   def crawl_entity(command)
-    @writer.insert @fetcher.fetch(command[:uri], command[:type])
+    @fetcher.fetch(command[:uri], command[:type]) do |data|
+      # one graph of data per (related) entity
+      @writer.insert data
+    end
   end
 
 public
@@ -91,7 +94,7 @@ public
     loop do
       command = @queue.pop
       unless command.nil?
-        puts "Executing command: " + command.to_s + "..."
+        puts "### Executing command: #{command}..."
         execute command
       else
         # no command available: sleep

@@ -15,5 +15,6 @@ source:
   query_retries: 5                            # number of retries for failed data retrieval
 
 writer:
+  batch_size: 1000                            # number of triples inserted at a time (do not know maximum, use <= 1000)
   endpoint: "http://localhost:8890/sparql"    # URI of the SPARQL endpoint
   graph: "http://example.com/raw/"            # named graph for storing data

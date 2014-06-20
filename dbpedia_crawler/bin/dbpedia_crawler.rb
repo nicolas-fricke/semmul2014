@@ -52,7 +52,7 @@ public
       # start crawler
       DBpediaCrawler::Crawler.new(configuration).run
     rescue Exception => e
-      puts "# STOP: Uncaptured error while running the crawler:"
+      puts "### STOP: Uncaptured error while running the crawler:"
       puts e.message, e.backtrace
       exit
     end

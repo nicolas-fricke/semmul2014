@@ -15,7 +15,7 @@ private
       begin
         return yield
       rescue StandardError => e
-        puts "# Error while querying (retries: " + retries.to_s + "):"
+        puts "# Error while querying (retries: #{retries}):"
         if retries > 0
           puts e.message
           retries -= 1
@@ -31,9 +31,11 @@ private
   # "Querying results 10000 - 19999...",
   # while handling a paginated query.
   def print_query_page_message(count, limit, offset)
+    # get boundaries and arrange them nicely with whitespace
     first_string = offset.to_s.rjust(count.to_s.length)
     last_string = [count - 1, offset + limit - 1].min.to_s.rjust(count.to_s.length)
-    puts "Querying results " + first_string + " to " + last_string + "..."
+    # print the message
+    puts "Querying results #{first_string} to #{last_string}..."
   end
 
 public
@@ -70,7 +72,7 @@ public
   def query_with_pagination(query, count_query)
     # get the number of URIs
     count = query(count_query)[0][:result].to_s.to_i
-    puts "Result size: " + count.to_s
+    puts "Result size: #{count}"
     # query with pages
     result = []
     (0..(count / @config["page_size"]).floor).each do |page_number|

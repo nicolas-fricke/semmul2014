@@ -19,7 +19,7 @@ private
     rescue StandardError => e
       puts "Purging the query raises exception: " + e.message
       if retries > 0
-        puts "Sleeping (retries: " + retries.to_s + ")..."
+        puts "Sleeping (retries: #{retries})..."
         sleep seconds
         retries -= 1
         retry
@@ -48,8 +48,8 @@ public
       yaml_string = @queue.pop[2] # delivery info, message properties, message content
       return yaml_string != nil ? YAML.load(yaml_string) : nil
     rescue StandardError => e
-      puts "# Error while popping command from queue:"
-      puts e.message, e.backtrace
+      puts "# Error while popping command from queue: " + e.message
+      puts e.backtrace
       return nil
     end
   end
