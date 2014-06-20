@@ -22,5 +22,5 @@ WHERE {
       }
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageDisambiguates ?other . }
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageRedirects ?other . }
-  }}
+  } LIMIT 10 } # TODO: remove limit
 }

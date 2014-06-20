@@ -1,72 +1,18 @@
 # encoding: utf-8
 
-require "linkeddata"
-require_relative "queue"
-require_relative "source"
-require_relative "writer"
-
-# A crawler crawls a DBpedia.
+# A crawler repeatedly receives commands from a queue and uses the fetcher 
+# to execute them, thus crawling a DBpedia. The results are written to a
+# triple store using a writer.
 class DBpediaCrawler::Crawler
 
 private
 
   #
-  # SPARQL queries
-  #
-
-  # path of the folder with the queries, ending with "/"
-  QUERIES_PATH = File::expand_path("../queries", __FILE__) + "/"
-  # file extension of files with queries
-  QUERIES_FILE_EXT = ".txt"
-
-  # symbols which denote queries
-  QUERIES = [
-    :count_movies,  # query number of distinct movies
-    :movies,        # query a page of movies
-    :count_shows,   # query number of distinct shows
-    :shows          # query a page of shows
-  ]
-
-  # load query strings from files
-  def initialize_queries
-    @queries = {}
-    QUERIES.each do |symbol|
-      File.open(QUERIES_PATH + symbol.to_s + QUERIES_FILE_EXT, "r") do |file|
-        @queries[symbol] = file.read
-      end
-    end
-  end
-
-  #
   # commands
   #
 
-  # Query all IDs of relevant entities. Add corresponding commands (fetch
-  # linked data on these IDs) to the queue. Pagination is used for querying
-  # but fetching commands are created after querying to achieve atomicity.
-  def query_all_ids
-    # get all movies
-    puts "Fetching movies..."
-    movies = @source.query_with_pagination(@queries[:movies], @queries[:count_movies])
-    puts "Fetching shows..."
-    shows = @source.query_with_pagination(@queries[:shows], @queries[:count_shows])
-    # create commands for fetching
-    puts "Creating commands for fetching..."
-    movies.each do |uri| 
-      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: :movie)
-    end
-    shows.each do |uri| 
-      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: :movie) 
-    end
-  end
-
-  # Query linked data on the given entity and write it to the data store.
-  def crawl_entity(uri)
-    @writer.insert @source.triples_for(uri) if uri
-  end
-
-  # Execute a given command # TODO: retries
-  #   command: { command: symbol, params: array }
+  # Execute a given command
+  #   command: hash
   def execute(command)
     type = command[:command]
     begin
@@ -74,7 +20,7 @@ private
       when :all_ids
         query_all_ids
       when :crawl_entity
-        crawl_entity command[:uri]
+        crawl_entity command
       end
     rescue StandardError => e
       puts "Execution of command failed: " + e.message
@@ -95,22 +41,42 @@ private
     end
   end
 
-public
+  # Query all IDs of relevant entities. Add corresponding commands (fetch
+  # linked data on these IDs) to the queue. Pagination is used for querying
+  # but fetching commands are created after querying to achieve atomicity.
+  def query_all_ids
+    # get all movies
+    puts "Fetching movies..."
+    movies = @fetcher.query_movie_ids
+    puts "Fetching shows..."
+    shows = @fetcher.query_show_ids
+    # create commands for fetching
+    puts "Creating commands for fetching..."
+    movies.each do |uri| 
+      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "root")
+    end
+    shows.each do |uri| 
+      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "root") 
+    end
+  end
 
-  #
-  # instance creation
-  #
+  # Query linked data on the given entity and write it to the data store.
+  #   command: hash
+  def crawl_entity(command)
+    @writer.insert @fetcher.fetch(command[:uri], command[:type])
+  end
+
+public
 
   # Create a new Crawler using the given configuration hash.
   def initialize(configuration)
     # get configuration
     @config = configuration["crawler"]
-    # create other components with the given configuration
+    # create other components
     @queue = DBpediaCrawler::Queue.new configuration["queue"]
     @source = DBpediaCrawler::Source.new configuration["source"]
     @writer = DBpediaCrawler::Writer.new configuration["writer"]
-    # load query strings
-    initialize_queries
+    @fetcher = DBpediaCrawler::Fetcher.new @source
   end
 
   # Start the crawler. Pushes the initial command (to query all relevant

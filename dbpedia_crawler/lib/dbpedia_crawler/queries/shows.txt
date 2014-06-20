@@ -11,7 +11,8 @@ WHERE {
     FILTER NOT EXISTS { ?show dbpedia-owl:wikiPageDisambiguates ?other . }
     FILTER NOT EXISTS { ?show dbpedia-owl:wikiPageRedirects ?other . }
   }
-  ORDER BY ?show}
+  ORDER BY ?show
+  LIMIT 10} # TODO: remove limit
 }
 LIMIT <<limit>>
 OFFSET <<offset>>

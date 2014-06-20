@@ -32,7 +32,7 @@ private
   # while handling a paginated query.
   def print_query_page_message(count, limit, offset)
     first_string = offset.to_s.rjust(count.to_s.length)
-    last_string = [count, offset + limit - 1].min.to_s.rjust(count.to_s.length)
+    last_string = [count - 1, offset + limit - 1].min.to_s.rjust(count.to_s.length)
     puts "Querying results " + first_string + " to " + last_string + "..."
   end
 

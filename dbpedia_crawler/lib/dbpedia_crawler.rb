@@ -3,12 +3,12 @@
 # Module DBpediaCrawler includes some classes for crawling RDF data from
 # (a) DBpedia.
 # 
-# - Crawler: central class, run one for each DBpedia, uses the other classes
+# - Crawler: central class, utilizes other classes, executes commands
+# - Fetcher: implements high-level fetching of data
 # - Queue: provides handling of commands for the crawler
-# - Source: provides access to the data of DBpedia
-# - Writer: provides means of persisting crawled data
+# - Source: provides low-level access to the data of a DBpedia
+# - Writer: provides means of persisting data
 #
-# TODO: add "retry" parameter to failed commands pushed to the queue again
 # TODO: query related movie data
 # TODO: query related show data
 # TODO: remove false positives (e.g. "1960 in film"), especially due to categories
@@ -23,6 +23,7 @@
 module DBpediaCrawler
 
   require_relative 'dbpedia_crawler/crawler'
+  require_relative 'dbpedia_crawler/fetcher'
   require_relative 'dbpedia_crawler/queue'
   require_relative 'dbpedia_crawler/source'
   require_relative 'dbpedia_crawler/writer'

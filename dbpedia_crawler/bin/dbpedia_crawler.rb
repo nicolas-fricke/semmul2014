@@ -15,39 +15,51 @@ require_relative '../lib/dbpedia_crawler'
 #   -source:endpoint:"http://live.dbpedia.org/sparql"
 # Arguments should overwrite options from the configuration file. Other
 # arguments are irrelevant.
+class DBpediaCrawler::Application
 
-def parse_arguments
-  args = {}
-  ARGV.each do |arg|
-    if arg =~ /\A-(\w+):(\w+):(.+)/
-      component, option, value = $1, $2, $3
-      args[component] = {} if args[component].nil?
-      if value =~ /\A\d+\Z/ # integer?
-        args[component][option] = value.to_i
-      elsif value =~ /\A((true)|(false))\Z/ # boolean?
-        args[component][option] = value =~ /\Atrue\Z/ ? true : false
-      else # string!
-        args[component][option] = value
+private
+
+  # path to the YAML file containing the default configuration
+  DEFAULT_CONFIG_FILE = "../../lib/dbpedia_crawler/configuration/options.yml"
+
+  def parse_arguments
+    args = {}
+    ARGV.each do |arg|
+      if arg =~ /\A-(\w+):(\w+):(.+)/
+        component, option, value = $1, $2, $3
+        args[component] = {} if args[component].nil?
+        if value =~ /\A\d+\Z/ # integer?
+          args[component][option] = value.to_i
+        elsif value =~ /\A((true)|(false))\Z/ # boolean?
+          args[component][option] = value =~ /\Atrue\Z/ ? true : false
+        else # string!
+          args[component][option] = value
+        end
       end
     end
+    return args
   end
-  return args
+
+public
+
+  # Execute the application
+  def run
+    begin
+      # parse options
+      configuration = YAML.load_file File::expand_path(DEFAULT_CONFIG_FILE, __FILE__)
+      arguments = parse_arguments
+      configuration.each_key { |key| configuration[key].merge! (arguments[key] || {}) }
+      # start crawler
+      DBpediaCrawler::Crawler.new(configuration).run
+    rescue Exception => e
+      puts "# STOP: Uncaptured error while running the crawler:"
+      puts e.message, e.backtrace
+      exit
+    end
+  end
+
 end
 
-begin
-  # get configuration
-  configuration = YAML.load_file File::expand_path("../configuration.yml", __FILE__)
-  arguments = parse_arguments
-  configuration.each_key { |key| configuration[key].merge! (arguments[key] || {}) }
-rescue StandardError => e
-  puts "# STOP: Error while retrieving the configuration:"
-  puts e.message, e.backtrace
-end
+# start the crawler
+DBpediaCrawler::Application.new.run
 
-begin
-  # start crawler
-  DBpediaCrawler::Crawler.new(configuration).run
-rescue Exception => e
-  puts "# STOP: Uncaptured error while running the crawler:"
-  puts e.message, e.backtrace
-end

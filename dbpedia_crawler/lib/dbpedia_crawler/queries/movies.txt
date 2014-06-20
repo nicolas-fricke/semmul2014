@@ -26,7 +26,8 @@ WHERE {
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageDisambiguates ?other . }
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageRedirects ?other . }
   }
-  ORDER BY ?movie}
+  ORDER BY ?movie
+  LIMIT 10} # TODO: remove limit
 }
 LIMIT <<limit>>
 OFFSET <<offset>>
