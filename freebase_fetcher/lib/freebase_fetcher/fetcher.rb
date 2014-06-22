@@ -4,24 +4,20 @@ class FreebaseFetcher::Fetcher
     @publisher = FreebaseFetcher::MsgPublisher.new
   end
 
-  def retrieve_film_ids
+  def retrieve_film_ids(verbose: false)
     # retrieve mid of every topic typed film
     query = [{
                  'type' => '/film/film',
-                 #'type' => '/fashion/fashion_designer',
+                 #'type' => '/fashion/fashion_designer', # testing
                  'mid' => nil
              }]
 
-    @film_ids = []
     @crawler.execute query do |page_results|
       page_results.each do |topic|
-        @film_ids << topic['mid']
         # write film_id to queue
-        p "publishing #{topic['mid']} to #{@publisher.queue_name :movie_id}"
+        p "publishing #{topic['mid']} to #{@publisher.queue_name :movie_id}" if verbose
         @publisher.enqueue_id :movie_id, topic['mid']
       end
     end
-
-    @film_ids
   end
 end
