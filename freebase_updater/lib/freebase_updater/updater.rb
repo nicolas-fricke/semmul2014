@@ -1,5 +1,5 @@
 require 'yaml'
-require 'themoviedb'
+require 'json'
 
 class FreebaseUpdater::Updater
 
@@ -11,46 +11,41 @@ class FreebaseUpdater::Updater
   end
 
   def update(movie_id)
-    get_info_for_movie_with_id movie_id
+    # long queries are not necessarily answered, thus we split it
+    film_info_1 movie_id
+
     #TODO actually do something here ;)
   end
 
-  def get_info_for_movie_with_id(mid, attempt: 0)
+  def film_info_1 (mid)
+    # look up data on film itself (mostly primitives)
+    p "Looking up MID #{mid}..."
     query = {
-      'type'=> '/film/film',
-      'mid'=> mid,
-      'name'=> nil,
-      #'initial_release_date'=> nil,
-      #'directed_by'=> [{
-      #    'mid'=> nil,
-      #    'name'=> nil,
-      #    'film'=> [{
-      #      'mid'=> nil,
-      #      'name'=> nil
-      #    }]
-      #}],
-      #'starring'=> [{
-      #  'character'=> {
-      #    'mid'=> nil,
-      #    'name'=> nil
-      #  },
-      #    'actor'=> {
-      #      'mid'=> nil,
-      #      'name'=> nil,
-      #      'film'=> [{
-      #        'film'=> [{
-      #          'mid'=> nil,
-      #          'name'=> null
-      #        }]
-      #      }]
-      #    }
-      #}]
-    }
+            'type'=> '/film/film',
+            'mid'=> mid,
+            'name'=> nil,
+            'initial_release_date'=> nil,
+            'genre'=> [],
+            #'runtime'=> [{
+            #   'runtime'=> nil,
+            #}],
+            'language'=> [],
+            #'tagline'=>[],
+            'estimated_budget'=>nil,
+            #'rating'=>[{
+            #  'minimum_unaccompanied_age'=>nil # this is specific to the country...
+            #           }],
+            'trailers'=>[],
+            'netflix_id'=>[],
+            'nytimes_id'=>[],
+            'metacritic_id'=>[],
+            'apple_movietrailer_id'=>[],
+            'rottentomatoes_id'=>[]
+        }
 
-    @crawler.execute query do |page_results|
-      page_results.each do |topic|
-        p topic
-      end
+    @crawler.execute query do |topic|
+      puts JSON.pretty_generate(topic)
+      #p topic
     end
   end
 end
