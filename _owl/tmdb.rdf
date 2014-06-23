@@ -37,6 +37,12 @@
     <rdfs:comment xml:lang="en">Defines the cast class for a movie or tv series. This class represents a cast member of the list movie/credits/cast or tv/credits/cast.</rdfs:comment>
   </owl:Class>
 
+  <!-- Collection -->
+  <owl:Class rdf:about="&tmdb;Collection">
+    <rdfs:label xml:lang="en">Collection</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines the collection a movie belongs to.</rdfs:comment>
+  </owl:Class>
+
   <!-- Combined_Cast -->
   <owl:Class rdf:about="&tmdb;Combined_Cast">
     <rdfs:label xml:lang="en">Combined_Cast</rdfs:label>
@@ -297,12 +303,20 @@
     <rdfs:domain rdf:resource="&tmdb;Movie"/>
   </owl:ObjectProperty>
 
+  <!-- movie: belongs_to_collection -->
+  <owl:ObjectProperty rdf:about="&tmdb;movie/belongs_to_collection">
+    <rdfs:label xml:lang="en">movie: belongs_to_collection: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the collection a movie belongs to. If belongs_to_collection has the value 'null', this property should not be used.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;Collection"/>
+    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+  </owl:ObjectProperty>
+
   <!-- movie: belongs_to_collection: id -->
   <owl:ObjectProperty rdf:about="&tmdb;movie/belongs_to_collection/id">
     <rdfs:label xml:lang="en">movie: belongs_to_collection: id</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the id of a collection a movie belongs to. If belongs_to_collection has the value 'null', this property should not be used.</rdfs:comment>
     <rdfs:range rdf:resource="&xsd;int"/>
-    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+    <rdfs:domain rdf:resource="&tmdb;Collection"/>
   </owl:ObjectProperty>
 
   <!-- movie: belongs_to_collection: name -->
@@ -310,7 +324,7 @@
     <rdfs:label xml:lang="en">movie: belongs_to_collection: name</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the name of a collection a movie belongs to. If belongs_to_collection has the value 'null', this property should not be used.</rdfs:comment>
     <rdfs:range rdf:resource="&xsd;string"/>
-    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+    <rdfs:domain rdf:resource="&tmdb;Collection"/>
   </owl:ObjectProperty>
 
   <!-- movie: belongs_to_collection: poster_path -->
@@ -318,7 +332,7 @@
     <rdfs:label xml:lang="en">movie: belongs_to_collection: poster_path</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the poster path of a collection a movie belongs to. If belongs_to_collection has the value 'null', this property should not be used.</rdfs:comment>
     <rdfs:range rdf:resource="&xsd;string"/>
-    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+    <rdfs:domain rdf:resource="&tmdb;Collection"/>
   </owl:ObjectProperty>
 
   <!-- movie: belongs_to_collection: backdrop_path -->
@@ -326,14 +340,14 @@
     <rdfs:label xml:lang="en">movie: belongs_to_collection: backdrop_path</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the backdrop path of a collection a movie belongs to. If belongs_to_collection has the value 'null', this property should not be used.</rdfs:comment>
     <rdfs:range rdf:resource="&xsd;string"/>
-    <rdfs:domain rdf:resource="&tmdb;Movie"/>
+    <rdfs:domain rdf:resource="&tmdb;Collection"/>
   </owl:ObjectProperty>
 
   <!-- movie: budget -->
   <owl:ObjectProperty rdf:about="&tmdb;movie/budget">
     <rdfs:label xml:lang="en">movie: budget</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the budget of a movie.</rdfs:comment>
-    <rdfs:range rdf:resource="&xsd;long"/>
+    <rdfs:range rdf:resource="&xsd;int"/>
     <rdfs:domain rdf:resource="&tmdb;Movie"/>
   </owl:ObjectProperty>
 
@@ -341,7 +355,7 @@
   <owl:ObjectProperty rdf:about="&tmdb;movie/credits/id">
     <rdfs:label xml:lang="en">movie: credits: id</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the id of the credits of the movie. This property is identical with the id of the movie (movie/id).</rdfs:comment>
-    <rdfs:range rdf:resource="&xsd;long"/>
+    <rdfs:range rdf:resource="&xsd;int"/>
     <rdfs:domain rdf:resource="&tmdb;Movie"/>
   </owl:ObjectProperty>
 
@@ -482,7 +496,7 @@
   <owl:ObjectProperty rdf:about="&tmdb;movie/production_companies/id">
     <rdfs:label xml:lang="en">movie: production_companies: id</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the id of a production company of the movie.</rdfs:comment>
-    <rdfs:range rdf:resource="&tmdb;long"/>
+    <rdfs:range rdf:resource="&tmdb;int"/>
     <rdfs:domain rdf:resource="&tmdb;Production_Company"/>
   </owl:ObjectProperty>
 
@@ -570,7 +584,7 @@
   <owl:ObjectProperty rdf:about="&tmdb;movie/revenue">
     <rdfs:label xml:lang="en">movie: revenue</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the revenue of the movie.</rdfs:comment>
-    <rdfs:range rdf:resource="&tmdb;long"/>
+    <rdfs:range rdf:resource="&xsd;int"/>
     <rdfs:domain rdf:resource="&tmdb;Movie"/>
   </owl:ObjectProperty>
 
@@ -578,23 +592,7 @@
   <owl:ObjectProperty rdf:about="&tmdb;movie/runtime">
     <rdfs:label xml:lang="en">movie: runtime</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the runtime of the movie in minutes.</rdfs:comment>
-    <rdfs:range rdf:resource="&tmdb;int"/>
-    <rdfs:domain rdf:resource="&tmdb;Movie"/>
-  </owl:ObjectProperty>
-
-  <!-- movie: similar -->
-  <owl:ObjectProperty rdf:about="&tmdb;movie/runtime">
-    <rdfs:label xml:lang="en">movie: runtime</rdfs:label>
-    <rdfs:comment xml:lang="en">Specifies the runtime of the movie in minutes.</rdfs:comment>
-    <rdfs:range rdf:resource="&tmdb;int"/>
-    <rdfs:domain rdf:resource="&tmdb;Movie"/>
-  </owl:ObjectProperty>
-
-  <!-- movie: spoken_languages -->
-  <owl:ObjectProperty rdf:about="&tmdb;movie/spoken_languages">
-    <rdfs:label xml:lang="en">movie: spoken_languages</rdfs:label>
-    <rdfs:comment xml:lang="en">Specifies the spoken languages of the movie.</rdfs:comment>
-    <rdfs:range rdf:resource="&tmdb;Spoken_Language"/>
+    <rdfs:range rdf:resource="&xsd;int"/>
     <rdfs:domain rdf:resource="&tmdb;Movie"/>
   </owl:ObjectProperty>
 
