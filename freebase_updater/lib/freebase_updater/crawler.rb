@@ -19,10 +19,11 @@ class FreebaseUpdater::Crawler
 
       #p response
       # process results
-      yield response['result'] if block_given?
       if response['result'].nil?
         # for some reason sometimes the result is nil...
         p ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> The result is nil, response was #{response}"
+      else
+        yield response['result'] if block_given?
       end
 
       # set cursor from last response

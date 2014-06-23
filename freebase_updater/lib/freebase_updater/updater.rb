@@ -2,8 +2,7 @@ require 'yaml'
 require 'json'
 
 class FreebaseUpdater::Updater
-
-  def register_receiver
+  def initialize
     @crawler = FreebaseUpdater::Crawler.new
     @receiver = FreebaseUpdater::MsgConsumer.new
     puts "listening on queue #{@receiver.queue_name :movie_id}"
@@ -12,14 +11,17 @@ class FreebaseUpdater::Updater
 
   def update(movie_id)
     # long queries are not necessarily answered, thus we split it
-    film_info_1 movie_id
+    p "Looking up MID #{movie_id} ..."
+    film_info_primitives movie_id
+    film_info_actor movie_id
 
     #TODO actually do something here ;)
   end
 
-  def film_info_1 (mid)
+
+
+  def film_info_primitives(mid)
     # look up data on film itself (mostly primitives)
-    p "Looking up MID #{mid}..."
     query = {
             'type'=> '/film/film',
             'mid'=> mid,
@@ -32,9 +34,6 @@ class FreebaseUpdater::Updater
             'language'=> [],
             #'tagline'=>[],
             'estimated_budget'=>nil,
-            #'rating'=>[{
-            #  'minimum_unaccompanied_age'=>nil # this is specific to the country...
-            #           }],
             'trailers'=>[],
             'netflix_id'=>[],
             'nytimes_id'=>[],
@@ -48,4 +47,44 @@ class FreebaseUpdater::Updater
       #p topic
     end
   end
+
+  def film_info_actor(mid)
+    query = {
+        'type'=> '/film/film',
+        'mid'=> mid,
+        'starring'=> [{
+          'actor'=> {
+            'mid'=> nil,
+            'name'=> nil,
+          }
+        }]
+    }
+
+
+    @crawler.execute query do |topic|
+      #puts JSON.pretty_generate(topic)
+      p topic
+    end
+  end
 end
+
+
+#def film_info_actor(mid)
+#  query = {
+#      'type'=> '/film/film',
+#      'mid'=> mid,
+#      'directed_by'=> [{
+#                           'mid'=> nil,
+#                           #'name'=> nil,
+#                       }],
+#      'starring'=> [{
+#                        'character'=> {
+#                            'mid'=> nil,
+#                            #'name'=> nil
+#                        },
+#                        'actor'=> {
+#                            'mid'=> nil,
+#                            #'name'=> nil,
+#                        }
+#                    }]
+#  }
