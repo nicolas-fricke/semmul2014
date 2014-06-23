@@ -1,0 +1,33 @@
+#
+# Get a range of IDs of movies specified by limit and offset.
+# The inner SELECT is necessary to avoid a problem with Virtuoso
+# which can arise when ORDER and OFFSET are combined, e.g.
+#   Virtuoso 22023 Error SR353: Sorted TOP clause specifies more then 77010 rows to sort. 
+#   Only 40000 are allowed.
+#
+SELECT (?movie as ?result)
+WHERE {
+  {SELECT DISTINCT ?movie WHERE {
+      {
+        SELECT ?movie WHERE { ?movie rdf:type/rdfs:subClassOf* dbpedia-owl:Film . }
+      } UNION {
+        SELECT ?movie WHERE { ?movie rdf:type/rdfs:subClassOf* yago:Movie106613686 . }
+      } UNION {
+        SELECT ?movie WHERE { ?movie dbpprop:wordnet_type <http://www.w3.org/2006/03/wn/wn20/instances/synset-movie-noun-1> . }
+      } UNION {
+        SELECT ?movie WHERE { ?movie rdf:type/rdfs:subClassOf* <http://schema.org/Movie> . }
+      } UNION {
+        SELECT ?movie WHERE { ?movie rdf:type/rdfs:subClassOf* <http://umbel.org/umbel/rc/Movie_CW> . }
+      } UNION {
+        SELECT ?movie WHERE { ?movie rdf:type/rdfs:subClassOf* <http://dbpedia.org/ontology/Wikidata:Q11424> . }
+      } UNION {
+        SELECT ?movie WHERE { ?movie dcterms:subject/skos:broader* <http://dbpedia.org/resource/Category:Films> . }
+      }
+    FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageDisambiguates ?other . }
+    FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageRedirects ?other . }
+  }
+  ORDER BY ?movie
+  LIMIT 10} # TODO: remove limit
+}
+LIMIT <<limit>>
+OFFSET <<offset>>

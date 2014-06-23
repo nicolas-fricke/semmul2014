@@ -1,0 +1,20 @@
+crawler:
+  crawl_all_ids: true                         # whether to push the initial command on start
+  command_retries: 1                          # number of retries for failed commands
+  sleep_seconds: 5                            # seconds to sleep if command queue is empty
+
+queue:
+  agent_id: "dbpedia_crawler"                 # identifier of this crawler (to determine the queue)
+  purge: true                                 # whether to purge the queue on start
+  purge_retries: 5                            # retries if purge raises exception for very large queue
+  purge_sleep_seconds: 10                     # how long to sleep before attempting another purge
+
+source:
+  endpoint: "http://dbpedia.org/sparql"       # URI of the SPARQL endpoint
+  page_size: 10000                            # number of IDs queried at a time, <= 50,000 (Ruby.rdf limit)
+  query_retries: 5                            # number of retries for failed data retrieval
+
+writer:
+  batch_size: 1000                            # number of triples inserted at a time (do not know maximum, use <= 1000)
+  endpoint: "http://localhost:8890/sparql"    # URI of the SPARQL endpoint
+  graph: "http://example.com/raw/"            # named graph for storing data

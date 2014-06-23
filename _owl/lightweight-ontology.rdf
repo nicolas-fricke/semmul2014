@@ -3,6 +3,7 @@
 <!DOCTYPE rdf:RDF [
     <!ENTITY lom "http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#" >
     <!ENTITY schema "http://schema.rdfs.org/" >
+    <!ENTITY dbpedia "http://dbpedia.org/ontology/" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
@@ -13,6 +14,7 @@
 <rdf:RDF
   xmlns:lom="http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#"
   xmlns:schema="http://schema.rdfs.org/"
+  xmlns:dbpedia="http://dbpedia.org/ontology/"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
@@ -22,26 +24,14 @@
   <!-- OWL Header -->
   <owl:Ontology rdf:about="http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#">
     <dc:title>The LOD of Movies Ontology</dc:title>
-    <dc:description>Ontology for movies based on schema.org</dc:description>
+    <dc:description>Ontology for movies based on schema.org and DBpedia</dc:description>
     <owl:imports rdf:resource="http://schema.rdfs.org/"/>
+    <owl:imports rdf:resource="http://dbpedia.org/ontology/"/>
   </owl:Ontology>
 
   <!-- Extensions for schema.org from here on ... -->
 
   <!-- CLASSES -->
-
-  <!-- Actor -->
-  <owl:Class rdf:about="&lom;Actor">
-    <rdfs:label xml:lang="en">Actor</rdfs:label>
-    <rdfs:comment xml:lang="en">Defines an actor of a movie or a television series.</rdfs:comment>
-    <rdfs:subClassOf rdf:resource="&schema;Person"/>
-  </owl:Class>
-
-  <!-- Character -->
-  <owl:Class rdf:about="&lom;Character">
-    <rdfs:label xml:lang="en">Character</rdfs:label>
-    <rdfs:comment xml:lang="en">Defines the character in a movie or television series.</rdfs:comment>
-  </owl:Class>
 
   <!-- Director -->
   <owl:Class rdf:about="&lom;Director">
@@ -58,11 +48,19 @@
 
   <!-- PROPERTIES -->
 
+  <!-- Movie: performance -->
+  <owl:ObjectProperty rdf:about="&lom;performance">
+    <rdfs:label xml:lang="en">performance</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies a performance of a movie or tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&lom;Performance"/>
+    <rdfs:domain rdf:resource="&schema;Movie"/>
+  </owl:ObjectProperty>
+
   <!-- Performance: character -->
   <owl:ObjectProperty rdf:about="&lom;character">
     <rdfs:label xml:lang="en">character</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the fictional character of a performance.</rdfs:comment>
-    <rdfs:range rdf:resource="&lom;Actor"/>
+    <rdfs:range rdf:resource="&dbpedia;FictionalCharacter"/>
     <rdfs:domain rdf:resource="&lom;Performance"/>
   </owl:ObjectProperty>
 
@@ -70,7 +68,7 @@
   <owl:ObjectProperty rdf:about="&lom;actor">
     <rdfs:label xml:lang="en">actor</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the actor of a performance.</rdfs:comment>
-    <rdfs:range rdf:resource="&lom;Actor"/>
+    <rdfs:range rdf:resource="&dbpedia;Actor"/>
     <rdfs:domain rdf:resource="&lom;Performance"/>
   </owl:ObjectProperty>
 
