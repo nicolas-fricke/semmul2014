@@ -1,6 +1,7 @@
 class FreebaseFetcher::Fetcher
   def initialize
-    @crawler = FreebaseFetcher::Crawler.new
+    #@crawler = FreebaseFetcher::Crawler.new
+    @crawler = FreebaseCrawler::Crawler.new
     @publisher = FreebaseFetcher::MsgPublisher.new
   end
 

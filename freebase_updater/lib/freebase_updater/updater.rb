@@ -3,7 +3,7 @@ require 'json'
 
 class FreebaseUpdater::Updater
   def initialize
-    @crawler = FreebaseUpdater::Crawler.new
+    @crawler = FreebaseCrawler::Crawler.new
     @receiver = FreebaseUpdater::MsgConsumer.new
     puts "listening on queue #{@receiver.queue_name :movie_id}"
     @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
