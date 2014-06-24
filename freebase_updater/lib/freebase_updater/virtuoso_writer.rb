@@ -1,19 +1,17 @@
 #!/usr/bin/env ruby
 require 'yaml'
-require 'sparql/client'
-require 'rdf'
 require 'rdf/virtuoso'
 
-class TMDbUpdater::VirtuosoWriter
+class FreebaseUpdater::VirtuosoWriter
   def initialize
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                            update_uri: 'http://localhost:8890/sparql-auth',
-                                           username: secrets['services']['virtuoso']['username'],
-                                           password: secrets['services']['virtuoso']['password'],
+                                           username: secrets['databases']['virtuoso']['username'],
+                                           password: secrets['databases']['virtuoso']['password'],
                                            auth_method: 'digest')
   end
 
-  def new_triple(subject:, predicate:, object:, graph: 'http://example.com/raw', literal: true)
+  def new_triple(subject, predicate, object, graph: 'http://example.com/raw', literal: true)
     graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
     predicate = RDF::URI.new(predicate)

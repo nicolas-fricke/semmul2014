@@ -11,8 +11,12 @@ class TMDbFetcher::Fetcher
     tmdb_search = Tmdb::Search.new('/discover/movie')
     tmdb_search.filter(page: page)
     tmdb_result = tmdb_search.fetch_response
-    tmdb_result['results'].each do |movie|
-      @publisher.enqueue_id :movie_id, movie['id']
+    if tmdb_result['results'].nil?
+      return
+    else
+      tmdb_result['results'].each do |movie|
+        @publisher.enqueue_id :movie_id, movie['id']
+      end
     end
 
     if page < tmdb_result['total_pages']
