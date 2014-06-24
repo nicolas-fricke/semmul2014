@@ -10,7 +10,7 @@ class FreebaseUpdater::MsgPublisher
   end
 
   def queue_name(type)
-    "lom.source.#{name}.#{type.to_s}"
+    "lom.raw_db.#{name}.#{type.to_s}"
   end
 
   def enqueue_id(type, id)

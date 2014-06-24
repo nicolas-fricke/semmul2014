@@ -12,14 +12,17 @@ class FreebaseUpdater::Updater
   def update(movie_id)
     # long queries are not necessarily answered, thus we split it
     p "Looking up MID #{movie_id} ..."
-    retrieve_topic movie_id
-    #TODO actually do something here ;)
+    retrieve_topic movie_id do |topic|
+      puts JSON.pretty_generate topic
+    end
+
   end
 
   def retrieve_topic(topic_id)
     @crawler.read_topic topic_id do |topic|
-      puts JSON.pretty_generate(topic)
+      #puts JSON.pretty_generate(topic)
       #p topic
+      yield topic if block_given?
     end
   end
 end
