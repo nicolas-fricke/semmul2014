@@ -1,6 +1,7 @@
 class FreebaseFetcher::Fetcher
   def initialize
-    @crawler = FreebaseFetcher::Crawler.new
+    #@crawler = FreebaseFetcher::Crawler.new
+    @crawler = FreebaseCrawler::Crawler.new
     @publisher = FreebaseFetcher::MsgPublisher.new
   end
 
@@ -8,11 +9,10 @@ class FreebaseFetcher::Fetcher
     # retrieve mid of every topic typed film
     query = [{
                  'type' => '/film/film',
-                 #'type' => '/fashion/fashion_designer', # testing
                  'mid' => nil
              }]
 
-    @crawler.execute query do |page_results|
+    @crawler.read_mql query do |page_results|
       page_results.each do |topic|
         # write film_id to queue
         p "publishing #{topic['mid']} to #{@publisher.queue_name :movie_id}" if verbose
