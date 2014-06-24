@@ -1,0 +1,7 @@
+source 'https://rubygems.org'
+
+gem 'rdf'
+gem 'rdf-virtuoso', '~> 0.1.6'
+gem 'sparql'
+gem 'bunny'
+gem 'linkeddata'
