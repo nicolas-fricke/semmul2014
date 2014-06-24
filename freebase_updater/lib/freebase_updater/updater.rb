@@ -1,9 +1,8 @@
 require 'yaml'
-require 'themoviedb'
+require 'json'
 
 class FreebaseUpdater::Updater
-
-  def register_receiver
+  def initialize
     @crawler = FreebaseUpdater::Crawler.new
     @receiver = FreebaseUpdater::MsgConsumer.new
     puts "listening on queue #{@receiver.queue_name :movie_id}"
@@ -11,46 +10,81 @@ class FreebaseUpdater::Updater
   end
 
   def update(movie_id)
-    get_info_for_movie_with_id movie_id
+    # long queries are not necessarily answered, thus we split it
+    p "Looking up MID #{movie_id} ..."
+    film_info_primitives movie_id
+    film_info_actor movie_id
+
     #TODO actually do something here ;)
   end
 
-  def get_info_for_movie_with_id(mid, attempt: 0)
+
+
+  def film_info_primitives(mid)
+    # look up data on film itself (mostly primitives)
     query = {
-      'type'=> '/film/film',
-      'mid'=> mid,
-      'name'=> nil,
-      #'initial_release_date'=> nil,
-      #'directed_by'=> [{
-      #    'mid'=> nil,
-      #    'name'=> nil,
-      #    'film'=> [{
-      #      'mid'=> nil,
-      #      'name'=> nil
-      #    }]
-      #}],
-      #'starring'=> [{
-      #  'character'=> {
-      #    'mid'=> nil,
-      #    'name'=> nil
-      #  },
-      #    'actor'=> {
-      #      'mid'=> nil,
-      #      'name'=> nil,
-      #      'film'=> [{
-      #        'film'=> [{
-      #          'mid'=> nil,
-      #          'name'=> null
-      #        }]
-      #      }]
-      #    }
-      #}]
+            'type'=> '/film/film',
+            'mid'=> mid,
+            'name'=> nil,
+            'initial_release_date'=> nil,
+            'genre'=> [],
+            #'runtime'=> [{
+            #   'runtime'=> nil,
+            #}],
+            'language'=> [],
+            #'tagline'=>[],
+            'estimated_budget'=>nil,
+            'trailers'=>[],
+            'netflix_id'=>[],
+            'nytimes_id'=>[],
+            'metacritic_id'=>[],
+            'apple_movietrailer_id'=>[],
+            'rottentomatoes_id'=>[]
+        }
+
+    @crawler.execute query do |topic|
+      puts JSON.pretty_generate(topic)
+      #p topic
+    end
+  end
+
+  def film_info_actor(mid)
+    query = {
+        'type'=> '/film/film',
+        'mid'=> mid,
+        'starring'=> [{
+          'actor'=> {
+            'mid'=> nil,
+            'name'=> nil,
+          }
+        }]
     }
 
-    @crawler.execute query do |page_results|
-      page_results.each do |topic|
-        p topic
-      end
+
+    @crawler.execute query do |topic|
+      #puts JSON.pretty_generate(topic)
+      p topic
     end
   end
 end
+
+
+#def film_info_actor(mid)
+#  query = {
+#      'type'=> '/film/film',
+#      'mid'=> mid,
+#      'directed_by'=> [{
+#                           'mid'=> nil,
+#                           #'name'=> nil,
+#                       }],
+#      'starring'=> [{
+#                        'character'=> {
+#                            'mid'=> nil,
+#                            #'name'=> nil
+#                        },
+#                        'actor'=> {
+#                            'mid'=> nil,
+#                            #'name'=> nil,
+#                        }
+#                    }]
+#  }
