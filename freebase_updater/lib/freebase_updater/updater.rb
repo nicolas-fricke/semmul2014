@@ -42,7 +42,7 @@ class FreebaseUpdater::Updater
             'rottentomatoes_id'=>[]
         }
 
-    @crawler.execute query do |topic|
+    @crawler.read_mql query do |topic|
       puts JSON.pretty_generate(topic)
       #p topic
     end
@@ -61,7 +61,7 @@ class FreebaseUpdater::Updater
     }
 
 
-    @crawler.execute query do |topic|
+    @crawler.read_mql query do |topic|
       #puts JSON.pretty_generate(topic)
       p topic
     end
