@@ -760,7 +760,7 @@
   <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/character">
     <rdfs:label xml:lang="en">person: combined_credits: cast: character</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the character of the cast of the person.</rdfs:comment>
-    <rdfs:range rdf:resource="&xsd;boolean"/>
+    <rdfs:range rdf:resource="&xsd;string"/>
     <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
   </owl:ObjectProperty>
 
@@ -768,7 +768,7 @@
   <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/cast/credit_id">
     <rdfs:label xml:lang="en">person: combined_credits: cast: credit_id</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the credit id of the cast of the person.</rdfs:comment>
-    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:range rdf:resource="&xsd;string"/>
     <rdfs:domain rdf:resource="&tmdb;Combined_Cast"/>
   </owl:ObjectProperty>
 
@@ -826,6 +826,86 @@
     <rdfs:comment xml:lang="en">Specifies the combined crew of the person.</rdfs:comment>
     <rdfs:range rdf:resource="&tmdb;Combined_Crew"/>
     <rdfs:domain rdf:resource="&tmdb;Person"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: adult -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/adult">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: adult</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies if the crew of the person is for an adult movie.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;boolean"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: credit_id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/credit_id">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: credit_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the credit id of the crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: department -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/department">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: department</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the department of the crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: id -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/id">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the id of the crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;int"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: job -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/job">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: job</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the job of the crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: original_title -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/original_title">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: original_title</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the original title of the crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: poster_path -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/poster_path">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: poster_path</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the poster path of the crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: release_date -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/release_date">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: release_date</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the release date of the crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: title -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/title">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: title</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the title of the crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- person: combined_credits: crew: media_type -->
+  <owl:ObjectProperty rdf:about="&tmdb;person/combined_credits/crew/media_type">
+    <rdfs:label xml:lang="en">person: combined_credits: crew: media_type</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the media type of the crew of the person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&tmdb;Combined_Crew"/>
   </owl:ObjectProperty>
 
   <!-- person: deathday -->
