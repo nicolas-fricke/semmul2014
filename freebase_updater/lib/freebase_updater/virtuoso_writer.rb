@@ -6,8 +6,8 @@ class FreebaseUpdater::VirtuosoWriter
   def initialize
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                            update_uri: 'http://localhost:8890/sparql-auth',
-                                           username: secrets['services']['virtuoso']['username'],
-                                           password: secrets['services']['virtuoso']['password'],
+                                           username: secrets['databases']['virtuoso']['username'],
+                                           password: secrets['databases']['virtuoso']['password'],
                                            auth_method: 'digest')
   end
 
