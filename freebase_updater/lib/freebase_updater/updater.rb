@@ -3,8 +3,10 @@ require 'json'
 
 class FreebaseUpdater::Updater
   def initialize
-    @crawler = FreebaseUpdater::Crawler.new
+    @crawler = FreebaseCrawler::Crawler.new
+    @virtuoso = FreebaseUpdater::VirtuosoWriter.new
     @receiver = FreebaseUpdater::MsgConsumer.new
+
     puts "listening on queue #{@receiver.queue_name :movie_id}"
     @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
   end
@@ -12,79 +14,32 @@ class FreebaseUpdater::Updater
   def update(movie_id)
     # long queries are not necessarily answered, thus we split it
     p "Looking up MID #{movie_id} ..."
-    film_info_primitives movie_id
-    film_info_actor movie_id
+    retrieve_topic movie_id do |topic|
+      write_triples_for movie_id, topic
+    end
 
-    #TODO actually do something here ;)
   end
 
+  def write_triples_for(movie_id, topic)
 
+    ns = 'http://rdf.freebase.com/ns'
 
-  def film_info_primitives(mid)
-    # look up data on film itself (mostly primitives)
-    query = {
-            'type'=> '/film/film',
-            'mid'=> mid,
-            'name'=> nil,
-            'initial_release_date'=> nil,
-            'genre'=> [],
-            #'runtime'=> [{
-            #   'runtime'=> nil,
-            #}],
-            'language'=> [],
-            #'tagline'=>[],
-            'estimated_budget'=>nil,
-            'trailers'=>[],
-            'netflix_id'=>[],
-            'nytimes_id'=>[],
-            'metacritic_id'=>[],
-            'apple_movietrailer_id'=>[],
-            'rottentomatoes_id'=>[]
-        }
+    key = '/type/object/name'
+    retrieve_element topic, key do |name|
+      @virtuoso.new_triple ns+movie_id, ns+key, name
+    end
 
-    @crawler.execute query do |topic|
-      puts JSON.pretty_generate(topic)
-      #p topic
+  end
+
+  def retrieve_topic(topic_id)
+    @crawler.read_topic topic_id do |topic|
+      yield topic if block_given?
     end
   end
 
-  def film_info_actor(mid)
-    query = {
-        'type'=> '/film/film',
-        'mid'=> mid,
-        'starring'=> [{
-          'actor'=> {
-            'mid'=> nil,
-            'name'=> nil,
-          }
-        }]
-    }
-
-
-    @crawler.execute query do |topic|
-      #puts JSON.pretty_generate(topic)
-      p topic
-    end
+  def retrieve_element(topic_response, locator)
+    element = topic_response[locator]['values'].first['value']
+    yield element if block_given?
+    element
   end
 end
-
-
-#def film_info_actor(mid)
-#  query = {
-#      'type'=> '/film/film',
-#      'mid'=> mid,
-#      'directed_by'=> [{
-#                           'mid'=> nil,
-#                           #'name'=> nil,
-#                       }],
-#      'starring'=> [{
-#                        'character'=> {
-#                            'mid'=> nil,
-#                            #'name'=> nil
-#                        },
-#                        'actor'=> {
-#                            'mid'=> nil,
-#                            #'name'=> nil,
-#                        }
-#                    }]
-#  }

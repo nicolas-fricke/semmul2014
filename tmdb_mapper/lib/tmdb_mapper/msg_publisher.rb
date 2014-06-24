@@ -1,6 +1,9 @@
 require 'bunny'
 
-class TMDbUpdater::MsgPublisher
+# Klasse ist zum Testen gedacht
+# damit Queue ihre Elemente behält und sie nicht immer wieder neu gefüllt werden muss für den nächsten Test
+
+class TMDbMapper::MsgPublisher
   def initialize
     @connection = Bunny.new
   end

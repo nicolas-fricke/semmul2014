@@ -4,7 +4,7 @@ require 'sparql/client'
 require 'rdf'
 require 'rdf/virtuoso'
 
-class TMDbUpdater::VirtuosoWriter
+class TMDbMapper::VirtuosoReader
   def initialize
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                            update_uri: 'http://localhost:8890/sparql-auth',
@@ -13,24 +13,16 @@ class TMDbUpdater::VirtuosoWriter
                                            auth_method: 'digest')
   end
 
-  def new_triple(subject:, predicate:, object:, graph: 'http://example.com/raw', literal: true)
+  def get_objects_for(subject: , predicate: ,graph: 'http://example.com/raw')
     graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
     predicate = RDF::URI.new(predicate)
-    object = RDF::URI.new(object) unless literal
 
-    query = RDF::Virtuoso::Query.insert([subject, predicate, object]).graph(graph)
-    p @repo.insert(query)
-  end
-
-  def delete_triple(subject: :s, predicate: :p, object: :o, graph: 'http://example.com/raw')
-    graph = RDF::URI.new(graph)
-    subject = RDF::URI.new(subject) unless subject.eql? :s
-    predicate = RDF::URI.new(predicate) unless predicate.eql? :p
-    object = RDF::URI.new(object) unless object.eql? :o
-
-    query = RDF::Virtuoso::Query.delete([subject, predicate, object]).graph(graph).where([subject, predicate, object])
-    p @repo.insert(query)
+    query = RDF::Virtuoso::Query.select.where([subject, predicate, :o]).graph(graph)
+    result = @repo.select(query)
+    puts result.bindings
+    # TODO get value from bindings or find other way to get variables/values
+    # goal: array with result values
   end
 
   private
