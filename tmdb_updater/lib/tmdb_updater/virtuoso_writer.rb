@@ -25,6 +25,6 @@ class TMDbUpdater::VirtuosoWriter
 
   private
   def secrets
-    @secrets ||= YAML.load_file '../config/secrets.yml'
+    @secrets ||= YAML.load_file 'config/secrets.yml'
   end
 end

@@ -785,7 +785,7 @@ class TMDbUpdater::Updater
 
   private
   def secrets
-    @secrets ||= YAML.load_file '../config/secrets.yml'
+    @secrets ||= YAML.load_file 'config/secrets.yml'
   end
 
   def initialize_tmdb_api
