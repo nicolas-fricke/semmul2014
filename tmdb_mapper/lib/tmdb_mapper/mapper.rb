@@ -2,7 +2,7 @@ require 'time'
 require 'yaml'
 
 class TMDbMapper::Mapper
-  BASE_NAMESPACE    = 'http://example.com/'
+  BASE_NAMESPACE    = 'http://www.hpi.uni-potsdam.de/semmul2014/mapped/tmdb/'
   TMDB_NAMESPACE    = 'http://www.hpi.uni-potsdam.de/semmul2014/themoviedb.owl#'
   LOM_NAMESPACE     = 'http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#'
   SCHEMA_NAMESPACE  = 'http://schema.org/'
@@ -38,7 +38,7 @@ class TMDbMapper::Mapper
   def map_movie_release_dates(raw_db_uri)
     TMDbMapper::VirtuosoReader.get_objects_for(
       subject: raw_db_uri,
-      predicate: "#{TMDB_NAMESPACE}movie/title"
+      predicate: "#{TMDB_NAMESPACE}movie/release_date"
     ).each do |release_date|
       date_string = Date.parse(release_date).xmlschema
       TMDbMapper::VirtuosoWriter.new_triple(
@@ -51,9 +51,28 @@ class TMDbMapper::Mapper
     TMDbMapper::VirtuosoReader.get_objects_for(
         subject: raw_db_uri,
         predicate: "#{TMDB_NAMESPACE}movie/production_companies"
-    ).each do |production_company|
+    ).each do |production_company_raw_uri|
+      production_company_mapped_uri = "#{BASE_NAMESPACE}/company/"
+      TMDbMapper::VirtuosoReader.get_objects_for(
+          subject: production_company_raw_uri,
+          predicate: "#{TMDB_NAMESPACE}movie/production_companies/id"
+      ).each do |production_company_id|
+        production_company_mapped_uri += "#{production_company_id}"
+        TMDbMapper::VirtuosoWriter.new_triple(
+            production_company_mapped_uri, "#{RDF_NAMESPACE}type", "#{SCHEMA_NAMESPACE}Organization"
+        )
+      end
+      TMDbMapper::VirtuosoReader.get_objects_for(
+          subject: production_company_raw_uri,
+          predicate: "#{TMDB_NAMESPACE}movie/production_companies/name"
+      ).each do |production_company_name|
+        production_company_mapped_uri += "#{production_company_name}"
+        TMDbMapper::VirtuosoWriter.new_triple(
+            production_company_mapped_uri, "#{SCHEMA_NAMESPACE}name", production_company_name
+        )
+      end
       TMDbMapper::VirtuosoWriter.new_triple(
-        raw_db_uri, "#{SCHEMA_NAMESPACE}productionCompany", production_company
+          raw_db_uri, "#{SCHEMA_NAMESPACE}productionCompany", production_company_mapped_uri
       )
     end
   end
