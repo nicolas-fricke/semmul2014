@@ -3,7 +3,7 @@ require 'themoviedb'
 
 class TMDbUpdater::Updater
 
-  BASE_NAMESPACE = 'http://www.hpi.uni-potsdam.de/semmul2014/'
+  BASE_NAMESPACE = 'http://www.hpi.uni-potsdam.de/semmul2014/raw/tmdb/'
   TMDB_NAMESPACE = 'http://www.hpi.uni-potsdam.de/semmul2014/themoviedb.owl#'
   RDF_NAMESPACE = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
   XSD_NAMESPACE = 'http://www.w3.org/2001/XMLSchema#'
@@ -24,50 +24,66 @@ class TMDbUpdater::Updater
   def update(movie_id)
     # all data about movie with movie_id
     movie_details = get_movie_for_id movie_id
-    uri_movie = "#{BASE_NAMESPACE}/movie/#{movie_id}"
+    uri_movie = "#{BASE_NAMESPACE}movie/#{movie_id}"
     update_movie movie_details, uri_movie
 
     # alternative titles
+    puts 'alternative titles'
     movie_titles = get_titles_for_id movie_id
     update_titles movie_titles, uri_movie
 
     # cast
+    puts 'cast'
     movie_cast = get_casts_for_id movie_id
     update_cast movie_cast, uri_movie
 
     # crew
+    puts 'crew'
     movie_crew = get_crew_for_id movie_id
     update_crew movie_crew, uri_movie
 
     # collection
+    puts 'collection'
     update_collection movie_details, uri_movie
 
     # genres
+    puts 'genres'
     update_genres movie_details, uri_movie
 
     # production companies
+    puts 'companies'
     update_companies movie_details, uri_movie
 
     # production countries
+    puts 'countries'
     update_countries movie_details, uri_movie
 
     # releases
+    puts 'releases'
     movie_releases = get_releases_for_id movie_id
     update_releases movie_releases, uri_movie
 
     # spoken languages
-    movie_languages = get_languages_for_id movie_id
+    puts 'languages'
+    movie_languages = movie_details.spoken_languages
     update_languages movie_languages, uri_movie
 
     # translations
-    movie_translations = get_translations_for_is movie_id
-    update_tranlations movie_translations, uri_movie
+    puts 'translations'
+    movie_translations = get_translations_for_id movie_id
+    update_translations movie_translations, uri_movie
 
     # enqueue
+    puts 'ENQUEUE :-D'
     @publisher.enqueue_uri :movie_uri, uri_movie
   end
   
   def update_movie(movie, uri_movie)
+    # try to delete existing triples for movie first
+    @virtuoso.delete_triple(
+        subject: uri_movie)
+
+    # add new triples
     @virtuoso.new_triple(
         subject: uri_movie,
         predicate: "#{RDF_NAMESPACE}type",
@@ -75,7 +91,8 @@ class TMDbUpdater::Updater
     @virtuoso.new_triple(
         subject: uri_movie,
         predicate: "#{TMDB_NAMESPACE}movie/id",
-        object: (set_xsd_type movie.id, 'int'))
+        #object: (set_xsd_type movie.id, 'int'))
+        object: movie.id)
     @virtuoso.new_triple(\
       subject: uri_movie,
       predicate: "#{TMDB_NAMESPACE}movie/adult",
@@ -87,7 +104,8 @@ class TMDbUpdater::Updater
     @virtuoso.new_triple(
         subject: uri_movie,
         predicate: "#{TMDB_NAMESPACE}movie/budget",
-        object: (set_xsd_type movie.budget, 'int'))
+        #object: (set_xsd_type movie.budget, 'int'))
+        object: movie.budget)
     @virtuoso.new_triple(
         subject: uri_movie,
         predicate: "#{TMDB_NAMESPACE}movie/homepage",
@@ -119,11 +137,13 @@ class TMDbUpdater::Updater
     @virtuoso.new_triple(
         subject: uri_movie,
         predicate: "#{TMDB_NAMESPACE}movie/revenue",
-        object: (set_xsd_type movie.revenue, 'int'))
+        #object: (set_xsd_type movie.revenue, 'int'))
+        object: movie.revenue)
     @virtuoso.new_triple(
         subject: uri_movie,
         predicate: "#{TMDB_NAMESPACE}movie/runtime",
-        object: (set_xsd_type movie.runtime, 'int'))
+        #object: (set_xsd_type movie.runtime, 'int'))
+        object: movie.runtime)
     @virtuoso.new_triple(
         subject: uri_movie,
         predicate: "#{TMDB_NAMESPACE}movie/status",
@@ -143,7 +163,8 @@ class TMDbUpdater::Updater
     @virtuoso.new_triple(
         subject: uri_movie,
         predicate: "#{TMDB_NAMESPACE}movie/vote_count",
-        object: (set_xsd_type movie.vote_count, 'int'))
+        #object: (set_xsd_type movie.vote_count, 'int'))
+        object: movie.vote_count)
     @virtuoso.new_triple(
         subject: uri_movie,
         predicate: PAV_LASTUPDATEON,
@@ -158,6 +179,12 @@ class TMDbUpdater::Updater
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/alternative_titles/titles",
           object: uri_title, literal: false)
+
+      # try to delete existing triples for title first
+      @virtuoso.delete_triple(
+          subject: uri_title)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_title,
           predicate: "#{RDF_NAMESPACE}type",
@@ -184,6 +211,12 @@ class TMDbUpdater::Updater
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/credits/cast",
           object: uri_cast, literal: false)
+
+      # try to delete existing triples for cast first
+      @virtuoso.delete_triple(
+          subject: uri_cast)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_cast,
           predicate: "#{RDF_NAMESPACE}type",
@@ -191,11 +224,13 @@ class TMDbUpdater::Updater
       @virtuoso.new_triple(
           subject: uri_cast,
           predicate: "#{TMDB_NAMESPACE}cast/id",
-          object: (set_xsd_type cast['id'], 'int'))
+          #object: (set_xsd_type cast['id'], 'int'))
+          object: cast['id'])
       @virtuoso.new_triple(
           subject: uri_cast,
           predicate: "#{TMDB_NAMESPACE}cast/cast_id",
-          object: (set_xsd_type cast['cast_id'], 'int'))
+          #object: (set_xsd_type cast['cast_id'], 'int'))
+          object: cast['cast_id'])
       @virtuoso.new_triple(
           subject: uri_cast,
           predicate: "#{TMDB_NAMESPACE}cast/character",
@@ -228,6 +263,12 @@ class TMDbUpdater::Updater
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/credits/crew",
           object: uri_crew, literal: false)
+
+      # try to delete existing triples for crew first
+      @virtuoso.delete_triple(
+          subject: uri_crew)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_crew,
           predicate: "#{RDF_NAMESPACE}type",
@@ -235,7 +276,8 @@ class TMDbUpdater::Updater
       @virtuoso.new_triple(
           subject: uri_crew,
           predicate: "#{TMDB_NAMESPACE}crew/id",
-          object: (set_xsd_type crew['id'], 'int'))
+          #object: (set_xsd_type crew['id'], 'int'))
+          object: crew['id'])
       @virtuoso.new_triple(
           subject: uri_crew,
           predicate: "#{TMDB_NAMESPACE}crew/department",
@@ -262,7 +304,7 @@ class TMDbUpdater::Updater
   end
   
   def update_collection(movie, uri_movie)
-    collection_id = movie.belongs_to_collection
+    collection_id = movie.belongs_to_collection['id'] if movie.belongs_to_collection
     if collection_id
       collection = get_collection_for_id collection_id
       uri_collection = "#{BASE_NAMESPACE}collection/#{collection_id}"
@@ -270,7 +312,12 @@ class TMDbUpdater::Updater
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/belongs_to_collection",
           object: uri_collection, literal: false)
-      # TODO check if collection is already in database
+
+      # try to delete existing triples for collection first
+      @virtuoso.delete_triple(
+          subject: uri_collection)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_collection,
           predicate: "#{RDF_NAMESPACE}type",
@@ -278,7 +325,8 @@ class TMDbUpdater::Updater
       @virtuoso.new_triple(
           subject: uri_collection,
           predicate: "#{TMDB_NAMESPACE}movie/belongs_to_collection/id",
-          object: (set_xsd_type collection_id, 'int'))
+          #object: (set_xsd_type collection_id, 'int'))
+          object: collection_id)
       @virtuoso.new_triple(
           subject: uri_collection,
           predicate: "#{TMDB_NAMESPACE}movie/belongs_to_collection/name",
@@ -306,7 +354,12 @@ class TMDbUpdater::Updater
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/genres",
           object: uri_genre, literal: false)
-      # TODO check if genre is already in database
+
+      # try to delete existing triples for genre first
+      @virtuoso.delete_triple(
+          subject: uri_genre)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_genre,
           predicate: "#{RDF_NAMESPACE}type",
@@ -314,7 +367,8 @@ class TMDbUpdater::Updater
       @virtuoso.new_triple(
           subject: uri_genre,
           predicate: "#{TMDB_NAMESPACE}genres/id",
-          object: (set_xsd_type genre['id'], 'int'))
+          #object: (set_xsd_type genre['id'], 'int'))
+          object: genre['id'])
       @virtuoso.new_triple(
           subject: uri_genre,
           predicate: "#{TMDB_NAMESPACE}genres/name",
@@ -334,7 +388,12 @@ class TMDbUpdater::Updater
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/production_companies",
           object: uri_company, literal: false)
-      # TODO check if company is already in database
+
+      # try to delete existing triples for company first
+      @virtuoso.delete_triple(
+          subject: uri_company)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_company,
           predicate: "#{RDF_NAMESPACE}type",
@@ -342,7 +401,8 @@ class TMDbUpdater::Updater
       @virtuoso.new_triple(
           subject: uri_company,
           predicate: "#{TMDB_NAMESPACE}movie/production_companies/id",
-          object: (set_xsd_type company['id'], 'int'))
+          #object: (set_xsd_type company['id'], 'int'))
+          object: company['id'])
       @virtuoso.new_triple(
         subject: uri_company,
         predicate: "#{TMDB_NAMESPACE}movie/production_companies/name",
@@ -362,7 +422,12 @@ class TMDbUpdater::Updater
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/production_countries",
           object: uri_country, literal: false)
-      # TODO check if country is already in database
+
+      # try to delete existing triples for country first
+      @virtuoso.delete_triple(
+          subject: uri_country)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_country,
           predicate: "#{RDF_NAMESPACE}type",
@@ -385,11 +450,17 @@ class TMDbUpdater::Updater
   def update_releases(releases, uri_movie)
     movie_releases = releases['countries']
     movie_releases.each do |release|
-      uri_release = "#{uri_movie}/releases/#{release}['iso_3166_1']"
+      uri_release = "#{uri_movie}/releases/#{release['iso_3166_1']}"
       @virtuoso.new_triple(
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/releases/countries",
           object: uri_release, literal: false)
+
+      # try to delete existing triples for release first
+      @virtuoso.delete_triple(
+          subject: uri_release)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_release,
           predicate: "#{RDF_NAMESPACE}type",
@@ -420,7 +491,12 @@ class TMDbUpdater::Updater
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/spoken_languages",
           object: uri_language, literal: false)
-      # TODO check if language is already in database
+
+      # try to delete existing triples for language first
+      @virtuoso.delete_triple(
+          subject: uri_language)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_language,
           predicate: "#{RDF_NAMESPACE}type",
@@ -448,7 +524,12 @@ class TMDbUpdater::Updater
           subject: uri_movie,
           predicate: "#{TMDB_NAMESPACE}movie/translations/translations",
           object: uri_translation, literal: false)
-      # TODO check if translation is already in database
+
+      # try to delete existing triples for translation first
+      @virtuoso.delete_triple(
+          subject: uri_translation)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_translation,
           predicate: "#{RDF_NAMESPACE}type",
@@ -550,19 +631,6 @@ class TMDbUpdater::Updater
     end
   end
 
-  def get_languages_for_id(movie_id, attempt: 0)
-    Tmdb::Movie.spoken_languages movie_id
-  rescue SocketError => e
-    if attempt < 10
-      puts "  !!! A socket error occurred, retrying (#{attempt} retries already, id: #{movie_id})"
-      sleep 0.5
-      get_languages_for_id movie_id, attempt: (attempt + 1)
-    else
-      puts "  !!! A socket error occurred 10 times, cancel retry for movie with id #{movie_id}"
-      raise e
-    end
-  end
-
   def get_translations_for_id(movie_id, attempt: 0)
     Tmdb::Movie.translations movie_id
   rescue SocketError => e
@@ -593,7 +661,12 @@ class TMDbUpdater::Updater
   def update_person(id)
     person = get_person_for_id id
     uri_person = "#{BASE_NAMESPACE}person/#{id}"
-    # TODO check if person is already in database
+
+    # try to delete existing triples for person first
+    @virtuoso.delete_triple(
+        subject: uri_person)
+
+    # add new triples
     @virtuoso.new_triple(
         subject: uri_person,
         predicate: "#{RDF_NAMESPACE}type",
@@ -601,7 +674,8 @@ class TMDbUpdater::Updater
     @virtuoso.new_triple(
         subject: uri_person,
         predicate: "#{TMDB_NAMESPACE}person/id",
-        object: (set_xsd_type person.id, 'int'))
+        #object: (set_xsd_type person.id, 'int'))
+        object: person.id)
     @virtuoso.new_triple(
         subject: uri_person,
         predicate: "#{TMDB_NAMESPACE}person/adult",
@@ -653,7 +727,7 @@ class TMDbUpdater::Updater
   def update_credits(person_id, uri_person)
     credits = get_credits_for_person_with_id person_id
     update_casts credits, uri_person
-    update_crew credits, uri_person
+    update_crews credits, uri_person
   end
 
   def update_casts(credits, uri_person)
@@ -664,6 +738,12 @@ class TMDbUpdater::Updater
           subject: uri_person,
           predicate: "#{TMDB_NAMESPACE}person/combined_credits/cast",
           object: uri_cast)
+
+      # try to delete existing triples for cast first
+      @virtuoso.delete_triple(
+          subject: uri_cast)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_cast,
           predicate: "#{RDF_NAMESPACE}type",
@@ -683,7 +763,8 @@ class TMDbUpdater::Updater
       @virtuoso.new_triple(
           subject: uri_cast,
           predicate: "#{TMDB_NAMESPACE}person/combined_credits/cast/id",
-          object: (set_xsd_type cast['id'], 'int'))
+          #object: (set_xsd_type cast['id'], 'int'))
+          object: cast['id'])
       @virtuoso.new_triple(
           subject: uri_cast,
           predicate: "#{TMDB_NAMESPACE}person/combined_credits/cast/original_title",
@@ -711,7 +792,7 @@ class TMDbUpdater::Updater
     end
   end
 
-  def update_crew(credits, uri_person)
+  def update_crews(credits, uri_person)
     crews = credits['crew']
     crews.each do |crew|
       uri_crew = "#{uri_person}/cast/#{crew['credit_id']}"
@@ -719,6 +800,12 @@ class TMDbUpdater::Updater
           subject: uri_person,
           predicate: "#{TMDB_NAMESPACE}person/combined_credits/crew",
           object: uri_crew)
+
+      # try to delete existing triples for crew first
+      @virtuoso.delete_triple(
+          subject: uri_crew)
+
+      # add new triples
       @virtuoso.new_triple(
           subject: uri_crew,
           predicate: "#{TMDB_NAMESPACE}person/combined_credits/crew/adult",
@@ -730,7 +817,8 @@ class TMDbUpdater::Updater
       @virtuoso.new_triple(
           subject: uri_crew,
           predicate: "#{TMDB_NAMESPACE}person/combined_credits/crew/id",
-          object: (set_xsd_type crew['id'], 'int'))
+          #object: (set_xsd_type crew['id'], 'int'))
+          object: crew['id'])
       @virtuoso.new_triple(
           subject: uri_crew,
           predicate: "#{TMDB_NAMESPACE}person/combined_credits/crew/department",
