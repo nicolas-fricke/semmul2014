@@ -4,7 +4,7 @@ require 'sparql/client'
 require 'rdf'
 require 'rdf/virtuoso'
 
-class TMDbMapper::VirtuosoWriter
+class TMDbMapper::VirtuosoReader
   def initialize
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                            update_uri: 'http://localhost:8890/sparql-auth',
@@ -13,13 +13,8 @@ class TMDbMapper::VirtuosoWriter
                                            auth_method: 'digest')
   end
 
-  def new_triple(subject, predicate, object, graph='http://example.com/mapped')
-    graph = RDF::URI.new(graph)
-    subject = RDF::URI.new(subject)
-    predicate = RDF::URI.new(predicate)
-
-    query = RDF::Virtuoso::Query.insert([subject, predicate, object]).graph(graph)
-    p @repo.insert(query)
+  def get_objects_for(subject:, predicate:, graph: 'http://example.com/mapped')
+    # TODO: get and return objects from Virtuoso
   end
 
   private
