@@ -11,13 +11,22 @@ class TMDbMapper::Mapper
   RDFS_NAMESPACE    = 'http://www.w3.org/2000/01/rdf-schema#'
   XSD_NAMESPACE     = 'http://www.w3.org/2001/XMLSchema#'
 
+  #TODO move NAMESPACES to extra file (so that we do not have to define them in each class)
+
+  def initialize
+    @publisher = TMDbMapper::MsgPublisher.new
+    @virtuoso_writer = TMDbMapper::VirtuosoWriter.new
+    @virtuoso_reader = TMDbMapper::VirtuosoReader.new
+  end
+  
   def register_receiver
     @receiver = TMDbMapper::MsgConsumer.new
     @receiver.subscribe(type: :movie_uri) { |movie_uri| map(movie_uri) }
   end
 
   def map(raw_db_uri)
-    TMDbMapper::VirtuosoWriter.new_triple raw_db_uri, "#{RDF_NAMESPACE}type", "#{LOM_NAMESPACE}Movie"
+    @publisher.enqueue_uri :movie_uri, raw_db_uri
+    @virtuoso_writer.new_triple raw_db_uri, "#{RDF_NAMESPACE}type", "#{LOM_NAMESPACE}Movie"
     map_movie_titles(raw_db_uri)
     map_movie_release_dates(raw_db_uri)
     map_movie_production_companies(raw_db_uri)
@@ -25,65 +34,118 @@ class TMDbMapper::Mapper
   end
 
   def map_movie_titles(raw_db_uri)
-    TMDbMapper::VirtuosoReader.get_objects_for(
+    titles = @virtuoso_reader.get_objects_for(
       subject: raw_db_uri,
       predicate: "#{TMDB_NAMESPACE}movie/title"
-    ).each do |title|
-      TMDbMapper::VirtuosoWriter.new_triple(
-        raw_db_uri, "#{SCHEMA_NAMESPACE}name", title
-      )
+    )
+    if titles
+      titles.each_value do |title|
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{SCHEMA_NAMESPACE}name", title
+        )
+      end
     end
   end
 
   def map_movie_release_dates(raw_db_uri)
-    TMDbMapper::VirtuosoReader.get_objects_for(
+    dates = @virtuoso_reader.get_objects_for(
       subject: raw_db_uri,
       predicate: "#{TMDB_NAMESPACE}movie/release_date"
-    ).each do |release_date|
-      date_string = Date.parse(release_date).xmlschema
-      TMDbMapper::VirtuosoWriter.new_triple(
-        raw_db_uri, "#{SCHEMA_NAMESPACE}datePublished", "#{date_string}^^#{XSD_NAMESPACE}date"
-      )
+    )
+    if dates
+      dates..each do |release_date|
+        date_string = Date.parse(release_date).xmlschema
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{SCHEMA_NAMESPACE}datePublished", "#{date_string}^^#{XSD_NAMESPACE}date"
+        )
+      end
     end
   end
 
   def map_movie_production_companies(raw_db_uri)
-    TMDbMapper::VirtuosoReader.get_objects_for(
+    companies = @virtuoso_reader.get_objects_for(
         subject: raw_db_uri,
         predicate: "#{TMDB_NAMESPACE}movie/production_companies"
-    ).each do |production_company_raw_uri|
-      production_company_mapped_uri = "#{BASE_NAMESPACE}/company/"
-      TMDbMapper::VirtuosoReader.get_objects_for(
-          subject: production_company_raw_uri,
-          predicate: "#{TMDB_NAMESPACE}movie/production_companies/id"
-      ).each do |production_company_id|
-        production_company_mapped_uri += "#{production_company_id}"
-        TMDbMapper::VirtuosoWriter.new_triple(
-            production_company_mapped_uri, "#{RDF_NAMESPACE}type", "#{SCHEMA_NAMESPACE}Organization"
+    )
+    if companies
+      companies.each do |production_company_raw_uri|
+        production_company_mapped_uri = "#{BASE_NAMESPACE}/company/"
+        ids = @virtuoso_reader.get_objects_for(
+            subject: production_company_raw_uri,
+            predicate: "#{TMDB_NAMESPACE}movie/production_companies/id"
+        )
+        if ids
+          ids.each do |production_company_id|
+            production_company_mapped_uri += "#{production_company_id}"
+            @virtuoso_writer.new_triple(
+                production_company_mapped_uri, "#{RDF_NAMESPACE}type", "#{SCHEMA_NAMESPACE}Organization", literal: false
+            )
+          end
+        end
+        names = @virtuoso_reader.get_objects_for(
+            subject: production_company_raw_uri,
+            predicate: "#{TMDB_NAMESPACE}movie/production_companies/name"
+        )
+        if names
+          names.each do |production_company_name|
+            @virtuoso_writer.new_triple(
+                production_company_mapped_uri, "#{SCHEMA_NAMESPACE}name", production_company_name
+            )
+          end
+        end
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{SCHEMA_NAMESPACE}productionCompany", production_company_mapped_uri, literal: false
         )
       end
-      TMDbMapper::VirtuosoReader.get_objects_for(
-          subject: production_company_raw_uri,
-          predicate: "#{TMDB_NAMESPACE}movie/production_companies/name"
-      ).each do |production_company_name|
-        production_company_mapped_uri += "#{production_company_name}"
-        TMDbMapper::VirtuosoWriter.new_triple(
-            production_company_mapped_uri, "#{SCHEMA_NAMESPACE}name", production_company_name
-        )
-      end
-      TMDbMapper::VirtuosoWriter.new_triple(
-          raw_db_uri, "#{SCHEMA_NAMESPACE}productionCompany", production_company_mapped_uri
-      )
     end
   end
 
   def map_cast(raw_db_uri)
-    TMDbMapper::VirtuosoReader.get_objects_for(
+    casts = @virtuoso_reader.get_objects_for(
         subject: raw_db_uri,
-        predicate: "#{TMDB_NAMESPACE}movie/production_companies"
-    ).each do |cast_uri|
-      # For each cast, get role
-      # Create matching triples
+        predicate: "#{TMDB_NAMESPACE}movie/credits/cast"
+    )
+    if casts
+      casts.each do |cast_raw_uri|
+        cast_mapped_uri = "#{BASE_NAMESPACE}/performance/"
+        ids = @virtuoso_reader.get_objects_for(
+            subject: cast_raw_uri,
+            predicate: "#{TMDB_NAMESPACE}cast/id"
+        )
+        if ids
+          ids.each do |cast_id|
+            cast_mapped_uri += "#{cast_id}"
+            @virtuoso_writer.new_triple(
+                cast_mapped_uri, "#{RDF_NAMESPACE}type", "#{LOM_NAMESPACE}Performance", literal: false
+            )
+          end
+        end
+        names = @virtuoso_reader.get_objects_for(
+            subject: cast_raw_uri,
+            predicate: "#{TMDB_NAMESPACE}cast/name"
+        )
+        if names
+          names.each do |performance_name|
+            @virtuoso_writer.new_triple(
+                cast_mapped_uri, "#{LOM_NAMESPACE}actor", performance_name
+            )
+          end
+        end
+        characters = @virtuoso_reader.get_objects_for(
+            subject: cast_raw_uri,
+            predicate: "#{TMDB_NAMESPACE}cast/character"
+        )
+        if characters
+          characters.each do |performance_character|
+            @virtuoso_writer.new_triple(
+                cast_mapped_uri, "#{LOM_NAMESPACE}character", performance_character
+            )
+          end
+        end
+        @virtuoso_writer.new_triple(
+            cast_raw_uri, "#{LOM_NAMESPACE}performance", cast_mapped_uri, literal: false
+        )
+      end
     end
   end
 
@@ -255,10 +317,6 @@ class TMDbMapper::Mapper
 
   private
   def secrets
-    @secrets ||= YAML.load_file '../config/secrets.yml'
-  end
-
-  def initialize_tmdb_api
-    Tmdb::Api.key secrets['services']['tmdb']['api_key']
+    @secrets ||= YAML.load_file '/config/secrets.yml'
   end
 end

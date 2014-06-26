@@ -5,7 +5,7 @@ class TMDbMapper::MsgConsumer
     @connection = Bunny.new
   end
 
-  def subscribe(type=type, &block)
+  def subscribe(type: type, &block)
     @connection.start
     channel = @connection.create_channel
     channel.prefetch 1 # Only take one message at a time, leave others on queue

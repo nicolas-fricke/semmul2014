@@ -13,10 +13,11 @@ class TMDbMapper::VirtuosoWriter
                                            auth_method: 'digest')
   end
 
-  def new_triple(subject, predicate, object, graph='http://example.com/mapped')
+  def new_triple(subject, predicate, object, graph='http://example.com/mapped', literal: true)
     graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
     predicate = RDF::URI.new(predicate)
+    object = RDF::URI.new(object) unless literal
 
     query = RDF::Virtuoso::Query.insert([subject, predicate, object]).graph(graph)
     p @repo.insert(query)
