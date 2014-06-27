@@ -94,6 +94,16 @@ private
     data << triple
   end
 
+  # Add a triple which documents the time of fetching.
+  #   uri: uri of the entity
+  #   data: RDF::Graph
+  def add_provenance(uri, data)
+    triple = RDF::Statement.new(RDF::URI.new(uri.to_s), \
+      RDF::URI.new("http://purl.org/pav/lastUpdateOn"), \
+      "#{DateTime.now}^^#{RDF::XSD.dateTime}")
+    data << triple
+  end
+
 public
 
   # Create a new fetcher which acts on the given source
@@ -134,6 +144,8 @@ public
   # If a type is not known (regarding both the ontology type and the fetching
   # rules), a StandardError will be raised.
   # The respective ontology type is added as a triple for all fetched entities.
+  # The time of fetching is added as a triple for all fetched entities using
+  # "http://purl.org/pav/lastUpdateOn".
   #   uri: a URI (uri.to_s must be a valid URI of an entity)
   #   type: string (type for which ontology type and rules are defined)
   #   yields: RDF::Graph
@@ -169,6 +181,8 @@ public
       end
       # add ontology type
       add_type(uri, type, data)
+      # add fetching time
+      add_provenance(uri, data)
       # yield graph of the fetched entity
       yield filter(data, uri)
     end
