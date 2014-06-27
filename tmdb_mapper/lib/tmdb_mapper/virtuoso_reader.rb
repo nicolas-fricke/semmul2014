@@ -13,16 +13,17 @@ class TMDbMapper::VirtuosoReader
                                            auth_method: 'digest')
   end
 
-  def get_objects_for(subject: , predicate: ,graph: 'http://example.com/raw')
+  def get_objects_for(subject: , predicate: , graph: 'http://example.com/raw')
     graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
     predicate = RDF::URI.new(predicate)
 
     query = RDF::Virtuoso::Query.select.where([subject, predicate, :o]).graph(graph)
     result = @repo.select(query)
-    puts result.bindings
+    # puts result.bindings
     # TODO get value from bindings or find other way to get variables/values
     # goal: array with result values
+    result.bindings[:o]
   end
 
   private
