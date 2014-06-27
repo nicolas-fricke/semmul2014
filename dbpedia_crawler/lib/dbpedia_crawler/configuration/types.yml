@@ -24,8 +24,9 @@ types:
 #
 # The following rules define the behaviour of the fetcher. The keys (like "actor")
 # must be present in the hash of types above. Each type may have a list of 
-# key-value-pairs where the key is a RDF property and the value is a type. If
-# the fetcher fetches an entity of, say, type "movie", and finds a triple with
+# key-value-pairs where the key is a RDF property and the value is a type. 
+#
+# If the fetcher fetches an entity of, say, type "movie", and finds a triple with
 # a property listed in the hash of "movie", it will attempt to treat the entity
 # connected via that property as an entity of the given type and fetch it is well,
 # then applying the rules listed for the respective type.
@@ -52,11 +53,4 @@ rules:
   place:
   season:
   show:
-    "http://dbpedia.org/ontology/director": director
-    "http://dbpedia.org/property/director": director
-    "http://dbpedia.org/ontology/distributor": organisation
-    "http://dbpedia.org/property/distributor": organisation
-    "http://dbpedia.org/property/studio": organisation
-    "http://dbpedia.org/ontology/starring": actor
-    "http://dbpedia.org/property/starring": actor
 

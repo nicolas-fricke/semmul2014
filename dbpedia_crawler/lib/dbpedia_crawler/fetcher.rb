@@ -158,11 +158,9 @@ public
           fetch_type = @rules[type].nil? ? nil : @rules[type][p]
           unless fetch_type.nil?
             if o.uri? and not noted_uris.include?(o.to_s)
-              puts "  Adding #{fetch_type} #{o} to stack."
+              puts "  + #{fetch_type} #{o}"
               stack << [o.to_s, fetch_type]
               noted_uris << o.to_s
-            else
-              puts "  Not adding #{fetch_type} #{o} (" + (o.uri? ? "already noted" : "not a URI") + ")."
             end
           end
         end
