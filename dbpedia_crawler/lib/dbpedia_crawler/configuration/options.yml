@@ -9,7 +9,7 @@ queue:
   purge: true                                 # whether to purge the queue on start
   purge_retries: 5                            # retries if purge raises exception for very large queue
   purge_sleep_seconds: 10                     # how long to sleep before attempting another purge
-  queue: "lom.source"                         # first part of the queues (e.g. for DBpedia movies: "lom.source.dbpedia.movie")
+  queue: "lom.source"                         # first part of the queues (full name e.g.: "lom.source.dbpedia.movie")
 
 source:
   endpoint: "http://dbpedia.org/sparql"       # URI of the SPARQL endpoint

@@ -40,11 +40,15 @@ private
 
 public
 
-  # Create a new Source
+  # Create a new Source.
+  # If the specified endpoint includes "live.dbpedia.org", DBpedia-Triples
+  # (which are not queried via SPARQL) will be received from 
+  # "live.dbpedia.org" instead of "dbpedia.org" (See #triples_for).
   #   configuration: hash
   def initialize(configuration)
     @config = configuration
     @client = SPARQL::Client.new @config["endpoint"]
+    @live = @config["endpoint"].include? "live.dbpedia.org"
   end
 
   # Execute a SPARQL query
@@ -55,11 +59,19 @@ public
     execute_with_retries { return @client.query query }
   end
 
-  # Get linked data for the given URI via HTTP
+  # Get linked data for the given URI via HTTP. If the DBpedia Live is to be
+  # queried (see #initialize), "http://live.dbpedia.org/..." will be accessed
+  # instead of "http://dbpedia.org/...". For other DBpedias, no such adjustments
+  # should be necessary.
   #   uri: string
   #   result: RDF::Graph
   #   raises: StandardError if querying fails after retries
   def triples_for(uri)
+    if @live
+      uri = uri.clone
+      uri["//dbpedia.org/"] = "//live.dbpedia.org/"
+      puts "# DBpedia Live: querying #{uri}"
+    end
     execute_with_retries { return RDF::Graph.load uri }
   end
 
