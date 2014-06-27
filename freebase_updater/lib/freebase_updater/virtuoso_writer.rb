@@ -18,11 +18,12 @@ class FreebaseUpdater::VirtuosoWriter
     object = RDF::URI.new(object) unless literal
 
     query = RDF::Virtuoso::Query.insert([subject, predicate, object]).graph(graph)
-    p @repo.insert(query)
+    p query
+    @repo.insert(query)
   end
 
   private
   def secrets
-    @secrets ||= YAML.load_file '../config/secrets.yml'
+    @secrets ||= YAML.load_file 'config/secrets.yml'
   end
 end
