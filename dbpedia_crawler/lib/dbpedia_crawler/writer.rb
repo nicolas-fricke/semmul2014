@@ -55,7 +55,7 @@ private
   #   data: RDF::Graph
   #   result: string
   def update_query(data)
-    query = "INSERT DATA INTO <" + @config["graph"] + "> {"
+    query = "INSERT DATA INTO <#{@config["graph"]}> {"
     query += RDF::NTriples::Writer.buffer({validate: false}) do |writer|
       writer << data
     end
@@ -70,6 +70,24 @@ private
     return "#{message.lines.first}..."
   end
 
+  # Delete all triples whose subject or object is the given entity.
+  #   entity: RDF::URI
+  def delete_triples_for(entity)
+    puts "Deleting old stuff..."
+    # delete triples with entity as subject
+    subject_query = "DELETE FROM GRAPH <#{@config["graph"]}> { ?s ?p ?o } " \
+      + "FROM <#{@config["graph"]}> " \
+      + "WHERE { ?s ?p ?o . filter ( ?s = <#{entity}> ) }"
+    puts subject_query
+    @client.query subject_query
+    # delete triples with entity as object
+    object_query = "DELETE FROM GRAPH <#{@config["graph"]}> { ?s ?p ?o } " \
+      + "FROM <#{@config["graph"]}> " \
+      + "WHERE { ?s ?p ?o . filter ( ?o = <#{entity}> ) }"
+    puts object_query
+    @client.query object_query
+  end
+
 public
 
   # Create a new Writer
@@ -80,11 +98,15 @@ public
   end
 
   # Insert all statements in the given graph into this Writer's graph of 
-  # this Writer's data store.
+  # this Writer's data store. Triples previously inserted for the given
+  # entity are deleted before the update.
+  #   uri: the entity for which triples are inserted
   #   data: RDF::Graph
   #   raises: StandardError if update fails
-  def insert(data)
+  def update(uri, data)
     begin
+      # delete previous triples
+      delete_triples_for uri
       # get update queries
       queries = update_queries data
       # apply updates

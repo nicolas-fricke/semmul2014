@@ -9,14 +9,16 @@
 # - Source: provides low-level access to the data of a DBpedia
 # - Writer: provides means of persisting data
 #
-# TODO: query related show data
-# TODO: add info about type of entities (film vs. show)
+# TODO: add info about type of entities (from ontology)
+# TODO: add PROV-O
+# TODO: fetching: root => films / shows
+# TODO: use other queues
 # TODO: remove false positives (e.g. "1960 in film"), especially due to categories
 # TODO: search for updates
 # 
+# TODO: query related show data
 # TODO: try with other DBpedias
 # TODO: check bunny options
-# TODO: interface of bunny queues / commands
 # TODO: validate configuration options
 # TODO: logging
 # TODO: testing :)

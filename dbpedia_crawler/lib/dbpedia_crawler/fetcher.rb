@@ -62,16 +62,23 @@ private
   # Remove unwanted triples from the given data.
   # Changes to the given graph are made in place.
   #   data: RDF::Graph
+  #   uri: uri of the entity
   #   result: RDF::Graph (the given graph)
-  def filter(data)
+  def filter(data, uri)
     # find statements to delete
     unwanted = RDF::Graph.new
     data.statements.each do |statement|
+      s, p, o = statement.subject, statement.predicate, statement.object
+      # filter inverse triples (something p uri)
+      unless s.to_s == uri
+        unwanted << statement
+        next
+      end
       # filter <http://www.openlinksw.com/schemas/virtrdf#Geometry>
-      o = statement.object
       if o.literal? and o.datatype.to_s == "http://www.openlinksw.com/schemas/virtrdf#Geometry"
         puts "  Filtered statement with literal #{o}."
         unwanted << statement
+        next
       end
     end
     # delete unwanted statements
@@ -116,7 +123,7 @@ public
   # fetched twice.
   #   uri: a URI (uri.to_s must be a valid URI of an entity)
   #   type: string (type for which rules are defined)
-  #   yields: RDF::GRAPH
+  #   yields: RDF::Graph
   def fetch(uri, type, &block)
     # initialize: entity noted, fetch given entity
     noted_uris, stack = [uri.to_s], [[uri.to_s, type.to_s]]
@@ -146,7 +153,7 @@ public
         end
       end
       # yield graph of the fetched entity
-      yield filter(data)
+      yield filter(data, uri)
     end
   end
 

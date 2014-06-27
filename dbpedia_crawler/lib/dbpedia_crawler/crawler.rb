@@ -65,7 +65,7 @@ private
   def crawl_entity(command)
     @fetcher.fetch(command[:uri], command[:type]) do |data|
       # one graph of data per (related) entity
-      @writer.insert data
+      @writer.update(command[:uri], data)
     end
   end
 
