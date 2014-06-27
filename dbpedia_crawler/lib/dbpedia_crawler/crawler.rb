@@ -53,10 +53,10 @@ private
     # create commands for fetching
     puts "Creating commands for fetching..."
     movies.each do |uri| 
-      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "root")
+      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "movie")
     end
     shows.each do |uri| 
-      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "root") 
+      @queue.push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "show") 
     end
   end
 

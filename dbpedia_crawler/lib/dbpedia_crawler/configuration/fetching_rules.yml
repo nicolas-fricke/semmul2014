@@ -14,7 +14,7 @@ person:
 
 place:
 
-root:
+movie:
   "http://dbpedia.org/ontology/director": person
   "http://dbpedia.org/property/director": person
   "http://dbpedia.org/ontology/distributor": organization
@@ -24,4 +24,13 @@ root:
   "http://dbpedia.org/property/starring": person
 
 season:
+
+show:
+  "http://dbpedia.org/ontology/director": person
+  "http://dbpedia.org/property/director": person
+  "http://dbpedia.org/ontology/distributor": organization
+  "http://dbpedia.org/property/distributor": organization
+  "http://dbpedia.org/property/studio": organization
+  "http://dbpedia.org/ontology/starring": person
+  "http://dbpedia.org/property/starring": person
 

@@ -73,18 +73,15 @@ private
   # Delete all triples whose subject or object is the given entity.
   #   entity: RDF::URI
   def delete_triples_for(entity)
-    puts "Deleting old stuff..."
     # delete triples with entity as subject
     subject_query = "DELETE FROM GRAPH <#{@config["graph"]}> { ?s ?p ?o } " \
       + "FROM <#{@config["graph"]}> " \
       + "WHERE { ?s ?p ?o . filter ( ?s = <#{entity}> ) }"
-    puts subject_query
     @client.query subject_query
     # delete triples with entity as object
     object_query = "DELETE FROM GRAPH <#{@config["graph"]}> { ?s ?p ?o } " \
       + "FROM <#{@config["graph"]}> " \
       + "WHERE { ?s ?p ?o . filter ( ?o = <#{entity}> ) }"
-    puts object_query
     @client.query object_query
   end
 
