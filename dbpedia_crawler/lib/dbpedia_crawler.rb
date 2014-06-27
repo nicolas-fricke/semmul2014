@@ -10,14 +10,9 @@
 # - Writer: provides means of persisting data
 #
 # TODO: remove false positives (e.g. "1960 in film"), especially due to categories
-# TODO: move "types" from options.yml to extra file 
 #
 # TODO: query related show data
 # TODO: try with other DBpedias
-# TODO: check bunny options
-# TODO: validate configuration options
-# TODO: logging
-# TODO: testing :)
 module DBpediaCrawler
 
   require_relative 'dbpedia_crawler/crawler'

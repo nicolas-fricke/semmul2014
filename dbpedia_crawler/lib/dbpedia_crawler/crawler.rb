@@ -10,19 +10,32 @@ private
   #
   # initialization
   #
+
+  # path to the YAML file containing the types and rules for fetching
+  TYPES_FILE = "../configuration/types.yml"
+
+  # Load the types and the fetching rules.
+  #   result: [types_hash, rules_hash]
+  def load_types
+    file_hash = YAML.load_file File::expand_path(TYPES_FILE, __FILE__)
+    return [file_hash["types"], file_hash["rules"]]
+  end
   
   # Create all queues that the crawler will listen to.
   # This includes a "crawler" queue for the "crawl all IDs" command
   # as well as dedicated queues for each entity type (although the
   # crawler itself will only push commands to "movie" and "show",
   # other components may push commands for "actor" etc).
-  def create_queues(queue_config)
+  #   types: hash
+  #   queue_config: hash
+  #   result: hash
+  def create_queues(types, queue_config)
     queues = {}
 
     # create queue for crawler
     queues["crawler"] = DBpediaCrawler::Queue.new(queue_config, "crawler")
     # create queues for types
-    @config["types"].keys.each do |type|
+    types.keys.each do |type|
       queues[type] = DBpediaCrawler::Queue.new(queue_config, type)
     end
 
@@ -151,12 +164,14 @@ public
   def initialize(configuration)
     # get configuration
     @config = configuration["crawler"]
+    # load types and fetching rules
+    types, rules = load_types
     # create other components
-    @queues = create_queues configuration["queue"]
-    @queue_index = 0
+    @queues = create_queues(types, configuration["queue"])
+    @queue_index = 0	# index of the next queue to pop a command from
     @source = DBpediaCrawler::Source.new configuration["source"]
     @writer = DBpediaCrawler::Writer.new configuration["writer"]
-    @fetcher = DBpediaCrawler::Fetcher.new(@source, @config["types"])
+    @fetcher = DBpediaCrawler::Fetcher.new(@source, types, rules)
   end
 
   # Start the crawler. Pushes the initial command (to query all relevant

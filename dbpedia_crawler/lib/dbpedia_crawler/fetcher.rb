@@ -20,18 +20,6 @@ class DBpediaCrawler::Fetcher
 private
 
   #
-  # fetching rules
-  #
-
-  # path to the YAML file containing the rules for fetching
-  FETCHING_RULES_FILE = "../configuration/fetching_rules.yml"
-
-  # Load the rules for fetching
-  def load_rules
-    return YAML.load_file(File::expand_path(FETCHING_RULES_FILE, __FILE__))
-  end
-
-  #
   # SPARQL queries
   #
 
@@ -108,12 +96,12 @@ public
 
   # Create a new fetcher which acts on the given source
   #   source: DBpediaCrawler::Source
-  #   types: hash (type string => ontology type)
-  def initialize(source, types)
+  #   types: hash
+  #   rules: hash
+  def initialize(source, types, rules)
     @source = source
     @types = types
-    # load the rules
-    @rules = load_rules
+    @rules = rules
     # load query strings
     @queries = load_queries
   end
