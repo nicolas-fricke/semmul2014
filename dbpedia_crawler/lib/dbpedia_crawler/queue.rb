@@ -33,9 +33,13 @@ public
 
   # Create a new Queue
   #   configuration: hash
-  def initialize(configuration)
+  #   type: string (type of the entities handled with this queue)
+  def initialize(configuration, type)
     @config = configuration
-    @queue = Bunny.new.start.create_channel.queue("semmul." + @config["agent_id"], durable: true)
+    # create the queue
+    queue_name = "#{@config["queue"]}.#{@config["agent_id"]}.#{type}"
+    @queue = Bunny.new.start.create_channel.queue(queue_name, durable: true)
+    # depending on the options, purge it (i.e., remove all messages)
     if @config["purge"] === true
       purge(@config["purge_retries"], @config["purge_sleep_seconds"])
     end

@@ -85,13 +85,23 @@ private
     data.delete unwanted
   end
 
+  # Add a triple which assigns the ontology type to the entity.
+  #   uri: uri of the entity
+  #   type: string
+  #   data: RDF::Graph
+  def add_type(uri, type, data)
+    triple = RDF::Statement.new(RDF::URI.new(uri.to_s), RDF.type, RDF::URI.new(@types[type]))
+    data << triple
+  end
+
 public
 
   # Create a new fetcher which acts on the given source
   #   source: DBpediaCrawler::Source
-  def initialize(source)
-    # get the source
+  #   types: hash (type string => ontology type)
+  def initialize(source, types)
     @source = source
+    @types = types
     # load the rules
     @rules = load_rules
     # load query strings
@@ -121,9 +131,13 @@ public
   # every related resource. 
   # One execution of this method will not cause the same resource to be 
   # fetched twice.
+  # If a type is not known (regarding both the ontology type and the fetching
+  # rules), a StandardError will be raised.
+  # The respective ontology type is added as a triple for all fetched entities.
   #   uri: a URI (uri.to_s must be a valid URI of an entity)
-  #   type: string (type for which rules are defined)
+  #   type: string (type for which ontology type and rules are defined)
   #   yields: RDF::Graph
+  #   raises: StandardError
   def fetch(uri, type, &block)
     # initialize: entity noted, fetch given entity
     noted_uris, stack = [uri.to_s], [[uri.to_s, type.to_s]]
@@ -131,7 +145,8 @@ public
     until stack.empty?
       # fetch data of next entity
       uri, type = stack.pop
-      raise "Skipping #{type} #{uri} (unkown type)." unless @rules.include?(type)
+      raise "Skipping #{type} #{uri} (type not known)." unless @types.include?(type)
+      raise "Skipping #{type} #{uri} (no fetching rules)." unless @rules.include?(type)
       puts "Fetching #{type} #{uri}..."
       data = @source.triples_for uri
       # search for other entities to fetch
@@ -152,6 +167,8 @@ public
           end
         end
       end
+      # add ontology type
+      add_type(uri, type, data)
       # yield graph of the fetched entity
       yield filter(data, uri)
     end

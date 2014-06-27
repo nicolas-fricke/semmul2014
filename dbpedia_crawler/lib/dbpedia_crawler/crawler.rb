@@ -76,10 +76,10 @@ public
     # get configuration
     @config = configuration["crawler"]
     # create other components
-    @queue = DBpediaCrawler::Queue.new configuration["queue"]
+    @queue = DBpediaCrawler::Queue.new(configuration["queue"], "crawler")
     @source = DBpediaCrawler::Source.new configuration["source"]
     @writer = DBpediaCrawler::Writer.new configuration["writer"]
-    @fetcher = DBpediaCrawler::Fetcher.new @source
+    @fetcher = DBpediaCrawler::Fetcher.new(@source, @config["types"])
   end
 
   # Start the crawler. Pushes the initial command (to query all relevant
