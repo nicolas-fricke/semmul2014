@@ -1,8 +1,9 @@
 crawler:
   crawl_all_ids: true                         # whether to push the initial command on start
   command_retries: 1                          # number of retries for failed commands
+  insomnia: true                              # when there is no command left, push the "crawl ids" command again
   sleep_seconds: 5                            # seconds to sleep if command queue is empty
-  types:                                      # types of entities which the crawler can handle
+  types:                                      # types of entities which the crawler can handle # TODO: move this to an extra file
     actor: "http://dbpedia.org/ontology/Actor"
     character: "http://dbpedia.org/ontology/FictionalCharacter"
     director: "http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#Director"

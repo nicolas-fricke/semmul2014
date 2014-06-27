@@ -11,9 +11,15 @@ First crawler (working directory does not matter, adjust the path as necessary):
 
 	ruby bin/dbpedia_crawler.rb
 
-Further crawlers ("do not push the initial command / do not purge the queue"):
+With default options, the first crawler purges the queue, pushes the initial "crawl all IDs" command on the queue,
+and when there are no commands left anymore, it pushes the "crawl all IDs" command again.
 
-	ruby bin/dbpedia_crawler.rb -crawler:crawl_all_ids:false -queue:purge:false
+Further crawlers ("do not crawl ids on start / do not crawl ids when no command is left / do not purge the queue"):
+
+	ruby bin/dbpedia_crawler.rb -crawler:crawl_all_ids:false -crawler:insomnia:false -queue:purge:false
+
+This crawler only handles commands which are on the queue, but will not push a "crawl all IDs" command (if there 
+are no commands left, it will sleep).
 
 ## Using Bunny
 
@@ -23,6 +29,10 @@ You need a running rabbitmq server (after installing the package on a Unix syste
 it should be running):
 
 	sudo apt-get install rabbitmq-server
+
+If ever necessary, restart it with:
+
+	sudo /etc/init.d/rabbitmq-server restart
 
 Install the bunny gem (or use bundle install):
 

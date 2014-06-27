@@ -28,11 +28,11 @@ private
       if arg =~ /\A-(\w+):(\w+):(.+)/
         component, option, value = $1, $2, $3
         args[component] = {} if args[component].nil?
-        if value =~ /\A\d+\Z/ # integer?
+        if value =~ /\A\d+\Z/                  # integer?
           args[component][option] = value.to_i
-        elsif value =~ /\A((true)|(false))\Z/ # boolean?
+        elsif value =~ /\A((true)|(false))\Z/  # boolean?
           args[component][option] = value =~ /\Atrue\Z/ ? true : false
-        else # string!
+        else                                   # string!
           args[component][option] = value
         end
       end
