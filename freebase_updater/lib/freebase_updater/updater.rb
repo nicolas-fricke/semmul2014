@@ -4,6 +4,7 @@ require 'json'
 class FreebaseUpdater::Updater
   NS = 'http://rdf.freebase.com/ns'
   XSD = 'http://www.w3.org/2001/XMLSchema#'
+  PAV_LASTUPDATEON = 'http://purl.org/pav/lastUpdateOn'
 
   def initialize
     @crawler = FreebaseCrawler::Crawler.new
@@ -36,6 +37,8 @@ class FreebaseUpdater::Updater
       update_runtime topic_description, topic_id
       update_distributors topic_description, topic_id
       update_crew topic_description, topic_id
+
+      update_pav NS + topic_id
 
       p 'done'
     end
@@ -97,8 +100,10 @@ class FreebaseUpdater::Updater
         @virtuoso.new_triple NS+language['id'], NS+'/type/object/name', language['text']
         @virtuoso.new_triple NS+language['id'], NS+'/language/human_language/iso_639_1_code', language['lang']
         @virtuoso.new_triple NS+language['id'], NS+'type/object/type', NS+'/language/human_language'
+        update_pav NS+language['id']
+        p 1
       end
-   end
+    end
   end
 
   def update_country(topic_description, topic_id)
@@ -110,6 +115,7 @@ class FreebaseUpdater::Updater
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/country', NS+country['id']
         @virtuoso.new_triple NS+country['id'], NS+'/type/object/name', country['text']
         @virtuoso.new_triple NS+country['id'], NS+'type/object/type', NS+'/location/country'
+        update_pav NS+country['id']
       end
     end
   end
@@ -123,6 +129,7 @@ class FreebaseUpdater::Updater
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/genre', NS+genre['id']
         @virtuoso.new_triple NS+genre['id'], NS+'/type/object/name', genre['text']
         @virtuoso.new_triple NS+genre['id'], NS+'type/object/type', NS+'/film/film_genre'
+        update_pav NS+genre['id']
       end
     end
   end
@@ -136,6 +143,7 @@ class FreebaseUpdater::Updater
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/soundtrack', NS+soundtrack['id']
         @virtuoso.new_triple NS+soundtrack['id'], NS+'/type/object/name', soundtrack['text']
         @virtuoso.new_triple NS+soundtrack['id'], NS+'type/object/type', NS+'/music/soundtrack'
+        update_pav NS+soundtrack['id']
       end
     end
   end
@@ -149,6 +157,7 @@ class FreebaseUpdater::Updater
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/production_companies', NS+company['id']
         @virtuoso.new_triple NS+company['id'], NS+'/type/object/name', company['text']
         @virtuoso.new_triple NS+company['id'], NS+'type/object/type', NS+'/film/production_company'
+        update_pav NS+company['id']
       end
     end
   end
@@ -164,6 +173,7 @@ class FreebaseUpdater::Updater
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/distributors', NS+company['id']
         @virtuoso.new_triple NS+company['id'], NS+'/type/object/name', company['text']
         @virtuoso.new_triple NS+company['id'], NS+'type/object/type', NS+'/film/film_distributor'
+        update_pav NS+company['id']
       end
     end
   end
@@ -180,12 +190,15 @@ class FreebaseUpdater::Updater
         @virtuoso.delete_triple subject: performance_uri
         @virtuoso.new_triple movie_uri, starring_uri, performance_uri, literal: false
         @virtuoso.new_triple performance_uri, NS+'/type/object/type', NS+'/film/performance', literal: false
-
+        update_pav performance_uri
 
         if performance['property']['/film/performance/actor']
           performance['property']['/film/performance/actor']['values'].each do |actor|
+            @virtuoso.delete_triple subject: NS+actor['id']
+
             @virtuoso.new_triple performance_uri, NS+'/film/performance/actor', NS+actor['id'] , literal: false
             @virtuoso.new_triple NS+actor['id'], NS+'/type/object/name', actor['text']
+            update_pav NS+actor['id']
 
             # query their type
             query = {
@@ -203,9 +216,12 @@ class FreebaseUpdater::Updater
 
         if performance['property']['/film/performance/character']
           performance['property']['/film/performance/character']['values'].each do |character|
+            @virtuoso.delete_triple subject: NS+character['id']
+
             @virtuoso.new_triple performance_uri, NS+'/film/performance/character', NS+character['id'] , literal: false
             @virtuoso.new_triple NS+character['id'], NS+'/type/object/name', character['text']
             @virtuoso.new_triple NS+character['id'], NS+'/type/object/type', NS + '/film/performance/character'
+            update_pav NS+character['id']
           end
         end
       end
@@ -213,38 +229,37 @@ class FreebaseUpdater::Updater
   end
 
   def update_crew(topic_description, topic_id)
-    performances = topic_description['/film/film/other_crew']
-    if performances
-      performances['values'].each do |performance|
+    film_crew_gigs = topic_description['/film/film/other_crew']
+    if film_crew_gigs
+      film_crew_gigs['values'].each do |film_crew_gig|
+        film_crew_gig_uri = NS+film_crew_gig['id']
+        movie_uri = NS+topic_id
+        @virtuoso.delete_triple subject: film_crew_gig_uri
+        @virtuoso.new_triple movie_uri, NS+'/film/film/other_crew', film_crew_gig_uri, literal: false
+        @virtuoso.new_triple film_crew_gig_uri, NS+'/type/object/type', NS+'/film/performance', literal: false
+        update_pav film_crew_gig_uri
 
-        @virtuoso.delete_triple subject: performance_uri
-        @virtuoso.new_triple movie_uri, starring_uri, performance_uri, literal: false
-        @virtuoso.new_triple performance_uri, NS+'/type/object/type', NS+'/film/performance', literal: false
+        if film_crew_gig['property']['/film/film_crew_gig/crewmember']
+          film_crew_gig['property']['/film/film_crew_gig/crewmember']['values'].each do |member|
+            member_uri = NS+member['id']
+            @virtuoso.delete_triple subject: member_uri
 
-        if performance['property']['/film/performance/actor']
-          performance['property']['/film/performance/actor']['values'].each do |actor|
-            @virtuoso.new_triple performance_uri, NS+'/film/performance/actor', NS+actor['id'] , literal: false
-            @virtuoso.new_triple NS+actor['id'], NS+'/type/object/name', actor['text']
-
-            # query their type
-            query = {
-                'mid' => actor['id'],
-                'type' => []
-            }
-            @crawler.read_mql query do |response|
-              response['type'].each do |type|
-                @virtuoso.new_triple NS+actor['id'], NS+'/type/object/type', NS + type
-              end
-            end
-
+            @virtuoso.new_triple film_crew_gig_uri, NS+'/film/film_crew_gig/crewmember', member_uri, literal: false
+            @virtuoso.new_triple member_uri, NS+'/type/object/name', NS+member['text']
+            @virtuoso.new_triple member_uri, NS+'/type/object/type', NS + '/film/film_crewmembe'
+            update_pav member_uri
           end
         end
 
-        if performance['property']['/film/performance/character']
-          performance['property']['/film/performance/character']['values'].each do |character|
-            @virtuoso.new_triple performance_uri, NS+'/film/performance/character', NS+character['id'] , literal: false
-            @virtuoso.new_triple NS+character['id'], NS+'/type/object/name', character['text']
-            @virtuoso.new_triple NS+character['id'], NS+'/type/object/type', NS + '/film/performance/character'
+        if film_crew_gig['property']['/film/film_crew_gig/film_crew_role']
+          film_crew_gig['property']['/film/film_crew_gig/film_crew_role']['values'].each do |role|
+            role_uri = NS+role['id']
+            @virtuoso.delete_triple subject: role_uri
+
+            @virtuoso.new_triple film_crew_gig_uri, NS+'/film/film_crew_gig/film_crew_role', role_uri, literal: false
+            @virtuoso.new_triple role_uri, NS+'/type/object/name', NS+role['text']
+            @virtuoso.new_triple role_uri, NS+'/type/object/type', NS + '/film/film_crewmembe'
+            update_pav role_uri
           end
         end
       end
@@ -339,6 +354,12 @@ class FreebaseUpdater::Updater
 
   def set_xsd_type(literal, type)
     "#{literal}^^#{XSD}#{type}"
+  end
+
+  def update_pav(subject)
+    @virtuoso.new_triple  subject,
+                          PAV_LASTUPDATEON,
+                          (set_xsd_type DateTime.now, 'dateTime')
   end
 
 end

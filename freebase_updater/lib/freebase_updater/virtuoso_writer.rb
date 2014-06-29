@@ -18,7 +18,7 @@ class FreebaseUpdater::VirtuosoWriter
     object = RDF::URI.new(object) unless literal
 
     query = RDF::Virtuoso::Query.insert([subject, predicate, object]).graph(graph)
-    p query
+    #p query
     @repo.insert(query)
   end
 
