@@ -30,11 +30,12 @@ class FreebaseUpdater::Updater
       update_genres topic_description, topic_id
       update_production_companies topic_description, topic_id
       update_soundtrack topic_description, topic_id
-      update_distributors topic_description, topic_id
 
       #nested resources
       update_cast topic_description, topic_id
       update_runtime topic_description, topic_id
+      update_distributors topic_description, topic_id
+      update_crew topic_description, topic_id
 
       p 'done'
     end
@@ -90,6 +91,8 @@ class FreebaseUpdater::Updater
     languages = topic_description['/film/film/language']
     if languages
       languages['values'].each do |language|
+        @virtuoso.delete_triple subject: NS+language['id']
+
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/language', NS+language['id']
         @virtuoso.new_triple NS+language['id'], NS+'/type/object/name', language['text']
         @virtuoso.new_triple NS+language['id'], NS+'/language/human_language/iso_639_1_code', language['lang']
@@ -102,6 +105,8 @@ class FreebaseUpdater::Updater
     countries = topic_description['/film/film/country']
     if countries
       countries['values'].each do |country|
+        @virtuoso.delete_triple subject: NS+country['id']
+
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/country', NS+country['id']
         @virtuoso.new_triple NS+country['id'], NS+'/type/object/name', country['text']
         @virtuoso.new_triple NS+country['id'], NS+'type/object/type', NS+'/location/country'
@@ -113,6 +118,8 @@ class FreebaseUpdater::Updater
     genres= topic_description['/film/film/genre']
     if genres['values']
       genres['values'].each do |genre|
+        @virtuoso.delete_triple subject: NS+genre['id']
+
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/genre', NS+genre['id']
         @virtuoso.new_triple NS+genre['id'], NS+'/type/object/name', genre['text']
         @virtuoso.new_triple NS+genre['id'], NS+'type/object/type', NS+'/film/film_genre'
@@ -124,6 +131,8 @@ class FreebaseUpdater::Updater
     soundtracks= topic_description['/film/film/soundtrack']
     if soundtracks
       soundtracks['values'].each do |soundtrack|
+        @virtuoso.delete_triple subject: NS+soundtrack['id']
+
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/soundtrack', NS+soundtrack['id']
         @virtuoso.new_triple NS+soundtrack['id'], NS+'/type/object/name', soundtrack['text']
         @virtuoso.new_triple NS+soundtrack['id'], NS+'type/object/type', NS+'/music/soundtrack'
@@ -135,6 +144,8 @@ class FreebaseUpdater::Updater
     companies= topic_description['/film/film/production_companies']
     if companies
       companies['values'].each do |company|
+        @virtuoso.delete_triple subject: NS+company['id']
+
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/production_companies', NS+company['id']
         @virtuoso.new_triple NS+company['id'], NS+'/type/object/name', company['text']
         @virtuoso.new_triple NS+company['id'], NS+'type/object/type', NS+'/film/production_company'
@@ -147,6 +158,9 @@ class FreebaseUpdater::Updater
     if distributors
       distributors['values'].each do |distributor|
         company = distributor['property']['/film/film_film_distributor_relationship/distributor']['values'].first
+
+        @virtuoso.delete_triple subject: NS+company['id']
+
         @virtuoso.new_triple NS+topic_id, NS+'/film/film/distributors', NS+company['id']
         @virtuoso.new_triple NS+company['id'], NS+'/type/object/name', company['text']
         @virtuoso.new_triple NS+company['id'], NS+'type/object/type', NS+'/film/film_distributor'
@@ -162,6 +176,46 @@ class FreebaseUpdater::Updater
         starring_uri = NS + '/film/film/starring'
         performance_uri = NS + performance['id']
         movie_uri = NS + topic_id
+
+        @virtuoso.delete_triple subject: performance_uri
+        @virtuoso.new_triple movie_uri, starring_uri, performance_uri, literal: false
+        @virtuoso.new_triple performance_uri, NS+'/type/object/type', NS+'/film/performance', literal: false
+
+
+        if performance['property']['/film/performance/actor']
+          performance['property']['/film/performance/actor']['values'].each do |actor|
+            @virtuoso.new_triple performance_uri, NS+'/film/performance/actor', NS+actor['id'] , literal: false
+            @virtuoso.new_triple NS+actor['id'], NS+'/type/object/name', actor['text']
+
+            # query their type
+            query = {
+                'mid' => actor['id'],
+                'type' => []
+            }
+            @crawler.read_mql query do |response|
+              response['type'].each do |type|
+                @virtuoso.new_triple NS+actor['id'], NS+'/type/object/type', NS + type
+              end
+            end
+
+          end
+        end
+
+        if performance['property']['/film/performance/character']
+          performance['property']['/film/performance/character']['values'].each do |character|
+            @virtuoso.new_triple performance_uri, NS+'/film/performance/character', NS+character['id'] , literal: false
+            @virtuoso.new_triple NS+character['id'], NS+'/type/object/name', character['text']
+            @virtuoso.new_triple NS+character['id'], NS+'/type/object/type', NS + '/film/performance/character'
+          end
+        end
+      end
+    end
+  end
+
+  def update_crew(topic_description, topic_id)
+    performances = topic_description['/film/film/other_crew']
+    if performances
+      performances['values'].each do |performance|
 
         @virtuoso.delete_triple subject: performance_uri
         @virtuoso.new_triple movie_uri, starring_uri, performance_uri, literal: false
