@@ -23,6 +23,8 @@ class FreebaseUpdater::Updater
 
       update_primitives topic_description, topic_id
       update_persons topic_description, topic_id
+      update_cast topic_description, topic_id
+
       p 'done'
     end
   end
@@ -51,10 +53,72 @@ class FreebaseUpdater::Updater
     # these movies should be fetched automatically
     retrieve_uri topic_description, topic_id, '/film/film/prequel'
     retrieve_uri topic_description, topic_id, '/film/film/sequel'
+  end
 
+  def update_cast(topic_description, topic_id)
+    performances = topic_description['/film/film/starring']
+    if performances
+      performances['values'].each do |performance|
+        # a performance is an object with reference to a character and an actor
+        starring_uri = NS + '/film/film/starring'
+        performance_uri = NS + performance['id']
+        movie_uri = NS + topic_id
+
+        @virtuoso.delete_triple subject: performance_uri
+        @virtuoso.new_triple movie_uri, starring_uri, performance_uri, literal: false
+        @virtuoso.new_triple performance_uri, NS+'/type/object/type', NS+'/film/performance', literal: false
+
+        if performance['property']['/film/performance/actor']
+          performance['property']['/film/performance/actor']['values'].each do |actor|
+            @virtuoso.new_triple performance_uri, NS+'/film/performance/actor', NS+actor['id'] , literal: false
+            @virtuoso.new_triple NS+actor['id'], NS+'/type/object/name', actor['text']
+
+            # query their type
+            query = {
+                'mid' => actor['id'],
+                'type' => []
+            }
+            @crawler.read_mql query do |response|
+              response['type'].each do |type|
+                @virtuoso.new_triple NS+actor['id'], NS+'/type/object/type', NS + type
+              end
+            end
+
+          end
+        end
+
+        if performance['property']['/film/performance/character']
+          performance['property']['/film/performance/character']['values'].each do |character|
+            @virtuoso.new_triple performance_uri, NS+'/film/performance/character', NS+character['id'] , literal: false
+            @virtuoso.new_triple NS+character['id'], NS+'/type/object/name', character['text']
+            @virtuoso.new_triple NS+character['id'], NS+'/type/object/type', NS + '/film/performance/character'
+          end
+        end
+      end
+    end
 
   end
 
+  def write_person(person, locator, topic_id)
+
+    person_uri = NS + person['id']
+    @virtuoso.delete_triple subject: person_uri
+
+    @virtuoso.new_triple NS+topic_id, NS+locator, person_uri, literal: false
+    @virtuoso.new_triple person_uri, NS + '/type/object/name', person['text']
+
+    # TODO collect more, eg type
+    # query their type
+    query = {
+        'mid' => person['id'],
+        'type' => []
+    }
+    @crawler.read_mql query do |response|
+      response['type'].each do |type|
+        @virtuoso.new_triple person_uri, NS + '/type/object/type', NS + type
+      end
+    end
+  end
 
   def update_persons(topic_description, topic_id)
     %w( /film/film/cinematography
@@ -76,18 +140,7 @@ class FreebaseUpdater::Updater
         end
       end
     end
-
   end
-
-  def write_person(person, locator, topic_id)
-    person_uri = NS + person['id']
-    @virtuoso.delete_triple subject: person_uri
-
-    @virtuoso.new_triple NS+topic_id, NS+locator, person_uri, literal: false
-    @virtuoso.new_triple person_uri, NS + '/type/object/name', person['text']
-    # TODO collect more, eg type
-  end
-
 
 
   def retrieve_text(topic_description, topic_id, locator)
