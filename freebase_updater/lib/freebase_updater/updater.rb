@@ -22,7 +22,15 @@ class FreebaseUpdater::Updater
       @virtuoso.delete_triple subject: NS + topic_id
 
       update_primitives topic_description, topic_id
+
+      # resources
       update_persons topic_description, topic_id
+      update_language topic_description, topic_id
+      update_country topic_description, topic_id
+      update_genres topic_description, topic_id
+      update_production_companies topic_description, topic_id
+      update_soundtrack topic_description, topic_id
+      update_distributors topic_description, topic_id
 
       #nested resources
       update_cast topic_description, topic_id
@@ -78,6 +86,73 @@ class FreebaseUpdater::Updater
     end
   end
 
+  def update_language(topic_description, topic_id)
+    languages = topic_description['/film/film/language']
+    if languages
+      languages['values'].each do |language|
+        @virtuoso.new_triple NS+topic_id, NS+'/film/film/language', NS+language['id']
+        @virtuoso.new_triple NS+language['id'], NS+'/type/object/name', language['text']
+        @virtuoso.new_triple NS+language['id'], NS+'/language/human_language/iso_639_1_code', language['lang']
+        @virtuoso.new_triple NS+language['id'], NS+'type/object/type', NS+'/language/human_language'
+      end
+   end
+  end
+
+  def update_country(topic_description, topic_id)
+    countries = topic_description['/film/film/country']
+    if countries
+      countries['values'].each do |country|
+        @virtuoso.new_triple NS+topic_id, NS+'/film/film/country', NS+country['id']
+        @virtuoso.new_triple NS+country['id'], NS+'/type/object/name', country['text']
+        @virtuoso.new_triple NS+country['id'], NS+'type/object/type', NS+'/location/country'
+      end
+    end
+  end
+
+  def update_genres(topic_description, topic_id)
+    genres= topic_description['/film/film/genre']
+    if genres['values']
+      genres['values'].each do |genre|
+        @virtuoso.new_triple NS+topic_id, NS+'/film/film/genre', NS+genre['id']
+        @virtuoso.new_triple NS+genre['id'], NS+'/type/object/name', genre['text']
+        @virtuoso.new_triple NS+genre['id'], NS+'type/object/type', NS+'/film/film_genre'
+      end
+    end
+  end
+
+  def update_soundtrack(topic_description, topic_id)
+    soundtracks= topic_description['/film/film/soundtrack']
+    if soundtracks
+      soundtracks['values'].each do |soundtrack|
+        @virtuoso.new_triple NS+topic_id, NS+'/film/film/soundtrack', NS+soundtrack['id']
+        @virtuoso.new_triple NS+soundtrack['id'], NS+'/type/object/name', soundtrack['text']
+        @virtuoso.new_triple NS+soundtrack['id'], NS+'type/object/type', NS+'/music/soundtrack'
+      end
+    end
+  end
+
+  def update_production_companies(topic_description, topic_id)
+    companies= topic_description['/film/film/production_companies']
+    if companies
+      companies['values'].each do |company|
+        @virtuoso.new_triple NS+topic_id, NS+'/film/film/production_companies', NS+company['id']
+        @virtuoso.new_triple NS+company['id'], NS+'/type/object/name', company['text']
+        @virtuoso.new_triple NS+company['id'], NS+'type/object/type', NS+'/film/production_company'
+      end
+    end
+  end
+
+  def update_distributors(topic_description, topic_id)
+    distributors= topic_description['/film/film/distributors']
+    if distributors
+      distributors['values'].each do |distributor|
+        company = distributor['property']['/film/film_film_distributor_relationship/distributor']['values'].first
+        @virtuoso.new_triple NS+topic_id, NS+'/film/film/distributors', NS+company['id']
+        @virtuoso.new_triple NS+company['id'], NS+'/type/object/name', company['text']
+        @virtuoso.new_triple NS+company['id'], NS+'type/object/type', NS+'/film/film_distributor'
+      end
+    end
+  end
 
   def update_cast(topic_description, topic_id)
     performances = topic_description['/film/film/starring']
@@ -214,23 +289,6 @@ class FreebaseUpdater::Updater
 
 end
 
-#https://www.googleapis.com/freebase/v1/topic/m/07f_t4
-
-
-
-#retrieve_text topic_description, topic_id, '/film/film/country' #TODO Country
-##retrieve_text topic_description, topic_id, '/film/film/film_festivals' #TODO Event?
-##retrieve_text topic_description, topic_id, '/film/film/film_series' #TODO Series
-#retrieve_text topic_description, topic_id, '/film/film/genre' #TODO Genre
-#retrieve_text topic_description, topic_id, '/film/film/production_companies' #TODO Company
-#retrieve_text topic_description, topic_id, '/film/film/production_companies' #TODO Company
-##retrieve_text topic_description, topic_id, '/film/film/release_date_s' #TODO Company # additional releases (festivals etc), do we need this?
-#retrieve_text topic_description, topic_id, '/film/film/soundtrack' #TODO Music
-#retrieve_text topic_description, topic_id, '/film/film/language' #TODO Language?
-#
-#
-## go deeper!!!
-##retrieve_text topic_description, topic_id, '/film/film/distributors' #TODO Company?  GO DEEPER!
-##retrieve_text topic_description, topic_id, '/film/film/estimated_budget' #TODO Go deeper
-##retrieve_text topic_description, topic_id, '/film/film/other_crew' #TODO go deeper
-##retrieve_text topic_description, topic_id, '/film/film/runtime' #TODO go deeper
+# not stored yet
+#'/film/film/estimated_budget' #TODO nested
+#'/film/film/other_crew' #TODO nested
