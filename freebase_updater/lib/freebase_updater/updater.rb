@@ -23,7 +23,10 @@ class FreebaseUpdater::Updater
 
       update_primitives topic_description, topic_id
       update_persons topic_description, topic_id
+
+      #nested resources
       update_cast topic_description, topic_id
+      update_runtime topic_description, topic_id
 
       p 'done'
     end
@@ -31,8 +34,7 @@ class FreebaseUpdater::Updater
 
   def update_primitives(topic_description, topic_id)
     # strings
-    %W( /common/topic/description
-        /common/topic/official_website
+    %W( /common/topic/official_website
         /film/film/film_format
         /film/film/metacritic_id
         /film/film/netflix_id
@@ -45,6 +47,8 @@ class FreebaseUpdater::Updater
       retrieve_text topic_description, topic_id, locator
     end
 
+    retrieve_value topic_description, topic_id, '/common/topic/description'
+
     # dates
     retrieve_date topic_description, topic_id, '/film/film/initial_release_date'
 
@@ -54,6 +58,26 @@ class FreebaseUpdater::Updater
     retrieve_uri topic_description, topic_id, '/film/film/prequel'
     retrieve_uri topic_description, topic_id, '/film/film/sequel'
   end
+
+  def update_runtime(topic_description, topic_id)
+    runtimes = topic_description['/film/film/runtime']
+    if runtimes
+      sum = 0
+      runtimes['values'].each do |runtime|
+        # there are several runtimes
+        # initially the idea was to distinguish different cuts (TV, cinema, director's cut...)
+        # usually the type is not provided, the runtime in claimed differently though
+        # for now, we simply average the result
+        # TODO think of a better solution here
+        runtime['property']['/film/film_cut/runtime']['values'].each do |cut|
+          sum += cut['value']
+        end
+      end
+      sum /= runtimes['values'].count
+      @virtuoso.new_triple NS+topic_id, NS+'/film/film_cut/runtime', sum
+    end
+  end
+
 
   def update_cast(topic_description, topic_id)
     performances = topic_description['/film/film/starring']
@@ -96,7 +120,6 @@ class FreebaseUpdater::Updater
         end
       end
     end
-
   end
 
   def write_person(person, locator, topic_id)
@@ -145,6 +168,10 @@ class FreebaseUpdater::Updater
 
   def retrieve_text(topic_description, topic_id, locator)
     retrieve topic_description, topic_id, locator, 'text'
+  end
+
+  def retrieve_value(topic_description, topic_id, locator)
+    retrieve topic_description, topic_id, locator, 'value'
   end
 
   def retrieve_uri(topic_description, topic_id, locator)
@@ -207,4 +234,3 @@ end
 ##retrieve_text topic_description, topic_id, '/film/film/estimated_budget' #TODO Go deeper
 ##retrieve_text topic_description, topic_id, '/film/film/other_crew' #TODO go deeper
 ##retrieve_text topic_description, topic_id, '/film/film/runtime' #TODO go deeper
-##retrieve_text topic_description, topic_id, '/film/film/starring' #TODO go deeper, persons, characters...
