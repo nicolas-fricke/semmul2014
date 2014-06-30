@@ -333,7 +333,7 @@ class FreebaseUpdater::Updater
   def retrieve_date(topic_description, topic_id, locator)
     return unless topic_description[locator]
     topic_description[locator]['values'].each do |element|
-      @virtuoso.new_triple NS+topic_id, NS+locator, set_xsd_type(element['value'], 'datetime')
+      @virtuoso.new_triple NS+topic_id, NS+locator, set_xsd_type(element['value'], 'date')
     end
   end
 
