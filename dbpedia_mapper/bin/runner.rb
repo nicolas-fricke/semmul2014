@@ -13,6 +13,7 @@ subjects = v.get_all_subjects()
 
 subjects.each_solution do |subject|
   s = subject.bindings[:s]
+  p "#{s}"
   values = v.get_all_for_subject(s)
   values.each_solution do |v|
     p = v.bindings[:p]
