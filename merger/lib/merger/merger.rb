@@ -25,6 +25,7 @@ class Merger::Merger
       set_same_as_references new_entity_uri: mapped_movie_uri, existing_entity_uri: main_db_entity_uri
     end
     update_provenience_information(main_db_entity_uri)
+    # TODO: enqueue message with main_db_entity_uri onto mapped queue for consolidation
   end
 
   def find_merged_entity(mapped_movie_uri)
