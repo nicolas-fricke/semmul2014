@@ -37,12 +37,7 @@ class DBpediaMapper::Mapper
   }
 
   # not tested:
-  # releaseDate
-  # studio
-  # firstAired, lastAired
-  # numberOfSeasons
-  # numberOfEpisodes
-  # episode
+  # episodeList
   # partOfSeries
   # episodeNumber
   # partOfSeason
@@ -67,6 +62,7 @@ class DBpediaMapper::Mapper
 
     "#{Dbpedia}distributor" => "#{Schema}productionCompany",
     "#{Dbprop}distributor" => "#{Schema}productionCompany",
+    "#{Dbprop}distributors" => "#{Schema}productionCompany",
     "#{Dbprop}studio" => "#{Schema}productionCompany",
     "#{Schema}productionCompany" => "#{Schema}productionCompany",
 
@@ -117,7 +113,7 @@ class DBpediaMapper::Mapper
   }
 
   def initialize
-    
+    @virtuoso = DBpediaMapper::Virtuoso.new
   end
 
 
@@ -133,22 +129,21 @@ class DBpediaMapper::Mapper
 
  
   def map(subject, predicate, object)
+    if "#{subject}" == "http://dbpedia.org/resource/Michael_%22Crocodile%22_Dundee"
+      p "#{subject}"
+      p "#{predicate}"
+      p "#{object}"
+    end
 
     if predicate == Type
       mo = mapped_object(object)
       if mo != nil and mo != ""
-        v = DBpediaMapper::Virtuoso.new
-        v.write_mapped(subject, Type, mo)
+        @virtuoso.write_mapped(subject, Type, mo)
       end
     else
       mp = mapped_property(predicate)
       if mp != nil and mp != ""
-        if mp == "#{Lom}actor"
-          p "#{predicate}"
-          p "#{mp}"
-        end
-        v = DBpediaMapper::Virtuoso.new
-        v.write_mapped(subject, mp, object)
+        @virtuoso.write_mapped(subject, mp, object)
       end
     end
 
