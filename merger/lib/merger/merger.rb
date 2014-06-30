@@ -20,7 +20,7 @@ class Merger::Merger
       if main_db_entity_uri
         merge_into_entity new_entity_uri: mapped_movie_uri, existing_entity_uri: main_db_entity_uri
       else
-        create_new_entity new_entity_uri: mapped_movie_uri
+        main_db_entity_uri = create_new_entity new_entity_uri: mapped_movie_uri
       end
       set_same_as_references new_entity_uri: mapped_movie_uri, existing_entity_uri: main_db_entity_uri
     end
@@ -46,6 +46,7 @@ class Merger::Merger
 
   def create_new_entity(new_entity_uri:)
     # TODO: Copy entity from MapDB into MainDB and update URIs to match MainDB schema
+    # return newly created entity URI
   end
 
   def set_same_as_references(new_entity_uri:, existing_entity_uri:)
