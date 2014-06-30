@@ -251,7 +251,7 @@ class FreebaseUpdater::Updater
 
             @virtuoso.new_triple film_crew_gig_uri, NS+'/film/film_crew_gig/crewmember', member_uri, literal: false
             @virtuoso.new_triple member_uri, NS+'/type/object/name', NS+member['text']
-            @virtuoso.new_triple member_uri, NS+'/type/object/type', NS + '/film/film_crewmembe'
+            @virtuoso.new_triple member_uri, NS+'/type/object/type', NS + '/film/film_crewmember'
             update_pav member_uri
           end
         end
@@ -263,7 +263,7 @@ class FreebaseUpdater::Updater
 
             @virtuoso.new_triple film_crew_gig_uri, NS+'/film/film_crew_gig/film_crew_role', role_uri, literal: false
             @virtuoso.new_triple role_uri, NS+'/type/object/name', NS+role['text']
-            @virtuoso.new_triple role_uri, NS+'/type/object/type', NS + '/film/film_crewmembe'
+            @virtuoso.new_triple role_uri, NS+'/type/object/type', NS + '/film/film_crewmember'
             update_pav role_uri
           end
         end

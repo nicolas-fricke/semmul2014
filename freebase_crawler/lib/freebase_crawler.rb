@@ -44,7 +44,7 @@ module FreebaseCrawler
       rescue SocketError => e
         p "SocketError occured: #{e} --> repeating query"
         sleep 0.5
-        execute query, page: page, cursor: cursor
+        read_mql query, page: page, cursor: cursor, &block
       end
     end
 
