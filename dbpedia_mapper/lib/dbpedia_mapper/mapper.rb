@@ -1,4 +1,5 @@
 require 'yaml'
+require 'time'
 
 class DBpediaMapper::Mapper
   Base = "http://example.com/"
@@ -12,6 +13,8 @@ class DBpediaMapper::Mapper
   # Foaf = "http://xmlns.com/foaf/spec/"
   Foaf = "http://xmlns.com/foaf/0.1/"
 
+  Xsd = "http://www.w3.org/2001/XMLSchema#"
+
   Type = "#{Rdf}type"
 
   Object_mappings = {
@@ -23,6 +26,9 @@ class DBpediaMapper::Mapper
     "#{Dbpedia}TelevisionEpisode" => "#{Schema}Episode",
     "#{Foaf}Person" => "#{Schema}Person",
     "#{Dbpedia}Person" => "#{Schema}Person",
+
+    "#{Dbpedia}Organisation" => "#{Schema}Organization",
+    "#{Dbpedia}Company" => "#{Schema}Organization",
     
     "#{Dbpedia}Actor" => "#{Dbpedia}Actor",
     "#{Dbpedia}FictionalCharacter" => "#{Dbpedia}FictionalCharacter",
@@ -34,6 +40,8 @@ class DBpediaMapper::Mapper
     "#{Schema}TVSeason" => "#{Schema}TVSeason",
     "#{Schema}Episode" => "#{Schema}Episode",
     "#{Schema}Person" => "#{Schema}Person",
+
+    "#{Schema}Organization" => "#{Schema}Organization"
   }
 
   # not tested:
@@ -112,6 +120,9 @@ class DBpediaMapper::Mapper
     "#{Lom}actor" => "#{Lom}actor",
   }
 
+  Date_formatting = ["#{Schema}datePublished", "#{Schema}startDate", "#{Schema}endDate", "#{Schema}birthDate"]
+  Further_entities = ["#{Schema}director", "#{Schema}productionCompany", "#{Schema}episode", "#{Schema}partOfSeries", "#{Schema}partOfSeason", "#{Lom}actor"]
+
   def initialize
     @virtuoso = DBpediaMapper::Virtuoso.new
   end
@@ -127,14 +138,8 @@ class DBpediaMapper::Mapper
     return "#{mp}"
   end
 
- 
-  def map(subject, predicate, object)
-    if "#{subject}" == "http://dbpedia.org/resource/Michael_%22Crocodile%22_Dundee"
-      p "#{subject}"
-      p "#{predicate}"
-      p "#{object}"
-    end
 
+  def map(subject, predicate, object, go_deeper = false)
     if predicate == Type
       mo = mapped_object(object)
       if mo != nil and mo != ""
@@ -142,12 +147,40 @@ class DBpediaMapper::Mapper
       end
     else
       mp = mapped_property(predicate)
-      if mp != nil and mp != ""
+      
+      # map dates
+      if Date_formatting.include?(mp)
+        begin
+          date_string = Date.parse(object.to_s).xmlschema
+          @virtuoso.write_mapped(subject, mp, "#{date_string}^^#{Xsd}date")
+        rescue ArgumentError
+          puts "Could not parse `#{object.to_s}' as date."
+        end
+
+      # map objects with URIs to other entities that have to be mapped
+      elsif go_deeper and Further_entities.include?(mp)
+        map_entity(object)
+        @virtuoso.write_mapped(subject, mp, object)
+
+      # map everything else
+      elsif mp != nil and mp != ""
         @virtuoso.write_mapped(subject, mp, object)
       end
     end
 
   end
+
+
+# TODO: sameAs links may have the current entity as object - then they will not be mapped right now
+  def map_entity(uri, go_deeper = false)
+    values = @virtuoso.get_all_for_subject(uri)
+    values.each_solution do |v|
+      p = v.bindings[:p]
+      o = v.bindings[:o]
+      map(uri, p, o, go_deeper)
+    end
+  end
+
 
   private
   def secrets

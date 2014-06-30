@@ -9,15 +9,11 @@ mapper = DBpediaMapper::Mapper.new
 
 v = DBpediaMapper::Virtuoso.new
 
-subjects = v.get_all_subjects()
+# subjects = v.get_all_subjects()
 
-subjects.each_solution do |subject|
-  s = subject.bindings[:s]
-  p "#{s}"
-  values = v.get_all_for_subject(s)
-  values.each_solution do |v|
-    p = v.bindings[:p]
-    o = v.bindings[:o]
-    mapper.map(s, p, o)
-  end
-end
+# subjects.each_solution do |subject|
+#   s = subject.bindings[:s]
+#   mapper.map_entity(s, true)
+# end
+
+mapper.map_entity("http://dbpedia.org/resource/!Women_Art_Revolution", true)
