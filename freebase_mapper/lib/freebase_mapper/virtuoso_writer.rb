@@ -2,7 +2,7 @@
 require 'yaml'
 require 'rdf/virtuoso'
 
-class FreebaseUpdater::VirtuosoWriter
+class FreebaseMapper::VirtuosoWriter
   def initialize
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                            update_uri: 'http://localhost:8890/sparql-auth',

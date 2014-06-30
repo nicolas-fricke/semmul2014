@@ -10,6 +10,7 @@ class FreebaseUpdater::Updater
     @crawler = FreebaseCrawler::Crawler.new
     @virtuoso = FreebaseUpdater::VirtuosoWriter.new
     @receiver = FreebaseUpdater::MsgConsumer.new
+    @publisher = FreebaseUpdater::MsgPublisher.new
 
     puts "listening on queue #{@receiver.queue_name :movie_id}"
     @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
@@ -18,9 +19,13 @@ class FreebaseUpdater::Updater
   def update(topic_id)
     # long queries are not necessarily answered, thus we split it
     p "Looking up MID #{topic_id} ..."
+    start_time = Time.now
+
     retrieve_topic topic_id do |topic_description|
+      movie_uri = NS + topic_id
+
       # try to delete existing triples for movie first
-      @virtuoso.delete_triple subject: NS + topic_id
+      @virtuoso.delete_triple subject: movie_uri
 
       update_primitives topic_description, topic_id
 
@@ -38,9 +43,10 @@ class FreebaseUpdater::Updater
       update_distributors topic_description, topic_id
       update_crew topic_description, topic_id
 
-      update_pav NS + topic_id
+      update_pav movie_uri
 
-      p 'done'
+      p "Finished within #{Time.now - start_time}s"
+      @publisher.enqueue_uri :movie_uri, movie_uri
     end
   end
 
@@ -101,7 +107,6 @@ class FreebaseUpdater::Updater
         @virtuoso.new_triple NS+language['id'], NS+'/language/human_language/iso_639_1_code', language['lang']
         @virtuoso.new_triple NS+language['id'], NS+'type/object/type', NS+'/language/human_language'
         update_pav NS+language['id']
-        p 1
       end
     end
   end

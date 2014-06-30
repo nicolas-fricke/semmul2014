@@ -1,0 +1,20 @@
+schemas:
+  # TODO insert missing namespaces (for several resources)
+  base_tmdb: 'http://semmul2014.hpi.de/tmdb/'
+  base: 'http://semmul2014.hpi.de/merged/'
+  lom: 'http://semmul2014.hpi.de/lodofmovies.owl#'
+  schema: 'http://schema.org/'
+  dbpedia: 'http://dbpedia.org/ontology/'
+  rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  rdfs: 'http://www.w3.org/2000/01/rdf-schema#'
+  xsd: 'http://www.w3.org/2001/XMLSchema#'
+graphs:
+  raw: 'http://semmul2014.hpi.de/graph/raw'
+  mapped: 'http://semmul2014.hpi.de/graph/mapped'
+  merged: 'http://semmul2014.hpi.de/graph/merged' # main
+queues:
+  # TODO insert queues for several resources
+  source_tmdb: 'lom.source.tmdb.' # movie_id
+  raw_tmdb: 'lom.raw_db.tmdb.' # movie_uri
+  mapping: 'lom.mapped.' # movie_uri
+  merging: 'lom.merged.' # movie_uri
