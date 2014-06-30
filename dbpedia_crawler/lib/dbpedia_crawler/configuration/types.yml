@@ -1,0 +1,56 @@
+#
+# Types: 
+#
+# The following keys (like "actor") are the strings that the crawler
+# uses internally to distinguish entities. While the crawler itself only pushes
+# commands to the queues for "movie" and "show", it will listen to a queue for
+# each type listed below.
+# The values are the URIs corresponding to the classes in the ontology.
+#
+types:
+  actor: "http://dbpedia.org/ontology/Actor"
+  character: "http://dbpedia.org/ontology/FictionalCharacter"
+  director: "http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#Director"
+  episode: "http://schema.rdfs.org/Episode"
+  movie: "http://schema.rdfs.org/Movie"
+  organisation: "http://schema.rdfs.org/Organisation"
+  person: "http://schema.rdfs.org/Person"
+  place: "http://dbpedia.org/ontology/Place"
+  season: "http://schema.rdfs.org/TVSeason"
+  show: "http://schema.rdfs.org/TVSeries"
+
+#
+# Fetching rules:
+#
+# The following rules define the behaviour of the fetcher. The keys (like "actor")
+# must be present in the hash of types above. Each type may have a list of 
+# key-value-pairs where the key is a RDF property and the value is a type. 
+#
+# If the fetcher fetches an entity of, say, type "movie", and finds a triple with
+# a property listed in the hash of "movie", it will attempt to treat the entity
+# connected via that property as an entity of the given type and fetch it is well,
+# then applying the rules listed for the respective type.
+#
+rules:
+  actor:
+    "http://dbpedia.org/ontology/birthPlace": place
+    "http://dbpedia.org/ontology/placeOfBirth": place
+  character:
+  director:
+    "http://dbpedia.org/ontology/birthPlace": place
+    "http://dbpedia.org/ontology/placeOfBirth": place
+  episode:
+  movie:
+    "http://dbpedia.org/ontology/director": director
+    "http://dbpedia.org/property/director": director
+    "http://dbpedia.org/ontology/distributor": organisation
+    "http://dbpedia.org/property/distributor": organisation
+    "http://dbpedia.org/property/studio": organisation
+    "http://dbpedia.org/ontology/starring": actor
+    "http://dbpedia.org/property/starring": actor
+  organisation:
+  person:
+  place:
+  season:
+  show:
+

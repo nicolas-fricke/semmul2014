@@ -1,13 +1,15 @@
 crawler:
   crawl_all_ids: true                         # whether to push the initial command on start
   command_retries: 1                          # number of retries for failed commands
+  insomnia: true                              # when there is no command left, push the "crawl ids" command again
   sleep_seconds: 5                            # seconds to sleep if command queue is empty
 
 queue:
-  agent_id: "dbpedia_crawler"                 # identifier of this crawler (to determine the queue)
+  agent_id: "dbpedia"                         # identifier of this crawler (to determine the queues)
   purge: true                                 # whether to purge the queue on start
   purge_retries: 5                            # retries if purge raises exception for very large queue
   purge_sleep_seconds: 10                     # how long to sleep before attempting another purge
+  queue: "lom.source"                         # first part of the queues (full name e.g.: "lom.source.dbpedia.movie")
 
 source:
   endpoint: "http://dbpedia.org/sparql"       # URI of the SPARQL endpoint

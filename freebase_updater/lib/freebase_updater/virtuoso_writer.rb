@@ -18,11 +18,22 @@ class FreebaseUpdater::VirtuosoWriter
     object = RDF::URI.new(object) unless literal
 
     query = RDF::Virtuoso::Query.insert([subject, predicate, object]).graph(graph)
+    #p query
+    @repo.insert(query)
+  end
+
+  def delete_triple(subject: :s, predicate: :p, object: :o, graph: 'http://example.com/raw')
+    graph = RDF::URI.new(graph)
+    subject = RDF::URI.new(subject) unless subject.eql? :s
+    predicate = RDF::URI.new(predicate) unless predicate.eql? :p
+    object = RDF::URI.new(object) unless object.eql? :o
+
+    query = RDF::Virtuoso::Query.delete([subject, predicate, object]).graph(graph).where([subject, predicate, object])
     p @repo.insert(query)
   end
 
   private
   def secrets
-    @secrets ||= YAML.load_file '../config/secrets.yml'
+    @secrets ||= YAML.load_file 'config/secrets.yml'
   end
 end

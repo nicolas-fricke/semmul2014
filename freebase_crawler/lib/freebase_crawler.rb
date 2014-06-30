@@ -38,7 +38,7 @@ module FreebaseCrawler
         puts "fetching elements, current page: #{page}" if verbose
 
         if response['cursor']  # is false if no more pages available
-          execute query, page: page + 1, cursor: response['cursor'],  &block
+          read_mql query, page: page + 1, cursor: response['cursor'],  &block
         end
 
       rescue SocketError => e
@@ -67,7 +67,7 @@ module FreebaseCrawler
 
     private
     def api_key
-      @secrets ||= YAML.load_file '../../freebase_crawler/config/secrets.yml'
+      @secrets ||= YAML.load_file '../freebase_crawler/config/secrets.yml'
       @secrets['services']['freebase']['api_key']
     end
   end
