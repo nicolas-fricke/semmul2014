@@ -29,7 +29,7 @@ class FreebaseUpdater::VirtuosoWriter
     object = RDF::URI.new(object) unless object.eql? :o
 
     query = RDF::Virtuoso::Query.delete([subject, predicate, object]).graph(graph).where([subject, predicate, object])
-    p @repo.insert(query)
+    #p @repo.insert(query)
   end
 
   private

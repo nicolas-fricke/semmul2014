@@ -20,4 +20,8 @@ class FreebaseUpdater::MsgPublisher
     queue.publish id.to_s, persistent: true
     @connection.close
   end
+
+  def enqueue_uri(type, id)
+    enqueue_id type, id
+  end
 end
