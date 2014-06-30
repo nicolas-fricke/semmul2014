@@ -4,7 +4,6 @@
 # The following options are overriden by the corresponding options in
 # namespaces.yml, but are listed here for reference:
 # - crawler:mapper_queue by queues:raw_dbpedia
-# - writer:graph by graphs:raw
 #
 
 crawler:
@@ -29,11 +28,6 @@ source:
 
 type_checker:
   threshold: 20                               # threshold in percent
-
-writer:
-  batch_size: 1000                            # number of triples inserted at a time (do not know maximum, use <= 1000)
-  endpoint: "http://localhost:8890/sparql"    # URI of the SPARQL endpoint
-  graph: "http://semmul2014.hpi.de/graph/raw" # named graph for storing data
 
 #
 # Types: 
@@ -93,6 +87,8 @@ rules:
     "http://dbpedia.org/ontology/starring": actor
     "http://dbpedia.org/property/starring": actor
   organisation:
+    fetch:
+      - "http://www.w3.org/2000/01/rdf-schema#label"
   person:
   place:
     fetch:

@@ -10,14 +10,14 @@ class TMDbMapper::Mapper
     load_schemas()
     @log = Logger.new('log', 'daily')
     @publisher = MsgPublisher.new
-    @publisher.set_queue 'mapped'
+    @publisher.set_queue 'mapping'
     @virtuoso_writer = VirtuosoWriter.new
     @virtuoso_writer.set_graph 'mapped'
     @virtuoso_reader = VirtuosoReader.new
     @virtuoso_reader.set_graph 'raw'
     @dbpedia_reader = TMDbMapper::DBpediaReader.new
   end
-  
+
   def register_receiver
     @receiver = MsgConsumer.new
     @receiver.set_queue 'raw_tmdb'
@@ -278,6 +278,15 @@ class TMDbMapper::Mapper
           person_uri, "#{@schemas['schema']}familyName", person_names.last
       )
     end if names
+    aliases = @virtuoso_reader.get_objects_for(
+        subject: person_uri,
+        predicate: "#{@schemas['tmdb']}person/also_known_as"
+    )
+    aliases.each do |alias_name|
+      @virtuoso_writer.new_triple(
+          person_uri, "#{@schemas['schema']}alternateName", alias_name
+      )
+    end if aliases
     birthdates = @virtuoso_reader.get_objects_for(
         subject: person_uri,
         predicate: "#{@schemas['tmdb']}person/birthday"

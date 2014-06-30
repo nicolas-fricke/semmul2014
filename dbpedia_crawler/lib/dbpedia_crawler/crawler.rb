@@ -148,7 +148,7 @@ private
   # inference.
   def query_all_ids
     query_all_movies
-    query_all_shows
+    # query_all_shows
   end
 
   # Query all IDs of movies.
@@ -232,7 +232,7 @@ public
     @mapper_queues = create_mapper_queues types
     @source = DBpediaCrawler::Source.new configuration["source"]
     @type_checker = DBpediaCrawler::TypeChecker.new configuration["type_checker"]
-    @writer = DBpediaCrawler::Writer.new configuration["writer"]
+    @writer = DBpediaCrawler::Writer.new
     @fetcher = DBpediaCrawler::Fetcher.new(@source, types, rules)
   end
 
