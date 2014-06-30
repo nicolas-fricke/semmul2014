@@ -41,7 +41,7 @@ class Merger::Merger
   end
 
   def find_matching_entity(mapped_movie_uri)
-    # TODO: Employ matcher to find matching entity within MainDB
+    # TODO @Flo: Employ matcher to find matching entity within MainDB
     # returns matching entity's URI or nil
   end
 
