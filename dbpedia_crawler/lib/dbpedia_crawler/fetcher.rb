@@ -111,15 +111,17 @@ public
   #
 
   # Query all IDs of entities which are recognized as movies.
-  #   result: array
-  def query_movie_ids
-    return @source.query_with_pagination(@queries[:movies], @queries[:count_movies])
+  # Yields for every page queried.
+  #   yields: array
+  def query_movie_ids(&block)
+    @source.query_with_pagination(@queries[:movies], @queries[:count_movies], &block)
   end
 
   # Query all IDs of entities which are recognized as TV shows.
-  #   result: array
-  def query_show_ids
-    return @source.query_with_pagination(@queries[:shows], @queries[:count_shows])
+  # Yields for every page queried.
+  #   yields: array
+  def query_show_ids(&block)
+    @source.query_with_pagination(@queries[:shows], @queries[:count_shows], &block)
   end
 
   # Fetch the data about the entity identified by the given URI depending on

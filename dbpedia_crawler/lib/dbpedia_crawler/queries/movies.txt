@@ -20,8 +20,8 @@ WHERE {
         SELECT ?movie WHERE { ?movie rdf:type/rdfs:subClassOf* <http://umbel.org/umbel/rc/Movie_CW> . }
       } UNION {
         SELECT ?movie WHERE { ?movie rdf:type/rdfs:subClassOf* <http://dbpedia.org/ontology/Wikidata:Q11424> . }
-      } UNION {
-        SELECT ?movie WHERE { ?movie dcterms:subject/skos:broader* <http://dbpedia.org/resource/Category:Films> . }
+      #} UNION {
+      #  SELECT ?movie WHERE { ?movie dcterms:subject/skos:broader* <http://dbpedia.org/resource/Category:Films> . }
       }
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageDisambiguates ?other . }
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageRedirects ?other . }

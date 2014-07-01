@@ -7,6 +7,12 @@ class DBpediaCrawler::Crawler
 
 private
 
+  # DBpedia ontology type for movies
+  DB_MOVIE = "http://dbpedia.org/ontology/Film"
+
+  # DBpedia ontology type for shows
+  DB_SHOW = "http://dbpedia.org/ontology/TelevisionShow"
+
   #
   # initialization
   #
@@ -131,30 +137,63 @@ private
   end
 
   # Query all IDs of relevant entities. Add corresponding commands (fetch
-  # linked data on these IDs) to the queue. Pagination is used for querying
-  # but fetching commands are created after querying to achieve atomicity.
+  # linked data on these IDs) to the queue. Pagination is used for querying.
+  # Depending on the options, queried entities are validated using type
+  # inference.
   def query_all_ids
     query_all_movies
-    # query_all_shows  # shows are not fully supported
+    query_all_shows
   end
 
   # Query all IDs of movies.
   def query_all_movies
     puts "Fetching movies..."
-    movies = @fetcher.query_movie_ids
-    puts "Creating commands for fetching..."
-    movies.each do |uri| 
-      @queues["movie"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "movie")
+    @fetcher.query_movie_ids do |movies|
+      puts "Creating commands for fetching..."
+      movies.each do |uri| 
+        # check types, if specified
+        if @config["check_types"]
+          begin
+            unless @type_checker.entity_has_type?(uri, DB_MOVIE)
+              puts "  #{uri} is discarded (probably not a movie)"
+              next
+            else
+              puts "  #{uri} is pushed to the queue"
+            end
+          rescue StandardError => e
+            puts "  type checking failed" # message is too long for printing
+            puts "    #{uri} is pushed to the queue"
+          end
+        end
+        # add command to the queue
+        @queues["movie"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "movie")
+      end
     end
   end
 
   # Query all IDs of shows.
   def query_all_shows
     puts "Fetching shows..."
-    shows = @fetcher.query_show_ids
-    puts "Creating commands for fetching..."
-    shows.each do |uri| 
-      @queues["show"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "show") 
+    @fetcher.query_show_ids do |shows|
+      puts "Creating commands for fetching..."
+      shows.each do |uri| 
+        # check types, if specified
+        if @config["check_types"]
+          begin
+            unless @type_checker.entity_has_type?(uri, DB_SHOW)
+              puts "  #{uri} is discarded (probably not a show)"
+              next
+            else
+              puts "  #{uri} is pushed to the queue"
+            end
+          rescue StandardError => e
+            puts "  type checking failed" # message is too long for printing
+            puts "    #{uri} is pushed to the queue"
+          end
+        end
+        # add command to the queue
+        @queues["show"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "show") 
+      end
     end
   end
 
@@ -179,6 +218,7 @@ public
     @queues = create_queues(types, configuration["queue"])
     @queue_index = 0	# index of the next queue to pop a command from
     @source = DBpediaCrawler::Source.new configuration["source"]
+    @type_checker = DBpediaCrawler::TypeChecker.new configuration["type_checker"]
     @writer = DBpediaCrawler::Writer.new configuration["writer"]
     @fetcher = DBpediaCrawler::Fetcher.new(@source, types, rules)
   end

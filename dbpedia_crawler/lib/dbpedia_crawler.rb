@@ -7,9 +7,9 @@
 # - Fetcher: implements high-level fetching of data
 # - Queue: provides handling of commands for the crawler
 # - Source: provides low-level access to the data of a DBpedia
+# - TypeChecker: checks types using type inference
 # - Writer: provides means of persisting data
 #
-# TODO: remove false positives (e.g. "1960 in film"), especially due to categories
 # TODO: push URIs of fetched entities to the queue of the mapper
 # TODO: globalen Config-Ordner verwenden
 #
@@ -20,6 +20,7 @@ module DBpediaCrawler
   require_relative 'dbpedia_crawler/fetcher'
   require_relative 'dbpedia_crawler/queue'
   require_relative 'dbpedia_crawler/source'
+  require_relative 'dbpedia_crawler/type_checker'
   require_relative 'dbpedia_crawler/writer'
 
 end
