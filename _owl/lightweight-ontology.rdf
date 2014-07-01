@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!DOCTYPE rdf:RDF [
-    <!ENTITY lom "http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#" >
+    <!ENTITY lom "http://semmul2014.hpi.de/lodofmovies.owl#" >
     <!ENTITY schema "http://schema.rdfs.org/" >
     <!ENTITY dbpedia "http://dbpedia.org/ontology/" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
@@ -12,7 +12,7 @@
 ]>
 
 <rdf:RDF
-  xmlns:lom="http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#"
+  xmlns:lom="http://semmul2014.hpi.de/lodofmovies.owl#"
   xmlns:schema="http://schema.rdfs.org/"
   xmlns:dbpedia="http://dbpedia.org/ontology/"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
@@ -22,7 +22,7 @@
   xmlns:dc="http://purl.org/dc/terms/">
  
   <!-- OWL Header -->
-  <owl:Ontology rdf:about="http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#">
+  <owl:Ontology rdf:about="http://semmul2014.hpi.de/lodofmovies.owl#">
     <dc:title>The LOD of Movies Ontology</dc:title>
     <dc:description>Ontology for movies based on schema.org and DBpedia</dc:description>
     <owl:imports rdf:resource="http://schema.rdfs.org/"/>
@@ -47,6 +47,14 @@
   </owl:Class>
 
   <!-- PROPERTIES -->
+
+  <!-- Movie: imdb_id -->
+  <owl:ObjectProperty rdf:about="&lom;imdb_id">
+    <rdfs:label xml:lang="en">imdb_id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the IMDb ID of a movie or tv series.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&schema;Movie"/>
+  </owl:ObjectProperty>
 
   <!-- Movie: performance -->
   <owl:ObjectProperty rdf:about="&lom;performance">
