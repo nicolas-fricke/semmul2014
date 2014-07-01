@@ -18,7 +18,7 @@ class FreebaseMapper::Mapper
 
     puts "listening on queue #{@receiver.queue_name :movie_uri}"
     @receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
-    #map 'http://rdf.freebase.com/ns/m/07f_t4'
+    #map 'http://rdf.freebase.com/ns/m/05gdbn'
   end
 
   def map(raw_db_uri)
@@ -26,9 +26,11 @@ class FreebaseMapper::Mapper
     @virtuoso_writer.new_triple raw_db_uri, "#{RDF_NAMESPACE}type", "#{LOM_NAMESPACE}Movie"
 
     map_title raw_db_uri
+    map_description raw_db_uri
     map_release_dates raw_db_uri
     map_production_companies raw_db_uri
     map_cast raw_db_uri
+    map_director raw_db_uri
 
 
 
@@ -41,9 +43,6 @@ class FreebaseMapper::Mapper
     #/film/film/traileraddict_id
     #/film/film/trailers
     #/media_common/netflix_title/netflix_genres
-    #/type/object/name
-    #/common/topic/description
-    #/type/object/type
     #/film/film/prequel
     #/film/film/sequel
     #/film/film/runtime
@@ -86,6 +85,16 @@ class FreebaseMapper::Mapper
     end if titles
   end
 
+  def map_description(raw_db_uri)
+    descriptions = @virtuoso_reader.get_objects_for subject: raw_db_uri,
+                                                    predicate: "#{FREEBASE_NS}/common/topic/description"
+    descriptions.each do |description|
+      @virtuoso_writer.new_triple raw_db_uri,
+                                  "#{SCHEMA_NAMESPACE}description",
+                                  description
+    end if descriptions
+  end
+
   def map_release_dates(raw_db_uri)
     dates = @virtuoso_reader.get_objects_for subject: raw_db_uri,
                                              predicate: "#{FREEBASE_NS}/film/film/initial_release_date"
@@ -123,6 +132,31 @@ class FreebaseMapper::Mapper
 
       end if company_names
     end if companies
+  end
+
+  def map_director(raw_db_uri)
+    directors = @virtuoso_reader.get_objects_for subject: raw_db_uri,
+                                                 predicate: "#{FREEBASE_NS}/film/film/directed_by"
+
+    directors.each do |director_uri|
+      @virtuoso_writer.new_triple raw_db_uri,
+                                  "#{SCHEMA_NAMESPACE}director",
+                                  director_uri,
+                                  literal: false
+      @virtuoso_writer.new_triple director_uri,
+                                  "#{RDF_NAMESPACE}type",
+                                  "#{LOM_NAMESPACE}Director",
+                                  literal: false
+
+      director_names = @virtuoso_reader.get_objects_for subject: director_uri,
+                                                       predicate: "#{FREEBASE_NS}/type/object/name"
+      director_names.each do |director_name|
+        @virtuoso_writer.new_triple director_uri,
+                                    "#{SCHEMA_NAMESPACE}name",
+                                    director_name
+
+      end if director_names
+    end if directors
   end
 
   def map_cast(raw_db_uri)
@@ -181,6 +215,7 @@ class FreebaseMapper::Mapper
 
     end if performances
   end
+
 
 
 end
