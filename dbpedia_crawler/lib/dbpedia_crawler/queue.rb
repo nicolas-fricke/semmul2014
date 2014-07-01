@@ -37,7 +37,13 @@ public
   def initialize(configuration, type)
     @config = configuration
     # create the queue
-    queue_name = "#{@config["queue"]}.#{@config["agent_id"]}.#{type}"
+    unless @config["agent_id"].nil?
+      # extend queue name with agent id (for particular DBpedias)
+      queue_name = "#{@config["queue"]}.#{@config["agent_id"]}.#{type}"
+    else
+      # just use the queue name (DBpedia mapper)
+      queue_name = "#{@config["queue"]}.#{type}"
+    end
     puts "Connecting to queue #{queue_name}..."
     @queue = Bunny.new.start.create_channel.queue(queue_name, durable: true)
     # depending on the options, purge it (i.e., remove all messages)
@@ -59,17 +65,23 @@ public
     end
   end
 
-  # Create a command and push it to the queue. The command hash is
-  # stringified using yaml (which can be parsed into a hash again without
-  # using the evil "eval").
-  #   hash: hash (possible keys: command, retries, arbitrary other keys)
-  def push(hash)
-    command = {command: nil, retries: 0}.merge hash
+  # If a hash is given: Create a command and push it to the queue. 
+  # The command hash is stringified using yaml (which can be parsed into 
+  # a hash again without using the evil "eval").
+  # If something else is given: Push the stringified (via to_s) object.
+  #   object: hash (possible keys: command, retries, arbitrary other keys)
+  #     or other object
+  def push(object)
     begin
-      @queue.publish(command.to_yaml, persistent: true)
+      if object.is_a? Hash
+        message = {command: nil, retries: 0}.merge(object).to_yaml
+      else
+        message = object.to_s
+      end
+      @queue.publish(message, persistent: true)
     rescue StandardError => e
-      puts "# Error while publishing command to queue:"
-      p command
+      puts "# Error while publishing object to queue:"
+      p object
       puts e.message, e.backtrace
     end
   end

@@ -16,16 +16,6 @@ private
   #
   # initialization
   #
-
-  # path to the YAML file containing the types and rules for fetching
-  TYPES_FILE = "../configuration/types.yml"
-
-  # Load the types and the fetching rules.
-  #   result: [types_hash, rules_hash]
-  def load_types
-    file_hash = YAML.load_file File::expand_path(TYPES_FILE, __FILE__)
-    return [file_hash["types"], file_hash["rules"]]
-  end
   
   # Create all queues that the crawler will listen to.
   # This includes a "crawler" queue for the "crawl all IDs" command
@@ -34,7 +24,7 @@ private
   # other components may push commands for "actor" etc).
   #   types: hash
   #   queue_config: hash
-  #   result: hash
+  #   result: hash (string => DBpediaCrawler::Queue)
   def create_queues(types, queue_config)
     queues = {}
 
@@ -43,6 +33,20 @@ private
     # create queues for types
     types.keys.each do |type|
       queues[type] = DBpediaCrawler::Queue.new(queue_config, type)
+    end
+
+    return queues
+  end
+
+  # Creates queues (per type) for publishing messages to the mapper.
+  #   result: hash (string => DBpediaCrawler::Queue)
+  def create_mapper_queues(types)
+    config = { "queue" => @config["mapper_queue"], "purge" => false }
+    queues = {}
+
+    # create queues for types
+    types.keys.each do |type|
+      queues[type] = DBpediaCrawler::Queue.new(config, type)
     end
 
     return queues
@@ -113,9 +117,11 @@ private
         query_all_ids
       when :crawl_entity
         crawl_entity command
+      else
+        puts "Discarding unknown command: #{command}"
       end
     rescue StandardError => e
-      puts "Execution of command failed: " + e.message
+      puts "Execution of command failed: #{e.message}"
       retry_command(command, queue_name)
     end
   end
@@ -198,12 +204,18 @@ private
   end
 
   # Query linked data on the given entity and write it to the data store.
+  # Once that is done, push a corresponding command to the mapper's queue.
   #   command: hash
   def crawl_entity(command)
-    @fetcher.fetch(command[:uri], command[:type]) do |data|
-      # one graph of data per (related) entity
-      @writer.update(command[:uri], data)
+    uri, type = command[:uri], command[:type]
+    # fetch and write data
+    @fetcher.fetch(uri, type) do |data|
+      # one graph of data per (original or related) entity
+      @writer.update(uri, data)
     end
+    # push URI to the corresponding mapper queue
+    puts "Pushing #{type} #{uri} to the mapper's queue..."
+    @mapper_queues[type].push uri
   end
 
 public
@@ -213,10 +225,11 @@ public
     # get configuration
     @config = configuration["crawler"]
     # load types and fetching rules
-    types, rules = load_types
+    types, rules = configuration["types"], configuration["rules"]
     # create other components
     @queues = create_queues(types, configuration["queue"])
     @queue_index = 0	# index of the next queue to pop a command from
+    @mapper_queues = create_mapper_queues types
     @source = DBpediaCrawler::Source.new configuration["source"]
     @type_checker = DBpediaCrawler::TypeChecker.new configuration["type_checker"]
     @writer = DBpediaCrawler::Writer.new configuration["writer"]

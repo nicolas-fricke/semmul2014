@@ -10,9 +10,7 @@
 # - TypeChecker: checks types using type inference
 # - Writer: provides means of persisting data
 #
-# TODO: push URIs of fetched entities to the queue of the mapper
-# TODO: globalen Config-Ordner verwenden
-#
+# TODO: improve and use type checking
 # TODO: query related show data (allow to name queries in fetching rules)
 module DBpediaCrawler
 
