@@ -99,4 +99,17 @@ public
     return result
   end
 
+  # Query all entities and literals which apply to the pattern
+  #   subject predicate ?object
+  # for the given subject and predicate. The query is not paginated.
+  #   subject: .to_s => uri
+  #   predicate: .to_s => uri
+  #   result: array (RDF::Term)
+  def query_objects(subject, predicate)
+    query_string = "SELECT DISTINCT ?object WHERE { <#{subject}> <#{predicate}> ?object }"
+    execute_with_retries do
+      return @client.query(query_string).map { |solution| solution[:object] }
+    end
+  end
+
 end

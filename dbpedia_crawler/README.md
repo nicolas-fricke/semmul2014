@@ -34,6 +34,9 @@ includes "live.dbpedia.org", attempts to access linked data via content negotiat
 "http://live.dbpedia.org/..." instead of "http://dbpedia.org" (this is necessary because DBpedia Live does not use
 language-specific prefixes for its entities like the other DBpedias, except the default English one, do).
 
+Note that it is not possible right now to specify which SPARQL queries to use, so if an endpoint cannot deal
+with the queries which are used by the crawler, crawling may not work (e.g. property paths).
+
 ## Using Bunny
 
 See https://github.com/ruby-amqp/bunny.

@@ -10,9 +10,10 @@
 # - Writer: provides means of persisting data
 #
 # TODO: remove false positives (e.g. "1960 in film"), especially due to categories
+# TODO: push URIs of fetched entities to the queue of the mapper
+# TODO: globalen Config-Ordner verwenden
 #
 # TODO: query related show data (allow to name queries in fetching rules)
-# TODO: support other DBpedias (allow query folders)
 module DBpediaCrawler
 
   require_relative 'dbpedia_crawler/crawler'
