@@ -134,16 +134,25 @@ private
   # linked data on these IDs) to the queue. Pagination is used for querying
   # but fetching commands are created after querying to achieve atomicity.
   def query_all_ids
-    # get all movies
+    query_all_movies
+    # query_all_shows  # shows are not fully supported
+  end
+
+  # Query all IDs of movies.
+  def query_all_movies
     puts "Fetching movies..."
     movies = @fetcher.query_movie_ids
-    puts "Fetching shows..."
-    shows = @fetcher.query_show_ids
-    # create commands for fetching
     puts "Creating commands for fetching..."
     movies.each do |uri| 
       @queues["movie"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "movie")
     end
+  end
+
+  # Query all IDs of shows.
+  def query_all_shows
+    puts "Fetching shows..."
+    shows = @fetcher.query_show_ids
+    puts "Creating commands for fetching..."
     shows.each do |uri| 
       @queues["show"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "show") 
     end
