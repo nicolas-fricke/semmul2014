@@ -14,6 +14,7 @@ class FreebaseUpdater::Updater
 
     puts "listening on queue #{@receiver.queue_name :movie_id}"
     @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
+    #update '/m/0cq985'
   end
 
   def update(topic_id)
@@ -91,7 +92,7 @@ class FreebaseUpdater::Updater
           sum += cut['value']
         end
       end
-      sum /= runtimes['values'].count
+      sum /= runtimes['values'].count unless runtimes['values'].count == 0
       @virtuoso.new_triple NS+topic_id, NS+'/film/film_cut/runtime', sum
     end
   end
@@ -127,7 +128,7 @@ class FreebaseUpdater::Updater
 
   def update_genres(topic_description, topic_id)
     genres= topic_description['/film/film/genre']
-    if genres['values']
+    if genres
       genres['values'].each do |genre|
         @virtuoso.delete_triple subject: NS+genre['id']
 
@@ -197,7 +198,7 @@ class FreebaseUpdater::Updater
         @virtuoso.new_triple performance_uri, NS+'/type/object/type', NS+'/film/performance', literal: false
         update_pav performance_uri
 
-        if performance['property']['/film/performance/actor']
+        if performance['property'] and performance['property']['/film/performance/actor']
           performance['property']['/film/performance/actor']['values'].each do |actor|
             @virtuoso.delete_triple subject: NS+actor['id']
 
@@ -219,7 +220,7 @@ class FreebaseUpdater::Updater
           end
         end
 
-        if performance['property']['/film/performance/character']
+        if performance['property'] and performance['property']['/film/performance/character']
           performance['property']['/film/performance/character']['values'].each do |character|
             @virtuoso.delete_triple subject: NS+character['id']
 
@@ -303,7 +304,8 @@ class FreebaseUpdater::Updater
         /film/film/music
         /film/film/produced_by
         /film/film/story_by
-        /film/film/written_by).each do |locator|
+        /film/film/written_by
+        /film/film/directed_by).each do |locator|
 
       topic = topic_description[locator]
       if topic
