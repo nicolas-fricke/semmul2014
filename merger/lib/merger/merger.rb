@@ -46,7 +46,7 @@ class Merger::Merger
   end
 
   def create_new_entity(new_entity_uri:)
-    # TODO: Copy entity from MapDB into MainDB and update URIs to match MainDB schema
+    # TODO @Nico: Copy entity from MapDB into MainDB and update URIs to match MainDB schema
     # return newly created entity URI
   end
 
