@@ -2,8 +2,6 @@
 # Count distinct movies.
 # Result from 12.06.2014 (with categories): 122875
 #
-# TODO: implement type inference or remove category
-#
 SELECT (COUNT(DISTINCT ?movie) AS ?result)
 WHERE {
   {SELECT DISTINCT ?movie WHERE {
@@ -24,5 +22,5 @@ WHERE {
       }
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageDisambiguates ?other . }
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageRedirects ?other . }
-  } LIMIT 10 } # TODO: remove limit
+  }}
 }

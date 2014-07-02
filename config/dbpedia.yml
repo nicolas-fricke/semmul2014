@@ -1,0 +1,101 @@
+#
+# Options for components of the DBpedia crawler
+#
+# The following options are overriden by the corresponding options in
+# namespaces.yml, but are listed here for reference:
+# - crawler:mapper_queue by queues:raw_dbpedia
+# - writer:graph by graphs:raw
+#
+
+crawler:
+  check_types: false                          # whether to validate the type of crawled movies and shows
+  crawl_all_ids: true                         # whether to push the initial command on start
+  command_retries: 1                          # number of retries for failed commands
+  insomnia: true                              # when there is no command left, push the "crawl ids" command again
+  mapper_queue: "lom.raw_db.dbpedia"          # first part of the mapper's queue (missing part: type)
+  sleep_seconds: 5                            # seconds to sleep if command queue is empty
+
+queue:
+  agent_id: "dbpedia"                         # identifier of this crawler (to determine the queues)
+  purge: true                                 # whether to purge the queue on start
+  purge_retries: 5                            # retries if purge raises exception for very large queue
+  purge_sleep_seconds: 10                     # how long to sleep before attempting another purge
+  queue: "lom.source"                         # first part of the queues (full name e.g.: "lom.source.dbpedia.movie")
+
+source:
+  endpoint: "http://dbpedia.org/sparql"       # URI of the SPARQL endpoint
+  page_size: 10000                            # number of entities queried at a time, <= 50,000 (Ruby.rdf limit)
+  query_retries: 5                            # number of retries for failed data retrieval
+
+type_checker:
+  threshold: 20                               # threshold in percent
+
+writer:
+  batch_size: 1000                            # number of triples inserted at a time (do not know maximum, use <= 1000)
+  endpoint: "http://localhost:8890/sparql"    # URI of the SPARQL endpoint
+  graph: "http://semmul2014.hpi.de/graph/raw" # named graph for storing data
+
+#
+# Types: 
+#
+# The following keys (like "actor") are the strings that the crawler
+# uses internally to distinguish entities. While the crawler itself only pushes
+# commands to the queues for "movie" and "show", it will listen to a queue for
+# each type listed below.
+# The values are the URIs corresponding to the classes in the ontology.
+#
+
+types:
+  actor: "http://dbpedia.org/ontology/Actor"
+  character: "http://dbpedia.org/ontology/FictionalCharacter"
+  director: "http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#Director"
+  episode: "http://schema.rdfs.org/Episode"
+  movie: "http://schema.rdfs.org/Movie"
+  organisation: "http://schema.rdfs.org/Organisation"
+  person: "http://schema.rdfs.org/Person"
+  place: "http://dbpedia.org/ontology/Place"
+  season: "http://schema.rdfs.org/TVSeason"
+  show: "http://schema.rdfs.org/TVSeries"
+
+#
+# Fetching rules:
+#
+# The following rules define the behaviour of the fetcher. The keys (like "actor")
+# must be present in the hash of types above. Each type may have a list of 
+# key-value-pairs where the key is a RDF property and the value is a type. 
+#
+# If the fetcher fetches an entity of, say, type "movie", and finds a triple with
+# a property listed in the hash of "movie", it will attempt to treat the entity
+# connected via that property as an entity of the given type and fetch it is well,
+# then applying the rules listed for the respective type.
+#
+# Types may have a key "fetch" which is associated with a list of properties.
+# In that case, only the triples for the given properties will be fetched instead of
+# all available triples for that entity. (This involves one SPARQL query per
+# specified property.)
+#
+
+rules:
+  actor:
+    "http://dbpedia.org/ontology/birthPlace": place
+    "http://dbpedia.org/ontology/placeOfBirth": place
+  character:
+  director:
+    "http://dbpedia.org/ontology/birthPlace": place
+    "http://dbpedia.org/ontology/placeOfBirth": place
+  episode:
+  movie:
+    "http://dbpedia.org/ontology/director": director
+    "http://dbpedia.org/property/director": director
+    "http://dbpedia.org/ontology/distributor": organisation
+    "http://dbpedia.org/property/distributor": organisation
+    "http://dbpedia.org/property/studio": organisation
+    "http://dbpedia.org/ontology/starring": actor
+    "http://dbpedia.org/property/starring": actor
+  organisation:
+  person:
+  place:
+    fetch:
+      - "http://www.w3.org/2000/01/rdf-schema#label"
+  season:
+  show:

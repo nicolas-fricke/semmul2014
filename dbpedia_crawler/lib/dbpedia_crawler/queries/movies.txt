@@ -5,8 +5,6 @@
 #   Virtuoso 22023 Error SR353: Sorted TOP clause specifies more then 77010 rows to sort. 
 #   Only 40000 are allowed.
 #
-# TODO: implement type inference or remove category
-#
 SELECT (?movie as ?result)
 WHERE {
   {SELECT DISTINCT ?movie WHERE {
@@ -28,8 +26,7 @@ WHERE {
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageDisambiguates ?other . }
     FILTER NOT EXISTS { ?movie dbpedia-owl:wikiPageRedirects ?other . }
   }
-  ORDER BY ?movie
-  LIMIT 10} # TODO: remove limit
+  ORDER BY ?movie}
 }
 LIMIT <<limit>>
 OFFSET <<offset>>

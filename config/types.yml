@@ -31,6 +31,11 @@ types:
 # connected via that property as an entity of the given type and fetch it is well,
 # then applying the rules listed for the respective type.
 #
+# Types may have a key "fetch" which is associated with a list of properties.
+# In that case, only the triples for the given properties will be fetched instead of
+# all available triples for that entity. (This involves one SPARQL query per
+# specified property.)
+#
 rules:
   actor:
     "http://dbpedia.org/ontology/birthPlace": place
@@ -51,6 +56,8 @@ rules:
   organisation:
   person:
   place:
+    fetch:
+      - "http://www.w3.org/2000/01/rdf-schema#label"
   season:
   show:
 

@@ -75,28 +75,40 @@ public
     execute_with_retries { return RDF::Graph.load uri }
   end
 
-  # Execute a given SPARQL query using pagination.
+  # Execute a given SPARQL query using pagination. Yields for each page.
   #   query: query string; the result set must have a variable ?result;
   #          the query must include "<<limit>>" and "<<offset>>" to be
   #          substituted
   #   count_query: query string of the query used to get the result size
-  #   result: accumulated query result
-  def query_with_pagination(query, count_query)
+  #   yield: array
+  def query_with_pagination(query, count_query, &block)
     # get the number of URIs
     count = query(count_query)[0][:result].to_s.to_i
     puts "Result size: #{count}"
     # query with pages
-    result = []
     (0..(count / @config["page_size"]).floor).each do |page_number|
       # get copy of the query string and apply parameters
       query_string = query.clone
       query_string["<<limit>>"]= @config["page_size"].to_s
       query_string["<<offset>>"]= (page_number * @config["page_size"]).to_s
-      # query and append results
+      # query and yield results
       print_query_page_message(count, @config["page_size"], page_number * @config["page_size"])
-      result.concat(query(query_string).map { |solution| solution[:result].to_s })
+      result = query(query_string).map { |solution| solution[:result].to_s }
+      yield result
     end
-    return result
+  end
+
+  # Query all entities and literals which apply to the pattern
+  #   subject predicate ?object
+  # for the given subject and predicate. The query is not paginated.
+  #   subject: .to_s => uri
+  #   predicate: .to_s => uri
+  #   result: array (RDF::Term)
+  def query_objects(subject, predicate)
+    query_string = "SELECT DISTINCT ?object WHERE { <#{subject}> <#{predicate}> ?object }"
+    execute_with_retries do
+      return @client.query(query_string).map { |solution| solution[:object] }
+    end
   end
 
 end

@@ -7,19 +7,15 @@ class DBpediaCrawler::Crawler
 
 private
 
+  # DBpedia ontology type for movies
+  DB_MOVIE = "http://dbpedia.org/ontology/Film"
+
+  # DBpedia ontology type for shows
+  DB_SHOW = "http://dbpedia.org/ontology/TelevisionShow"
+
   #
   # initialization
   #
-
-  # path to the YAML file containing the types and rules for fetching
-  TYPES_FILE = "../configuration/types.yml"
-
-  # Load the types and the fetching rules.
-  #   result: [types_hash, rules_hash]
-  def load_types
-    file_hash = YAML.load_file File::expand_path(TYPES_FILE, __FILE__)
-    return [file_hash["types"], file_hash["rules"]]
-  end
   
   # Create all queues that the crawler will listen to.
   # This includes a "crawler" queue for the "crawl all IDs" command
@@ -28,7 +24,7 @@ private
   # other components may push commands for "actor" etc).
   #   types: hash
   #   queue_config: hash
-  #   result: hash
+  #   result: hash (string => DBpediaCrawler::Queue)
   def create_queues(types, queue_config)
     queues = {}
 
@@ -37,6 +33,20 @@ private
     # create queues for types
     types.keys.each do |type|
       queues[type] = DBpediaCrawler::Queue.new(queue_config, type)
+    end
+
+    return queues
+  end
+
+  # Creates queues (per type) for publishing messages to the mapper.
+  #   result: hash (string => DBpediaCrawler::Queue)
+  def create_mapper_queues(types)
+    config = { "queue" => @config["mapper_queue"], "purge" => false }
+    queues = {}
+
+    # create queues for types
+    types.keys.each do |type|
+      queues[type] = DBpediaCrawler::Queue.new(config, type)
     end
 
     return queues
@@ -107,9 +117,11 @@ private
         query_all_ids
       when :crawl_entity
         crawl_entity command
+      else
+        puts "Discarding unknown command: #{command}"
       end
     rescue StandardError => e
-      puts "Execution of command failed: " + e.message
+      puts "Execution of command failed: #{e.message}"
       retry_command(command, queue_name)
     end
   end
@@ -131,31 +143,79 @@ private
   end
 
   # Query all IDs of relevant entities. Add corresponding commands (fetch
-  # linked data on these IDs) to the queue. Pagination is used for querying
-  # but fetching commands are created after querying to achieve atomicity.
+  # linked data on these IDs) to the queue. Pagination is used for querying.
+  # Depending on the options, queried entities are validated using type
+  # inference.
   def query_all_ids
-    # get all movies
+    query_all_movies
+    query_all_shows
+  end
+
+  # Query all IDs of movies.
+  def query_all_movies
     puts "Fetching movies..."
-    movies = @fetcher.query_movie_ids
-    puts "Fetching shows..."
-    shows = @fetcher.query_show_ids
-    # create commands for fetching
-    puts "Creating commands for fetching..."
-    movies.each do |uri| 
-      @queues["movie"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "movie")
+    @fetcher.query_movie_ids do |movies|
+      puts "Creating commands for fetching..."
+      movies.each do |uri| 
+        # check types, if specified
+        if @config["check_types"]
+          begin
+            unless @type_checker.entity_has_type?(uri, DB_MOVIE)
+              puts "  #{uri} is discarded (probably not a movie)"
+              next
+            else
+              puts "  #{uri} is pushed to the queue"
+            end
+          rescue StandardError => e
+            puts "  type checking failed" # message is too long for printing
+            puts "    #{uri} is pushed to the queue"
+          end
+        end
+        # add command to the queue
+        @queues["movie"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "movie")
+      end
     end
-    shows.each do |uri| 
-      @queues["show"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "show") 
+  end
+
+  # Query all IDs of shows.
+  def query_all_shows
+    puts "Fetching shows..."
+    @fetcher.query_show_ids do |shows|
+      puts "Creating commands for fetching..."
+      shows.each do |uri| 
+        # check types, if specified
+        if @config["check_types"]
+          begin
+            unless @type_checker.entity_has_type?(uri, DB_SHOW)
+              puts "  #{uri} is discarded (probably not a show)"
+              next
+            else
+              puts "  #{uri} is pushed to the queue"
+            end
+          rescue StandardError => e
+            puts "  type checking failed" # message is too long for printing
+            puts "    #{uri} is pushed to the queue"
+          end
+        end
+        # add command to the queue
+        @queues["show"].push(command: :crawl_entity, retries: @config["command_retries"], uri: uri, type: "show") 
+      end
     end
   end
 
   # Query linked data on the given entity and write it to the data store.
+  # Once that is done, push a corresponding command to the mapper's queue.
   #   command: hash
   def crawl_entity(command)
-    @fetcher.fetch(command[:uri], command[:type]) do |data|
-      # one graph of data per (related) entity
-      @writer.update(command[:uri], data)
+    uri, type = command[:uri], command[:type]
+    # fetch and write data
+    @fetcher.fetch(uri, type) do |data|
+      # one graph of data per (original or related) entity
+      @writer.update(uri, data)
     end
+    # push URI to the corresponding mapper queue
+    puts "Pushing #{type} #{uri} to the mapper's queue..."
+    @mapper_queues[type].push uri
   end
 
 public
@@ -165,11 +225,13 @@ public
     # get configuration
     @config = configuration["crawler"]
     # load types and fetching rules
-    types, rules = load_types
+    types, rules = configuration["types"], configuration["rules"]
     # create other components
     @queues = create_queues(types, configuration["queue"])
     @queue_index = 0	# index of the next queue to pop a command from
+    @mapper_queues = create_mapper_queues types
     @source = DBpediaCrawler::Source.new configuration["source"]
+    @type_checker = DBpediaCrawler::TypeChecker.new configuration["type_checker"]
     @writer = DBpediaCrawler::Writer.new configuration["writer"]
     @fetcher = DBpediaCrawler::Fetcher.new(@source, types, rules)
   end

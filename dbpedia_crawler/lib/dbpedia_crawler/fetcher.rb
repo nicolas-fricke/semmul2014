@@ -111,15 +111,17 @@ public
   #
 
   # Query all IDs of entities which are recognized as movies.
-  #   result: array
-  def query_movie_ids
-    return @source.query_with_pagination(@queries[:movies], @queries[:count_movies])
+  # Yields for every page queried.
+  #   yields: array
+  def query_movie_ids(&block)
+    @source.query_with_pagination(@queries[:movies], @queries[:count_movies], &block)
   end
 
   # Query all IDs of entities which are recognized as TV shows.
-  #   result: array
-  def query_show_ids
-    return @source.query_with_pagination(@queries[:shows], @queries[:count_shows])
+  # Yields for every page queried.
+  #   yields: array
+  def query_show_ids(&block)
+    @source.query_with_pagination(@queries[:shows], @queries[:count_shows], &block)
   end
 
   # Fetch the data about the entity identified by the given URI depending on
@@ -143,12 +145,25 @@ public
     noted_uris, stack = [uri.to_s], [[uri.to_s, type.to_s]]
     # fetch all data according to the rules
     until stack.empty?
-      # fetch data of next entity
+      # get next entity to fetch
       uri, type = stack.pop
       raise "Skipping #{type} #{uri} (type not known)." unless @types.include?(type)
       raise "Skipping #{type} #{uri} (no fetching rules)." unless @rules.include?(type)
       puts "Fetching #{type} #{uri}..."
-      data = @source.triples_for uri
+      # fetch data of that entity
+      data = RDF::Graph.new
+      if not @rules[type].nil? and @rules[type].has_key? "fetch" and @rules[type]["fetch"].is_a?(Array)
+        # fetch specified data
+        @rules[type]["fetch"].each do |predicate|
+          @source.query_objects(uri.to_s, predicate).each do |object|
+            data << RDF::Statement.new(RDF::URI.new(uri), RDF::URI.new(predicate), object)
+          end
+        end
+      else
+        # no properties specified => fetch all available data
+        data = @source.triples_for uri
+      end
+      puts "  #{data.count} triple(s)"
       # search for other entities to fetch
       data.each do |triple|
         s, p, o = triple.subject.to_s, triple.predicate.to_s, triple.object
