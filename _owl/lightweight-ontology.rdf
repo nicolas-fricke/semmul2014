@@ -48,6 +48,14 @@
 
   <!-- PROPERTIES -->
 
+  <!-- Thing: freebase_mid -->
+  <owl:ObjectProperty rdf:about="&lom;freebase_mid">
+    <rdfs:label xml:lang="en">freebase_mid</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the Freebase MID of a movie or tv series or person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&schema;Thing"/>
+  </owl:ObjectProperty>
+
   <!-- Thing: imdb_id -->
   <owl:ObjectProperty rdf:about="&lom;imdb_id">
     <rdfs:label xml:lang="en">imdb_id</rdfs:label>
