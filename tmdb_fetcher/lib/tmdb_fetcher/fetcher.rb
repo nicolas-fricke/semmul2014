@@ -3,7 +3,8 @@ require 'themoviedb'
 
 class TMDbFetcher::Fetcher
   def initialize
-    @publisher = TMDbFetcher::MsgPublisher.new
+    @publisher = MsgPublisher.new
+    @publisher.set_queue 'source_tmdb'
     initialize_tmdb_api
   end
 
@@ -15,7 +16,7 @@ class TMDbFetcher::Fetcher
       return
     else
       tmdb_result['results'].each do |movie|
-        @publisher.enqueue_id :movie_id, movie['id']
+        @publisher.enqueue :movie_id, movie['id']
       end
     end
 

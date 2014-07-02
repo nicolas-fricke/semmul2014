@@ -3,6 +3,7 @@ schemas:
   base_tmdb: 'http://semmul2014.hpi.de/tmdb/'
   base: 'http://semmul2014.hpi.de/merged/'
   lom: 'http://semmul2014.hpi.de/lodofmovies.owl#'
+  tmdb: 'http://semmul2014.hpi.de/themoviedb.owl#'
   schema: 'http://schema.org/'
   dbpedia: 'http://dbpedia.org/ontology/'
   dbprop: 'http://dbpedia.org/property/'

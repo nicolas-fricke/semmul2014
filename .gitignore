@@ -33,3 +33,5 @@ secrets.yml
 
 # File copies
 *~
+
+secrets.yml

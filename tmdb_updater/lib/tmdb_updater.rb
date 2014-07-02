@@ -1,6 +1,6 @@
 module TMDbUpdater
   require_relative 'tmdb_updater/updater'
-  require_relative 'tmdb_updater/msg_consumer'
-  require_relative 'tmdb_updater/virtuoso_writer'
-  require_relative 'tmdb_updater/msg_publisher'
+  require_relative '../../general/msg_consumer'
+  require_relative '../../general/virtuoso_writer'
+  require_relative '../../general/msg_publisher'
 end

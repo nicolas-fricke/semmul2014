@@ -48,6 +48,14 @@
 
   <!-- PROPERTIES -->
 
+  <!-- Thing: id -->
+  <owl:ObjectProperty rdf:about="&lom;id">
+    <rdfs:label xml:lang="en">id</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the ID of a movie or tv series or person.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&schema;Thing"/>
+  </owl:ObjectProperty>
+
   <!-- Thing: freebase_mid -->
   <owl:ObjectProperty rdf:about="&lom;freebase_mid">
     <rdfs:label xml:lang="en">freebase_mid</rdfs:label>

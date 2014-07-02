@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <!DOCTYPE rdf:RDF [
-    <!ENTITY tmdb "http://www.hpi.uni-potsdam.de/semmul2014/themoviedb.owl#" >
+    <!ENTITY tmdb "http://semmul2014.hpi.de/themoviedb.owl#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
@@ -10,7 +10,7 @@
 ]>
 
 <rdf:RDF
-  xmlns:tmdb="http://www.hpi.uni-potsdam.de/semmul2014/themoviedb.owl#"
+  xmlns:tmdb="http://semmul2014.hpi.de/themoviedb.owl#"
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
   xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
@@ -18,7 +18,7 @@
   xmlns:dc="http://purl.org/dc/terms/">
  
   <!-- OWL Header -->
-  <owl:Ontology rdf:about="http://www.hpi.uni-potsdam.de/semmul2014/themoviedb.owl#">
+  <owl:Ontology rdf:about="http://semmul2014.hpi.de/themoviedb.owl#">
     <dc:title>The Movie Database (TMDb) Ontology</dc:title>
     <dc:description>Ontology for The Movie Database that contains all attributes taken from the TMDb API. There are additional classes to represent lists. Prefixes (separated with two hyphens) make the attributes unique. The last part of the properties' name (after the last two hyphens) matches exactly the name in the JSON format. To map a list (e.g. 'genres'), use the property (e.g. 'movie/genres')</dc:description>
   </owl:Ontology>
@@ -191,6 +191,14 @@
     <rdfs:domain rdf:resource="&tmdb;Cast"/>
   </owl:ObjectProperty>
 
+  <!-- cast: person -->
+  <owl:ObjectProperty rdf:about="&tmdb;cast/person">
+    <rdfs:label xml:lang="en">cast: person</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the person of the cast member.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Person"/>
+    <rdfs:domain rdf:resource="&tmdb;Cast"/>
+  </owl:ObjectProperty>
+
   <!-- crew: credit_id -->
   <owl:ObjectProperty rdf:about="&tmdb;crew/credit_id">
     <rdfs:label xml:lang="en">crew: credit_id</rdfs:label>
@@ -237,6 +245,14 @@
     <rdfs:comment xml:lang="en">Specifies the profile path of the crew member.</rdfs:comment>
     <rdfs:range rdf:resource="&tmdb;string"/>
     <rdfs:domain rdf:resource="&tmdb;Crew"/>
+  </owl:ObjectProperty>
+
+  <!-- crew: person -->
+  <owl:ObjectProperty rdf:about="&tmdb;crew/person">
+    <rdfs:label xml:lang="en">crew: person</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the person of the crew member.</rdfs:comment>
+    <rdfs:range rdf:resource="&tmdb;Person"/>
+    <rdfs:domain rdf:resource="&tmdb;Cast"/>
   </owl:ObjectProperty>
 
   <!-- genres: id -->

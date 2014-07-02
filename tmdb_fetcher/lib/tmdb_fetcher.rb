@@ -1,4 +1,4 @@
 module TMDbFetcher
   require_relative 'tmdb_fetcher/fetcher'
-  require_relative 'tmdb_fetcher/msg_publisher'
+  require_relative '../../general/msg_publisher'
 end
