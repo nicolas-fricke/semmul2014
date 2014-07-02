@@ -11,6 +11,7 @@ schemas:
   owl: 'http://www.w3.org/2002/07/owl#'
   foaf: 'http://xmlns.com/foaf/0.1/'
   xsd: 'http://www.w3.org/2001/XMLSchema#'
+  pav_lastupdateon: 'http://purl.org/pav/lastUpdateOn'
 
 graphs:
   raw: 'http://semmul2014.hpi.de/graph/raw'
