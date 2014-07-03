@@ -22,7 +22,9 @@ graphs:
 queues:
   # TODO insert queues for several resources
   source_tmdb: 'lom.source.tmdb.' # movie_id
+  source_freebase: 'lom.source.freebase.' # movie_id
   raw_tmdb: 'lom.raw_db.tmdb.' # movie_uri
+  raw_freebase: 'lom.raw_db.freebase.' # movie_uri
   raw_dbpedia: 'lom.raw_db.dbpedia.'
   mapping: 'lom.mapped.' # movie_uri
   merging: 'lom.merged.' # movie_uri
