@@ -1,8 +1,8 @@
 class FreebaseFetcher::Fetcher
   def initialize
-    #@crawler = FreebaseFetcher::Crawler.new
     @crawler = FreebaseCrawler::Crawler.new
-    @publisher = FreebaseFetcher::MsgPublisher.new
+    @publisher = MsgPublisher.new
+    @publisher.set_queue 'source_freebase'
   end
 
   def retrieve_film_ids(verbose: false)
@@ -16,7 +16,7 @@ class FreebaseFetcher::Fetcher
       page_results.each do |topic|
         # write film_id to queue
         p "publishing #{topic['mid']} to #{@publisher.queue_name :movie_id}" if verbose
-        @publisher.enqueue_id :movie_id, topic['mid']
+        @publisher.enqueue :movie_id, topic['mid']
       end
     end
   end

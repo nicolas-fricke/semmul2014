@@ -17,6 +17,10 @@ class MsgPublisher
     @connection.close
   end
 
+  def queue_name(type)
+    "#{@queue}#{type.to_s}"
+  end
+
   private
   def queues
     file ||= YAML.load_file '../config/namespaces.yml'
