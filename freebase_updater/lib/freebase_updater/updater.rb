@@ -2,9 +2,6 @@ require 'yaml'
 require 'json'
 
 class FreebaseUpdater::Updater
-  NS = 'http://rdf.freebase.com/ns'
-  XSD = 'http://www.w3.org/2001/XMLSchema#'
-  PAV_LASTUPDATEON = 'http://purl.org/pav/lastUpdateOn'
 
   def initialize
     @crawler = FreebaseCrawler::Crawler.new
@@ -29,7 +26,7 @@ class FreebaseUpdater::Updater
     start_time = Time.now
 
     retrieve_topic topic_id do |topic_description|
-      movie_uri = NS + topic_id
+      movie_uri = schemas['base_freebase'] + topic_id
 
       # try to delete existing triples for movie first
       @virtuoso_writer.delete_triple subject: movie_uri
@@ -99,7 +96,7 @@ class FreebaseUpdater::Updater
         end
       end
       sum /= runtimes['values'].count unless runtimes['values'].count == 0
-      @virtuoso_writer.new_triple NS+topic_id, NS+'/film/film_cut/runtime', sum
+      @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film_cut/runtime', sum
     end
   end
 
@@ -107,13 +104,13 @@ class FreebaseUpdater::Updater
     languages = topic_description['/film/film/language']
     if languages
       languages['values'].each do |language|
-        @virtuoso_writer.delete_triple subject: NS+language['id']
+        @virtuoso_writer.delete_triple subject: schemas['base_freebase']+language['id']
 
-        @virtuoso_writer.new_triple NS+topic_id, NS+'/film/film/language', NS+language['id']
-        @virtuoso_writer.new_triple NS+language['id'], NS+'/type/object/name', language['text']
-        @virtuoso_writer.new_triple NS+language['id'], NS+'/language/human_language/iso_639_1_code', language['lang']
-        @virtuoso_writer.new_triple NS+language['id'], NS+'type/object/type', NS+'/language/human_language'
-        update_pav NS+language['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/language', schemas['base_freebase']+language['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+language['id'], schemas['base_freebase']+'/type/object/name', language['text']
+        @virtuoso_writer.new_triple schemas['base_freebase']+language['id'], schemas['base_freebase']+'/language/human_language/iso_639_1_code', language['lang']
+        @virtuoso_writer.new_triple schemas['base_freebase']+language['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/language/human_language'
+        update_pav schemas['base_freebase']+language['id']
       end
     end
   end
@@ -122,12 +119,12 @@ class FreebaseUpdater::Updater
     countries = topic_description['/film/film/country']
     if countries
       countries['values'].each do |country|
-        @virtuoso_writer.delete_triple subject: NS+country['id']
+        @virtuoso_writer.delete_triple subject: schemas['base_freebase']+country['id']
 
-        @virtuoso_writer.new_triple NS+topic_id, NS+'/film/film/country', NS+country['id']
-        @virtuoso_writer.new_triple NS+country['id'], NS+'/type/object/name', country['text']
-        @virtuoso_writer.new_triple NS+country['id'], NS+'type/object/type', NS+'/location/country'
-        update_pav NS+country['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/country', schemas['base_freebase']+country['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+country['id'], schemas['base_freebase']+'/type/object/name', country['text']
+        @virtuoso_writer.new_triple schemas['base_freebase']+country['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/location/country'
+        update_pav schemas['base_freebase']+country['id']
       end
     end
   end
@@ -136,12 +133,12 @@ class FreebaseUpdater::Updater
     genres= topic_description['/film/film/genre']
     if genres
       genres['values'].each do |genre|
-        @virtuoso_writer.delete_triple subject: NS+genre['id']
+        @virtuoso_writer.delete_triple subject: schemas['base_freebase']+genre['id']
 
-        @virtuoso_writer.new_triple NS+topic_id, NS+'/film/film/genre', NS+genre['id']
-        @virtuoso_writer.new_triple NS+genre['id'], NS+'/type/object/name', genre['text']
-        @virtuoso_writer.new_triple NS+genre['id'], NS+'type/object/type', NS+'/film/film_genre'
-        update_pav NS+genre['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/genre', schemas['base_freebase']+genre['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+genre['id'], schemas['base_freebase']+'/type/object/name', genre['text']
+        @virtuoso_writer.new_triple schemas['base_freebase']+genre['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/film/film_genre'
+        update_pav schemas['base_freebase']+genre['id']
       end
     end
   end
@@ -150,12 +147,12 @@ class FreebaseUpdater::Updater
     soundtracks= topic_description['/film/film/soundtrack']
     if soundtracks
       soundtracks['values'].each do |soundtrack|
-        @virtuoso_writer.delete_triple subject: NS+soundtrack['id']
+        @virtuoso_writer.delete_triple subject: schemas['base_freebase']+soundtrack['id']
 
-        @virtuoso_writer.new_triple NS+topic_id, NS+'/film/film/soundtrack', NS+soundtrack['id']
-        @virtuoso_writer.new_triple NS+soundtrack['id'], NS+'/type/object/name', soundtrack['text']
-        @virtuoso_writer.new_triple NS+soundtrack['id'], NS+'type/object/type', NS+'/music/soundtrack'
-        update_pav NS+soundtrack['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/soundtrack', schemas['base_freebase']+soundtrack['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+soundtrack['id'], schemas['base_freebase']+'/type/object/name', soundtrack['text']
+        @virtuoso_writer.new_triple schemas['base_freebase']+soundtrack['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/music/soundtrack'
+        update_pav schemas['base_freebase']+soundtrack['id']
       end
     end
   end
@@ -164,12 +161,12 @@ class FreebaseUpdater::Updater
     companies= topic_description['/film/film/production_companies']
     if companies
       companies['values'].each do |company|
-        @virtuoso_writer.delete_triple subject: NS+company['id']
+        @virtuoso_writer.delete_triple subject: schemas['base_freebase']+company['id']
 
-        @virtuoso_writer.new_triple NS+topic_id, NS+'/film/film/production_companies', NS+company['id']
-        @virtuoso_writer.new_triple NS+company['id'], NS+'/type/object/name', company['text']
-        @virtuoso_writer.new_triple NS+company['id'], NS+'type/object/type', NS+'/film/production_company'
-        update_pav NS+company['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/production_companies', schemas['base_freebase']+company['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'/type/object/name', company['text']
+        @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/film/production_company'
+        update_pav schemas['base_freebase']+company['id']
       end
     end
   end
@@ -180,12 +177,12 @@ class FreebaseUpdater::Updater
       distributors['values'].each do |distributor|
         company = distributor['property']['/film/film_film_distributor_relationship/distributor']['values'].first
 
-        @virtuoso_writer.delete_triple subject: NS+company['id']
+        @virtuoso_writer.delete_triple subject: schemas['base_freebase']+company['id']
 
-        @virtuoso_writer.new_triple NS+topic_id, NS+'/film/film/distributors', NS+company['id']
-        @virtuoso_writer.new_triple NS+company['id'], NS+'/type/object/name', company['text']
-        @virtuoso_writer.new_triple NS+company['id'], NS+'type/object/type', NS+'/film/film_distributor'
-        update_pav NS+company['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/distributors', schemas['base_freebase']+company['id']
+        @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'/type/object/name', company['text']
+        @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/film/film_distributor'
+        update_pav schemas['base_freebase']+company['id']
       end
     end
   end
@@ -195,22 +192,22 @@ class FreebaseUpdater::Updater
     if performances
       performances['values'].each do |performance|
         # a performance is an object with reference to a character and an actor
-        starring_uri = NS + '/film/film/starring'
-        performance_uri = NS + performance['id']
-        movie_uri = NS + topic_id
+        starring_uri = schemas['base_freebase'] + '/film/film/starring'
+        performance_uri = schemas['base_freebase'] + performance['id']
+        movie_uri = schemas['base_freebase'] + topic_id
 
         @virtuoso_writer.delete_triple subject: performance_uri
         @virtuoso_writer.new_triple movie_uri, starring_uri, performance_uri, literal: false
-        @virtuoso_writer.new_triple performance_uri, NS+'/type/object/type', NS+'/film/performance', literal: false
+        @virtuoso_writer.new_triple performance_uri, schemas['base_freebase']+'/type/object/type', schemas['base_freebase']+'/film/performance', literal: false
         update_pav performance_uri
 
         if performance['property'] and performance['property']['/film/performance/actor']
           performance['property']['/film/performance/actor']['values'].each do |actor|
-            @virtuoso_writer.delete_triple subject: NS+actor['id']
+            @virtuoso_writer.delete_triple subject: schemas['base_freebase']+actor['id']
 
-            @virtuoso_writer.new_triple performance_uri, NS+'/film/performance/actor', NS+actor['id'] , literal: false
-            @virtuoso_writer.new_triple NS+actor['id'], NS+'/type/object/name', actor['text']
-            update_pav NS+actor['id']
+            @virtuoso_writer.new_triple performance_uri, schemas['base_freebase']+'/film/performance/actor', schemas['base_freebase']+actor['id'] , literal: false
+            @virtuoso_writer.new_triple schemas['base_freebase']+actor['id'], schemas['base_freebase']+'/type/object/name', actor['text']
+            update_pav schemas['base_freebase']+actor['id']
 
             # query their type
             query = {
@@ -219,7 +216,7 @@ class FreebaseUpdater::Updater
             }
             @crawler.read_mql query do |response|
               response['type'].each do |type|
-                @virtuoso_writer.new_triple NS+actor['id'], NS+'/type/object/type', NS + type
+                @virtuoso_writer.new_triple schemas['base_freebase']+actor['id'], schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + type
               end
             end
 
@@ -228,12 +225,12 @@ class FreebaseUpdater::Updater
 
         if performance['property'] and performance['property']['/film/performance/character']
           performance['property']['/film/performance/character']['values'].each do |character|
-            @virtuoso_writer.delete_triple subject: NS+character['id']
+            @virtuoso_writer.delete_triple subject: schemas['base_freebase']+character['id']
 
-            @virtuoso_writer.new_triple performance_uri, NS+'/film/performance/character', NS+character['id'] , literal: false
-            @virtuoso_writer.new_triple NS+character['id'], NS+'/type/object/name', character['text']
-            @virtuoso_writer.new_triple NS+character['id'], NS+'/type/object/type', NS + '/film/performance/character'
-            update_pav NS+character['id']
+            @virtuoso_writer.new_triple performance_uri, schemas['base_freebase']+'/film/performance/character', schemas['base_freebase']+character['id'] , literal: false
+            @virtuoso_writer.new_triple schemas['base_freebase']+character['id'], schemas['base_freebase']+'/type/object/name', character['text']
+            @virtuoso_writer.new_triple schemas['base_freebase']+character['id'], schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/performance/character'
+            update_pav schemas['base_freebase']+character['id']
           end
         end
       end
@@ -244,33 +241,33 @@ class FreebaseUpdater::Updater
     film_crew_gigs = topic_description['/film/film/other_crew']
     if film_crew_gigs
       film_crew_gigs['values'].each do |film_crew_gig|
-        film_crew_gig_uri = NS+film_crew_gig['id']
-        movie_uri = NS+topic_id
+        film_crew_gig_uri = schemas['base_freebase']+film_crew_gig['id']
+        movie_uri = schemas['base_freebase']+topic_id
         @virtuoso_writer.delete_triple subject: film_crew_gig_uri
-        @virtuoso_writer.new_triple movie_uri, NS+'/film/film/other_crew', film_crew_gig_uri, literal: false
-        @virtuoso_writer.new_triple film_crew_gig_uri, NS+'/type/object/type', NS+'/film/performance', literal: false
+        @virtuoso_writer.new_triple movie_uri, schemas['base_freebase']+'/film/film/other_crew', film_crew_gig_uri, literal: false
+        @virtuoso_writer.new_triple film_crew_gig_uri, schemas['base_freebase']+'/type/object/type', schemas['base_freebase']+'/film/performance', literal: false
         update_pav film_crew_gig_uri
 
         if film_crew_gig['property']['/film/film_crew_gig/crewmember']
           film_crew_gig['property']['/film/film_crew_gig/crewmember']['values'].each do |member|
-            member_uri = NS+member['id']
+            member_uri = schemas['base_freebase']+member['id']
             @virtuoso_writer.delete_triple subject: member_uri
 
-            @virtuoso_writer.new_triple film_crew_gig_uri, NS+'/film/film_crew_gig/crewmember', member_uri, literal: false
-            @virtuoso_writer.new_triple member_uri, NS+'/type/object/name', NS+member['text']
-            @virtuoso_writer.new_triple member_uri, NS+'/type/object/type', NS + '/film/film_crewmember'
+            @virtuoso_writer.new_triple film_crew_gig_uri, schemas['base_freebase']+'/film/film_crew_gig/crewmember', member_uri, literal: false
+            @virtuoso_writer.new_triple member_uri, schemas['base_freebase']+'/type/object/name', schemas['base_freebase']+member['text']
+            @virtuoso_writer.new_triple member_uri, schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/film_crewmember'
             update_pav member_uri
           end
         end
 
         if film_crew_gig['property']['/film/film_crew_gig/film_crew_role']
           film_crew_gig['property']['/film/film_crew_gig/film_crew_role']['values'].each do |role|
-            role_uri = NS+role['id']
+            role_uri = schemas['base_freebase']+role['id']
             @virtuoso_writer.delete_triple subject: role_uri
 
-            @virtuoso_writer.new_triple film_crew_gig_uri, NS+'/film/film_crew_gig/film_crew_role', role_uri, literal: false
-            @virtuoso_writer.new_triple role_uri, NS+'/type/object/name', NS+role['text']
-            @virtuoso_writer.new_triple role_uri, NS+'/type/object/type', NS + '/film/film_crewmember'
+            @virtuoso_writer.new_triple film_crew_gig_uri, schemas['base_freebase']+'/film/film_crew_gig/film_crew_role', role_uri, literal: false
+            @virtuoso_writer.new_triple role_uri, schemas['base_freebase']+'/type/object/name', schemas['base_freebase']+role['text']
+            @virtuoso_writer.new_triple role_uri, schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/film_crewmember'
             update_pav role_uri
           end
         end
@@ -280,11 +277,11 @@ class FreebaseUpdater::Updater
 
   def write_person(person, locator, topic_id)
 
-    person_uri = NS + person['id']
+    person_uri = schemas['base_freebase'] + person['id']
     @virtuoso_writer.delete_triple subject: person_uri
 
-    @virtuoso_writer.new_triple NS+topic_id, NS+locator, person_uri, literal: false
-    @virtuoso_writer.new_triple person_uri, NS + '/type/object/name', person['text']
+    @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+locator, person_uri, literal: false
+    @virtuoso_writer.new_triple person_uri, schemas['base_freebase'] + '/type/object/name', person['text']
 
     # TODO collect more, eg type
     # query their type
@@ -294,7 +291,7 @@ class FreebaseUpdater::Updater
     }
     @crawler.read_mql query do |response|
       response['type'].each do |type|
-        @virtuoso_writer.new_triple person_uri, NS + '/type/object/type', NS + type
+        @virtuoso_writer.new_triple person_uri, schemas['base_freebase'] + '/type/object/type', schemas['base_freebase'] + type
       end
     end
   end
@@ -334,21 +331,21 @@ class FreebaseUpdater::Updater
   def retrieve_uri(topic_description, topic_id, locator)
     return unless topic_description[locator]
     topic_description[locator]['values'].each do |element|
-      @virtuoso_writer.new_triple NS+topic_id, NS+locator, NS+element['id'], literal: false
+      @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+locator, schemas['base_freebase']+element['id'], literal: false
     end
     end
 
   def retrieve_date(topic_description, topic_id, locator)
     return unless topic_description[locator]
     topic_description[locator]['values'].each do |element|
-      @virtuoso_writer.new_triple NS+topic_id, NS+locator, set_xsd_type(element['value'], 'date')
+      @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+locator, set_xsd_type(element['value'], 'date')
     end
   end
 
   def retrieve(topic_description, topic_id, locator, element_locator)
     return unless topic_description[locator]
     topic_description[locator]['values'].each do |element|
-      @virtuoso_writer.new_triple NS+topic_id, NS+locator, element[element_locator]
+      @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+locator, element[element_locator]
     end
   end
 
@@ -366,17 +363,23 @@ class FreebaseUpdater::Updater
   end
 
   def set_xsd_type(literal, type)
-    "#{literal}^^#{XSD}#{type}"
+    "#{literal}^^#{@schemas['xsd']}#{type}"
   end
 
   def update_pav(subject)
     @virtuoso_writer.new_triple  subject,
-                          PAV_LASTUPDATEON,
+                          schemas['pav_lastupdateon'],
                           (set_xsd_type DateTime.now, 'dateTime')
   end
 
-end
 
-# not stored yet
-#'/film/film/estimated_budget' #TODO nested
-#'/film/film/other_crew' #TODO nested
+  def schemas
+    @schemas ||= load_schemas
+  end
+
+  def load_schemas
+    file = YAML.load_file '../config/namespaces.yml'
+    file['schemas']
+  end
+
+end
