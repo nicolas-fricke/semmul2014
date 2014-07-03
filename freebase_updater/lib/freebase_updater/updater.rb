@@ -52,7 +52,7 @@ class FreebaseUpdater::Updater
 
       update_pav movie_uri
 
-      p "Finished within #{Time.now - start_time}s"
+      p "Finished within #{Time.now - start_time}s, writing to #{@publisher.queue_name :movie_uri}"
       @publisher.enqueue :movie_uri, movie_uri
     end
   end
