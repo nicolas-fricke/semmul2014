@@ -61,7 +61,7 @@ module FreebaseCrawler
       rescue SocketError => e
         p "SocketError occured: #{e} --> repeating query"
         sleep 0.5
-        read_topic topic_id, block
+        read_topic topic_id, &block
       end
     end
 

@@ -9,6 +9,10 @@ class MsgConsumer
     @queue = queues[queue.to_s]
   end
 
+  def queue_name(type)
+    "#{@queue}#{type.to_s}"
+  end
+
   def subscribe(type: type, &block)
     @connection.start
     channel = @connection.create_channel
