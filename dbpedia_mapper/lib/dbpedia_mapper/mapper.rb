@@ -148,6 +148,11 @@ class DBpediaMapper::Mapper
     @type = get_property('rdf', 'type')
   end
 
+  def register_receiver
+    @receiver = MsgConsumer.new
+    @receiver.set_queue 'raw_dbpedia'
+    @receiver.subscribe(type: "movie") { |movie_uri| map_entity(movie_uri, true) }
+  end
 
   def mapped_object(object)
     mo = @object_mappings["#{object}"]
