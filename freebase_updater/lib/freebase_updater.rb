@@ -276,6 +276,24 @@ module FreebaseUpdater
               @virtuoso_writer.new_triple film_crew_gig_uri, schemas['base_freebase']+'/film/film_crew_gig/crewmember', member_uri, literal: false
               @virtuoso_writer.new_triple member_uri, schemas['base_freebase']+'/type/object/name', schemas['base_freebase']+member['text']
               @virtuoso_writer.new_triple member_uri, schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/film_crewmember'
+
+              query = {
+                  'mid' => member['id'],
+                  '/common/topic/alias' => [],
+                  '/people/person/date_of_birth' => nil
+              }
+              @crawler.read_mql query do |response|
+                @virtuoso_writer.new_triple member_uri,
+                                            schemas['base_freebase']+'/people/person/date_of_birth',
+                                            set_xsd_type(response['/people/person/date_of_birth'], 'date')
+
+                response['/common/topic/alias'].each do |name|
+                  @virtuoso_writer.new_triple member_uri,
+                                              schemas['base_freebase']+'/common/topic/alias',
+                                              name
+                end
+              end
+
               update_pav member_uri
             end
           end
@@ -300,19 +318,37 @@ module FreebaseUpdater
       person_uri = schemas['base_freebase'] + person['id']
       @virtuoso_writer.delete_triple subject: person_uri
 
-      @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+locator, person_uri, literal: false
-      @virtuoso_writer.new_triple person_uri, schemas['base_freebase'] + '/type/object/name', person['text']
+      @virtuoso_writer.new_triple schemas['base_freebase']+topic_id,
+                                  schemas['base_freebase']+locator,
+                                  person_uri,
+                                  literal: false
+      @virtuoso_writer.new_triple person_uri,
+                                  schemas['base_freebase'] + '/type/object/name',
+                                  person['text']
 
-      # TODO collect more, eg type
-      # query their type
       query = {
           'mid' => person['id'],
-          'type' => []
+          'type' => [],
+          '/common/topic/alias' => [],
+          '/people/person/date_of_birth' => nil
       }
       @crawler.read_mql query do |response|
         response['type'].each do |type|
-          @virtuoso_writer.new_triple person_uri, schemas['base_freebase'] + '/type/object/type', schemas['base_freebase'] + type
+          @virtuoso_writer.new_triple person_uri,
+                                      schemas['base_freebase'] + '/type/object/type',
+                                      schemas['base_freebase'] + type
         end
+
+        @virtuoso_writer.new_triple person_uri,
+                                    schemas['base_freebase']+'/people/person/date_of_birth',
+                                    set_xsd_type(response['/people/person/date_of_birth'], 'date')
+
+        response['/common/topic/alias'].each do |name|
+          @virtuoso_writer.new_triple person_uri,
+                                      schemas['base_freebase']+'/common/topic/alias',
+                                      name
+        end
+
       end
     end
 
