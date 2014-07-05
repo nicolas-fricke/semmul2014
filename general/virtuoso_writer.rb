@@ -5,6 +5,8 @@ require 'rdf'
 require 'rdf/virtuoso'
 require 'logger'
 
+require_relative 'query'
+
 class VirtuosoWriter
   def initialize
     @log = Logger.new('log', 'daily')
