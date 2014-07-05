@@ -111,10 +111,10 @@ module FreebaseUpdater
         languages['values'].each do |language|
           @virtuoso_writer.delete_triple subject: schemas['base_freebase']+language['id']
 
-          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/language', schemas['base_freebase']+language['id']
+          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/language', schemas['base_freebase']+language['id'], literal: false
           @virtuoso_writer.new_triple schemas['base_freebase']+language['id'], schemas['base_freebase']+'/type/object/name', language['text']
           @virtuoso_writer.new_triple schemas['base_freebase']+language['id'], schemas['base_freebase']+'/language/human_language/iso_639_1_code', language['lang']
-          @virtuoso_writer.new_triple schemas['base_freebase']+language['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/language/human_language'
+          @virtuoso_writer.new_triple schemas['base_freebase']+language['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/language/human_language', literal: false
           update_pav schemas['base_freebase']+language['id']
         end
       end
@@ -126,9 +126,9 @@ module FreebaseUpdater
         countries['values'].each do |country|
           @virtuoso_writer.delete_triple subject: schemas['base_freebase']+country['id']
 
-          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/country', schemas['base_freebase']+country['id']
+          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/country', schemas['base_freebase']+country['id'], literal: false
           @virtuoso_writer.new_triple schemas['base_freebase']+country['id'], schemas['base_freebase']+'/type/object/name', country['text']
-          @virtuoso_writer.new_triple schemas['base_freebase']+country['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/location/country'
+          @virtuoso_writer.new_triple schemas['base_freebase']+country['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/location/country', literal: false
           update_pav schemas['base_freebase']+country['id']
         end
       end
@@ -140,9 +140,9 @@ module FreebaseUpdater
         genres['values'].each do |genre|
           @virtuoso_writer.delete_triple subject: schemas['base_freebase']+genre['id']
 
-          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/genre', schemas['base_freebase']+genre['id']
+          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/genre', schemas['base_freebase']+genre['id'], literal: false
           @virtuoso_writer.new_triple schemas['base_freebase']+genre['id'], schemas['base_freebase']+'/type/object/name', genre['text']
-          @virtuoso_writer.new_triple schemas['base_freebase']+genre['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/film/film_genre'
+          @virtuoso_writer.new_triple schemas['base_freebase']+genre['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/film/film_genre', literal: false
           update_pav schemas['base_freebase']+genre['id']
         end
       end
@@ -154,9 +154,9 @@ module FreebaseUpdater
         soundtracks['values'].each do |soundtrack|
           @virtuoso_writer.delete_triple subject: schemas['base_freebase']+soundtrack['id']
 
-          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/soundtrack', schemas['base_freebase']+soundtrack['id']
+          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/soundtrack', schemas['base_freebase']+soundtrack['id'], literal: false
           @virtuoso_writer.new_triple schemas['base_freebase']+soundtrack['id'], schemas['base_freebase']+'/type/object/name', soundtrack['text']
-          @virtuoso_writer.new_triple schemas['base_freebase']+soundtrack['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/music/soundtrack'
+          @virtuoso_writer.new_triple schemas['base_freebase']+soundtrack['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/music/soundtrack', literal: false
           update_pav schemas['base_freebase']+soundtrack['id']
         end
       end
@@ -168,9 +168,9 @@ module FreebaseUpdater
         companies['values'].each do |company|
           @virtuoso_writer.delete_triple subject: schemas['base_freebase']+company['id']
 
-          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/production_companies', schemas['base_freebase']+company['id']
+          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/production_companies', schemas['base_freebase']+company['id'], literal: false
           @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'/type/object/name', company['text']
-          @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/film/production_company'
+          @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/film/production_company', literal: false
           update_pav schemas['base_freebase']+company['id']
         end
       end
@@ -184,9 +184,9 @@ module FreebaseUpdater
 
           @virtuoso_writer.delete_triple subject: schemas['base_freebase']+company['id']
 
-          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/distributors', schemas['base_freebase']+company['id']
+          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id, schemas['base_freebase']+'/film/film/distributors', schemas['base_freebase']+company['id'], literal: false
           @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'/type/object/name', company['text']
-          @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/film/film_distributor'
+          @virtuoso_writer.new_triple schemas['base_freebase']+company['id'], schemas['base_freebase']+'type/object/type', schemas['base_freebase']+'/film/film_distributor', literal: false
           update_pav schemas['base_freebase']+company['id']
         end
       end
@@ -225,7 +225,8 @@ module FreebaseUpdater
                 response['type'].each do |type|
                   @virtuoso_writer.new_triple schemas['base_freebase']+actor['id'],
                                               schemas['base_freebase']+'/type/object/type',
-                                              schemas['base_freebase'] + type
+                                              schemas['base_freebase'] + type,
+                                              literal: false
                 end
 
                 @virtuoso_writer.new_triple schemas['base_freebase']+actor['id'],
@@ -249,7 +250,7 @@ module FreebaseUpdater
 
               @virtuoso_writer.new_triple performance_uri, schemas['base_freebase']+'/film/performance/character', schemas['base_freebase']+character['id'] , literal: false
               @virtuoso_writer.new_triple schemas['base_freebase']+character['id'], schemas['base_freebase']+'/type/object/name', character['text']
-              @virtuoso_writer.new_triple schemas['base_freebase']+character['id'], schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/performance/character'
+              @virtuoso_writer.new_triple schemas['base_freebase']+character['id'], schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/performance/character', literal: false
               update_pav schemas['base_freebase']+character['id']
             end
           end
@@ -275,7 +276,7 @@ module FreebaseUpdater
 
               @virtuoso_writer.new_triple film_crew_gig_uri, schemas['base_freebase']+'/film/film_crew_gig/crewmember', member_uri, literal: false
               @virtuoso_writer.new_triple member_uri, schemas['base_freebase']+'/type/object/name', schemas['base_freebase']+member['text']
-              @virtuoso_writer.new_triple member_uri, schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/film_crewmember'
+              @virtuoso_writer.new_triple member_uri, schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/film_crewmember', literal: false
 
               query = {
                   'mid' => member['id'],
@@ -305,7 +306,7 @@ module FreebaseUpdater
 
               @virtuoso_writer.new_triple film_crew_gig_uri, schemas['base_freebase']+'/film/film_crew_gig/film_crew_role', role_uri, literal: false
               @virtuoso_writer.new_triple role_uri, schemas['base_freebase']+'/type/object/name', schemas['base_freebase']+role['text']
-              @virtuoso_writer.new_triple role_uri, schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/film_crewmember'
+              @virtuoso_writer.new_triple role_uri, schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + '/film/film_crewmember', literal: false
               update_pav role_uri
             end
           end
@@ -336,7 +337,8 @@ module FreebaseUpdater
         response['type'].each do |type|
           @virtuoso_writer.new_triple person_uri,
                                       schemas['base_freebase'] + '/type/object/type',
-                                      schemas['base_freebase'] + type
+                                      schemas['base_freebase'] + type,
+                                      literal: false
         end
 
         @virtuoso_writer.new_triple person_uri,
