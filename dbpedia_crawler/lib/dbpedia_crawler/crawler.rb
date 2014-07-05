@@ -148,7 +148,7 @@ private
   # inference.
   def query_all_ids
     query_all_movies
-    query_all_shows
+    # query_all_shows
   end
 
   # Query all IDs of movies.

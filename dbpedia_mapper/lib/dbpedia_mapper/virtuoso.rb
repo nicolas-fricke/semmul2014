@@ -13,7 +13,7 @@ class DBpediaMapper::Virtuoso
                                            auth_method: 'digest')
   end
 
-  def write_mapped(subject, predicate, object, graph='http://example.com/mapped')
+  def write(subject, predicate, object, graph='http://example.com/mapped')
     graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
     predicate = RDF::URI.new(predicate)
@@ -54,6 +54,6 @@ class DBpediaMapper::Virtuoso
 
   private
   def secrets
-    @secrets ||= YAML.load_file '../config/secrets.yml'
+    @secrets ||= YAML.load_file 'config/secrets.yml'
   end
 end

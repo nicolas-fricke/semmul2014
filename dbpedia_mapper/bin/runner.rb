@@ -1,4 +1,5 @@
 require_relative '../lib/dbpedia_mapper'
+require_relative '../lib/dbpedia_mapper/virtuoso'
 
 mapper = DBpediaMapper::Mapper.new
 # mapper.register_receiver
@@ -7,7 +8,7 @@ mapper = DBpediaMapper::Mapper.new
 # 2. if mapping exists: map triple to own ontology
 # 3. write triple to Virtuoso
 
-v = DBpediaMapper::Virtuoso.new
+# v = DBpediaMapper::Virtuoso.new
 
 # subjects = v.get_all_subjects()
 
@@ -17,3 +18,4 @@ v = DBpediaMapper::Virtuoso.new
 # end
 
 mapper.map_entity("http://dbpedia.org/resource/!Women_Art_Revolution", true)
+# mapper.map_entity("http://dbpedia.org/resource/!Hero", true)

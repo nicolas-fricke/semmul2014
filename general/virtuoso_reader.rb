@@ -33,6 +33,20 @@ class VirtuosoReader
     end
   end
 
+  def get_values_for(subject: , graph: @graph)
+    graph = RDF::URI.new(graph)
+    subject = RDF::URI.new(subject)
+
+    begin
+      query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).graph(graph)
+      result = @repo.select(query)
+      yield result if block_given?
+      result
+    rescue Exception => e
+      @log.error e
+    end
+  end
+
   private
   def secrets
     @secrets ||= YAML.load_file '../config/secrets.yml'
