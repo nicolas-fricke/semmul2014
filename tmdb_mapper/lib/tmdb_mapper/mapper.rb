@@ -10,14 +10,14 @@ class TMDbMapper::Mapper
     load_schemas()
     @log = Logger.new('log', 'daily')
     @publisher = MsgPublisher.new
-    @publisher.set_queue 'mapped'
+    @publisher.set_queue 'mapping'
     @virtuoso_writer = VirtuosoWriter.new
     @virtuoso_writer.set_graph 'mapped'
     @virtuoso_reader = VirtuosoReader.new
     @virtuoso_reader.set_graph 'raw'
     @dbpedia_reader = TMDbMapper::DBpediaReader.new
   end
-  
+
   def register_receiver
     @receiver = MsgConsumer.new
     @receiver.set_queue 'raw_tmdb'
