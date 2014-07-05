@@ -1,6 +1,7 @@
 module FreebaseMapper
   require_relative 'freebase_mapper/mapper'
-  require_relative 'freebase_mapper/msg_consumer'
-  require_relative 'freebase_mapper/virtuoso_writer'
-  require_relative 'freebase_mapper/virtuoso_reader'
+  require_relative '../../general/msg_consumer'
+  require_relative '../../general/msg_publisher'
+  require_relative '../../general/virtuoso_writer'
+  require_relative '../../general/virtuoso_reader'
 end

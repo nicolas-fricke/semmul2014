@@ -372,7 +372,7 @@ class FreebaseUpdater::Updater
                           (set_xsd_type DateTime.now, 'dateTime')
   end
 
-
+  private
   def schemas
     @schemas ||= load_schemas
   end

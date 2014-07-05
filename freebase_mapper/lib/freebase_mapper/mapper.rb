@@ -2,28 +2,29 @@ require 'yaml'
 require 'json'
 
 class FreebaseMapper::Mapper
-  BASE_NAMESPACE    = 'http://www.hpi.uni-potsdam.de/semmul2014/mapped/tmdb/'
-  LOM_NAMESPACE     = 'http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#'
-  SCHEMA_NAMESPACE  = 'http://schema.org/'
-  DBPEDIA_NAMESPACE = 'http://dbpedia.org/ontology/'
-  RDF_NAMESPACE     = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
-  RDFS_NAMESPACE    = 'http://www.w3.org/2000/01/rdf-schema#'
-  XSD_NAMESPACE     = 'http://www.w3.org/2001/XMLSchema#'
-  FREEBASE_NS       = 'http://rdf.freebase.com/ns'
 
   def initialize
-    @virtuoso_writer = FreebaseMapper::VirtuosoWriter.new
-    @virtuoso_reader = FreebaseMapper::VirtuosoReader.new
-    @receiver = FreebaseMapper::MsgConsumer.new
+    @receiver = MsgConsumer.new
+    @receiver.set_queue 'raw_freebase'
+
+    @publisher = MsgPublisher.new
+    @publisher.set_queue 'mapping'
+
+    @virtuoso_writer = VirtuosoWriter.new
+    @virtuoso_writer.set_graph 'mapped'
+
+    @virtuoso_reader = VirtuosoReader.new
+    @virtuoso_reader.set_graph 'raw'
 
     puts "listening on queue #{@receiver.queue_name :movie_uri}"
-    @receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
-    #map 'http://rdf.freebase.com/ns/m/05gdbn'
+    #@receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
+    map 'http://rdf.freebase.com/ns/m/09zb16'
   end
 
   def map(raw_db_uri)
+    start_time = Time.now
     p "mapping #{raw_db_uri}"
-    @virtuoso_writer.new_triple raw_db_uri, "#{RDF_NAMESPACE}type", "#{LOM_NAMESPACE}Movie"
+    @virtuoso_writer.new_triple raw_db_uri, "#{schemas['rdf']}type", "#{schemas['lom']}Movie"
 
     map_title raw_db_uri
     map_description raw_db_uri
@@ -71,37 +72,40 @@ class FreebaseMapper::Mapper
 
 
 
-
-    p 'done'
+    @virtuoso_writer.new_triple raw_db_uri,
+                                @schemas['pav_lastupdateon'],
+                                set_xsd_type(DateTime.now, 'dateTime')
+    @publisher.enqueue :movie_uri, raw_db_uri
+    p "Finished within #{Time.now - start_time}s, writing to #{@publisher.queue_name :movie_uri}"
   end
 
   def map_title(raw_db_uri)
     titles = @virtuoso_reader.get_objects_for subject: raw_db_uri,
-                                              predicate: "#{FREEBASE_NS}/type/object/name"
+                                              predicate: "#{schemas['base_freebase']}/type/object/name"
     titles.each do |title|
       @virtuoso_writer.new_triple raw_db_uri,
-                                  "#{SCHEMA_NAMESPACE}name",
+                                  "#{schemas['schema']}name",
                                   title
     end if titles
   end
 
   def map_description(raw_db_uri)
     descriptions = @virtuoso_reader.get_objects_for subject: raw_db_uri,
-                                                    predicate: "#{FREEBASE_NS}/common/topic/description"
+                                                    predicate: "#{schemas['base_freebase']}/common/topic/description"
     descriptions.each do |description|
       @virtuoso_writer.new_triple raw_db_uri,
-                                  "#{SCHEMA_NAMESPACE}description",
+                                  "#{schemas['schema']}description",
                                   description
     end if descriptions
   end
 
   def map_release_dates(raw_db_uri)
     dates = @virtuoso_reader.get_objects_for subject: raw_db_uri,
-                                             predicate: "#{FREEBASE_NS}/film/film/initial_release_date"
+                                             predicate: "#{schemas['base_freebase']}/film/film/initial_release_date"
     dates.each do |release_date|
       begin
         @virtuoso_writer.new_triple raw_db_uri,
-                                    "#{SCHEMA_NAMESPACE}datePublished",
+                                    "#{schemas['schema']}datePublished",
                                     release_date
       rescue ArgumentError
         puts "Could not parse release date `#{release_date.to_s}' as date."
@@ -111,23 +115,23 @@ class FreebaseMapper::Mapper
 
   def map_production_companies(raw_db_uri)
     companies = @virtuoso_reader.get_objects_for subject: raw_db_uri,
-                                                predicate: "#{FREEBASE_NS}/film/film/production_companies"
+                                                predicate: "#{schemas['base_freebase']}/film/film/production_companies"
 
     companies.each do |company_uri|
       @virtuoso_writer.new_triple raw_db_uri,
-                                  "#{SCHEMA_NAMESPACE}productionCompany",
+                                  "#{schemas['schema']}productionCompany",
                                   company_uri,
                                   literal: false
       @virtuoso_writer.new_triple company_uri,
-                                  "#{RDF_NAMESPACE}type",
-                                  "#{SCHEMA_NAMESPACE}Organization",
+                                  "#{schemas['rdf']}type",
+                                  "#{schemas['schema']}Organization",
                                   literal: false
 
       company_names = @virtuoso_reader.get_objects_for subject: company_uri,
-                                                      predicate: "#{FREEBASE_NS}/type/object/name"
+                                                      predicate: "#{schemas['base_freebase']}/type/object/name"
       company_names.each do |company_name|
         @virtuoso_writer.new_triple company_uri,
-        "#{SCHEMA_NAMESPACE}name",
+        "#{schemas['schema']}name",
         company_name
 
       end if company_names
@@ -136,23 +140,23 @@ class FreebaseMapper::Mapper
 
   def map_director(raw_db_uri)
     directors = @virtuoso_reader.get_objects_for subject: raw_db_uri,
-                                                 predicate: "#{FREEBASE_NS}/film/film/directed_by"
+                                                 predicate: "#{schemas['base_freebase']}/film/film/directed_by"
 
     directors.each do |director_uri|
       @virtuoso_writer.new_triple raw_db_uri,
-                                  "#{SCHEMA_NAMESPACE}director",
+                                  "#{schemas['schema']}director",
                                   director_uri,
                                   literal: false
       @virtuoso_writer.new_triple director_uri,
-                                  "#{RDF_NAMESPACE}type",
-                                  "#{LOM_NAMESPACE}Director",
+                                  "#{schemas['rdf']}type",
+                                  "#{schemas['lom']}Director",
                                   literal: false
 
       director_names = @virtuoso_reader.get_objects_for subject: director_uri,
-                                                       predicate: "#{FREEBASE_NS}/type/object/name"
+                                                       predicate: "#{schemas['base_freebase']}/type/object/name"
       director_names.each do |director_name|
         @virtuoso_writer.new_triple director_uri,
-                                    "#{SCHEMA_NAMESPACE}name",
+                                    "#{schemas['schema']}name",
                                     director_name
 
       end if director_names
@@ -161,53 +165,53 @@ class FreebaseMapper::Mapper
 
   def map_cast(raw_db_uri)
     performances = @virtuoso_reader.get_objects_for subject: raw_db_uri,
-                                                    predicate: "#{FREEBASE_NS}/film/film/starring"
+                                                    predicate: "#{schemas['base_freebase']}/film/film/starring"
     performances.each do |performance_uri|
       @virtuoso_writer.new_triple raw_db_uri,
-                                  "#{LOM_NAMESPACE}performance",
+                                  "#{schemas['lom']}performance",
                                   performance_uri
       @virtuoso_writer.new_triple performance_uri,
-                                  "#{RDF_NAMESPACE}type",
-                                  "#{LOM_NAMESPACE}Performance",
+                                  "#{schemas['rdf']}type",
+                                  "#{schemas['lom']}Performance",
                                   literal: false
 
       characters = @virtuoso_reader.get_objects_for subject: performance_uri,
-                                                    predicate: "#{FREEBASE_NS}/film/performance/character"
+                                                    predicate: "#{schemas['base_freebase']}/film/performance/character"
       characters.each do |character_uri|
         @virtuoso_writer.new_triple performance_uri,
-                                    "#{LOM_NAMESPACE}character",
+                                    "#{schemas['lom']}character",
                                     character_uri
         @virtuoso_writer.new_triple character_uri,
-                                    "#{RDF_NAMESPACE}type",
-                                    "#{DBPEDIA_NAMESPACE}FictionalCharacter",
+                                    "#{schemas['rdf']}type",
+                                    "#{schemas['dbpedia']}FictionalCharacter",
                                     literal: false
 
 
         character_names = @virtuoso_reader.get_objects_for subject: character_uri,
-                                                         predicate: "#{FREEBASE_NS}/type/object/name"
+                                                         predicate: "#{schemas['base_freebase']}/type/object/name"
         character_names.each do |character_name|
           @virtuoso_writer.new_triple character_uri,
-                                      "#{SCHEMA_NAMESPACE}name",
+                                      "#{schemas['schema']}name",
                                       character_name
         end if character_names
       end if characters
 
 
       actors = @virtuoso_reader.get_objects_for subject: performance_uri,
-                                                predicate: "#{FREEBASE_NS}/film/performance/actor"
+                                                predicate: "#{schemas['base_freebase']}/film/performance/actor"
       actors.each do |actor_uri|
         @virtuoso_writer.new_triple performance_uri,
-                                    "#{LOM_NAMESPACE}actor",
+                                    "#{schemas['lom']}actor",
                                     actor_uri
         @virtuoso_writer.new_triple actor_uri,
-                                    "#{RDF_NAMESPACE}type",
-                                    "#{DBPEDIA_NAMESPACE}Actor",
+                                    "#{schemas['rdf']}type",
+                                    "#{schemas['dbpedia']}Actor",
                                     literal: false
         actor_names = @virtuoso_reader.get_objects_for subject: actor_uri,
-                                                       predicate: "#{FREEBASE_NS}/type/object/name"
+                                                       predicate: "#{schemas['base_freebase']}/type/object/name"
         actor_names.each do |actor_name|
           @virtuoso_writer.new_triple actor_uri,
-                                      "#{SCHEMA_NAMESPACE}name",
+                                      "#{schemas['schema']}name",
                                       actor_name
         end if actor_names
       end if actors
@@ -218,4 +222,17 @@ class FreebaseMapper::Mapper
 
 
 
+  private
+  def set_xsd_type(literal, type)
+    "#{literal}^^#{@schemas['xsd']}#{type}"
+  end
+
+  def schemas
+    @schemas ||= load_schemas
+  end
+
+  def load_schemas
+    file = YAML.load_file '../config/namespaces.yml'
+    file['schemas']
+  end
 end
