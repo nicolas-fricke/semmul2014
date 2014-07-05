@@ -29,6 +29,9 @@ source:
 type_checker:
   threshold: 20                               # threshold in percent
 
+writer:
+  batch_size: 1000                            # number of triples inserted at a time (do not know maximum, use <= 1000)
+
 #
 # Types: 
 #

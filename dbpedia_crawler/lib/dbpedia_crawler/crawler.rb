@@ -209,9 +209,9 @@ private
   def crawl_entity(command)
     uri, type = command[:uri], command[:type]
     # fetch and write data
-    @fetcher.fetch(uri, type) do |data|
+    @fetcher.fetch(uri, type) do |data_uri, data|
       # one graph of data per (original or related) entity
-      @writer.update(uri, data)
+      @writer.update(data_uri, data)
     end
     # push URI to the corresponding mapper queue
     puts "Pushing #{type} #{uri} to the mapper's queue..."
@@ -232,7 +232,7 @@ public
     @mapper_queues = create_mapper_queues types
     @source = DBpediaCrawler::Source.new configuration["source"]
     @type_checker = DBpediaCrawler::TypeChecker.new configuration["type_checker"]
-    @writer = DBpediaCrawler::Writer.new
+    @writer = DBpediaCrawler::Writer.new configuration["writer"]
     @fetcher = DBpediaCrawler::Fetcher.new(@source, types, rules)
   end
 

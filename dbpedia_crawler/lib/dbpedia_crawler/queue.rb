@@ -47,9 +47,9 @@ public
     puts "Connecting to queue #{queue_name}..."
     @queue = Bunny.new.start.create_channel.queue(queue_name, durable: true)
     # depending on the options, purge it (i.e., remove all messages)
-    if @config["purge"] === true
+    #if @config["purge"] === true
       purge(@config["purge_retries"], @config["purge_sleep_seconds"])
-    end
+    #end
   end
 
   # Get the next command, converted to a hash.

@@ -33,6 +33,22 @@ class VirtuosoWriter
     end
   end
 
+  # Writes all triples in a given RDF::Enumerable to the store
+  def write_triples(enumerable, graph: @graph)
+    patterns = []
+    enumerable.each_triple do |subject, predicate, object|
+      patterns << [subject, predicate, object]
+    end
+
+    begin
+      query = RDF::Virtuoso::Query.insert(*patterns).graph(graph)
+      puts query
+      p @repo.insert_data(query)
+    rescue Exception => e
+      @log.error e
+    end
+  end
+
   def delete_triple(subject: :s, predicate: :p, object: :o, graph: @graph)
     graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject) unless subject.eql? :s

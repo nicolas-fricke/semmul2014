@@ -7,6 +7,25 @@ class DBpediaCrawler::Writer
 
 private
 
+  # Split up a graph according to maximum batch size.
+  # data: RDF::Graph
+  # result: array of RDF::Graphs
+  def split_graph(data)
+    batches, batch, count = [], RDF::Graph.new, 0
+
+    data.statements.each do |statement|
+      if count >= @config["batch_size"]
+        batches << batch
+        batch, count = RDF::Graph.new, 0
+      end
+      batch << statement
+      count += 1
+    end
+    batches << batch if count > 0
+
+    return batches
+  end
+
   # Delete all triples whose subject or object is the given entity.
   #   entity: RDF::URI
   def delete_triples_for(entity)
@@ -18,7 +37,9 @@ public
 
   # Create a new Writer
   #   configuration: hash
-  def initialize
+  def initialize(configuration)
+    @config = configuration
+
     @virtuoso = VirtuosoWriter.new
     @virtuoso.set_graph 'raw'
   end
@@ -33,11 +54,12 @@ public
     begin
       # delete previous triples
       delete_triples_for uri
+      # get update queries
+      batches = split_graph data
       # apply updates
-      puts "Writing #{data.count} triples..."
-      data.each_statement do |statement|
-        s, p, o = statement.subject, statement.predicate, statement.object
-        @virtuoso.new_triple(s.to_s, p.to_s, o.to_s, literal: o.literal?)
+      puts "Writing #{batches.size} batch(es) of data..."
+      batches.each do |batch|
+        @virtuoso.write_triples batch
       end
     rescue StandardError => e
       puts "# Error while updating triple store: #{e.message}"

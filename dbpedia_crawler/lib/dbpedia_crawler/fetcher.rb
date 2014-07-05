@@ -88,7 +88,7 @@ private
   def add_provenance(uri, data)
     triple = RDF::Statement.new(RDF::URI.new(uri.to_s), \
       RDF::URI.new("http://purl.org/pav/lastUpdateOn"), \
-      "#{DateTime.now}^^#{RDF::XSD.dateTime}")
+      RDF::Literal.new("#{DateTime.now}", datatype: RDF::XSD.dateTime))
     data << triple
   end
 
@@ -185,7 +185,7 @@ public
       # add fetching time
       add_provenance(uri, data)
       # yield graph of the fetched entity
-      yield filter(data, uri)
+      yield uri, filter(data, uri)
     end
   end
 
