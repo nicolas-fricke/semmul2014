@@ -21,4 +21,6 @@ module DBpediaCrawler
   require_relative 'dbpedia_crawler/type_checker'
   require_relative 'dbpedia_crawler/writer'
 
+  require_relative '../../general/virtuoso_writer'
+
 end

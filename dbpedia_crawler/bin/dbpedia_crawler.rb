@@ -51,8 +51,6 @@ private
   def load_global_configuration
     global_config = YAML.load_file File::expand_path(GLOBAL_CONFIG_FILE, __FILE__)
 
-    # get raw graph
-    raw_graph = global_config["graphs"]["raw"]
     # get mapper queue, remove trailing "."
     mapper_queue = global_config["queues"]["raw_dbpedia"]
     if mapper_queue.end_with? "."
@@ -62,7 +60,6 @@ private
     # construct and return hash for merging
     result = {}
     result["crawler"] = { "mapper_queue" => mapper_queue }
-    result["writer"] = { "graph" => raw_graph }
     return result
   end
 
