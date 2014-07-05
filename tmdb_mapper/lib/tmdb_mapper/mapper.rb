@@ -278,6 +278,15 @@ class TMDbMapper::Mapper
           person_uri, "#{@schemas['schema']}familyName", person_names.last
       )
     end if names
+    aliases = @virtuoso_reader.get_objects_for(
+        subject: person_uri,
+        predicate: "#{@schemas['tmdb']}person/also_known_as"
+    )
+    aliases.each do |alias_name|
+      @virtuoso_writer.new_triple(
+          person_uri, "#{@schemas['schema']}alternateName", alias_name
+      )
+    end if aliases
     birthdates = @virtuoso_reader.get_objects_for(
         subject: person_uri,
         predicate: "#{@schemas['tmdb']}person/birthday"
