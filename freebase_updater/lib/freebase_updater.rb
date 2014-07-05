@@ -217,12 +217,27 @@ module FreebaseUpdater
               # query their type
               query = {
                   'mid' => actor['id'],
-                  'type' => []
+                  'type' => [],
+                  '/common/topic/alias' => [],
+                  '/people/person/date_of_birth' => nil
               }
               @crawler.read_mql query do |response|
                 response['type'].each do |type|
-                  @virtuoso_writer.new_triple schemas['base_freebase']+actor['id'], schemas['base_freebase']+'/type/object/type', schemas['base_freebase'] + type
+                  @virtuoso_writer.new_triple schemas['base_freebase']+actor['id'],
+                                              schemas['base_freebase']+'/type/object/type',
+                                              schemas['base_freebase'] + type
                 end
+
+                @virtuoso_writer.new_triple schemas['base_freebase']+actor['id'],
+                                            schemas['base_freebase']+'/people/person/date_of_birth',
+                                            set_xsd_type(response['/people/person/date_of_birth'], 'date')
+
+                response['/common/topic/alias'].each do |name|
+                  @virtuoso_writer.new_triple schemas['base_freebase']+actor['id'],
+                                              schemas['base_freebase']+'/common/topic/alias',
+                                              name
+                end
+
               end
 
             end
