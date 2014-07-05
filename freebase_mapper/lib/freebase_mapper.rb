@@ -166,6 +166,22 @@ module FreebaseMapper
                                       director_name
 
         end if director_names
+
+        director_aliases = @virtuoso_reader.get_objects_for subject: director_uri,
+                                                         predicate: "#{schemas['base_freebase']}/common/topic/alias"
+        director_aliases.each do |director_alias|
+          @virtuoso_writer.new_triple director_uri,
+                                      "#{schemas['schema']}alternateName",
+                                      director_alias
+        end if director_aliases
+
+        director_birthdates = @virtuoso_reader.get_objects_for subject: director_uri,
+                                                            predicate: "#{schemas['base_freebase']}/people/person/date_of_birth"
+        director_birthdates.each do |director_birthdate|
+          @virtuoso_writer.new_triple director_uri,
+                                      "#{schemas['schema']}birthDate",
+                                      director_birthdate
+        end if director_birthdates
       end if directors
     end
 
@@ -220,6 +236,25 @@ module FreebaseMapper
                                         "#{schemas['schema']}name",
                                         actor_name
           end if actor_names
+
+
+
+
+          actor_aliases = @virtuoso_reader.get_objects_for subject: actor_uri,
+                                                         predicate: "#{schemas['base_freebase']}/common/topic/alias"
+          actor_aliases.each do |actor_alias|
+            @virtuoso_writer.new_triple actor_uri,
+                                        "#{schemas['schema']}alternateName",
+                                        actor_alias
+          end if actor_aliases
+
+          actor_birthdates = @virtuoso_reader.get_objects_for subject: actor_uri,
+                                                           predicate: "#{schemas['base_freebase']}/people/person/date_of_birth"
+          actor_birthdates.each do |actor_birthdate|
+            @virtuoso_writer.new_triple actor_uri,
+                                        "#{schemas['schema']}birthDate",
+                                        actor_birthdate
+          end if actor_birthdates
         end if actors
 
 
