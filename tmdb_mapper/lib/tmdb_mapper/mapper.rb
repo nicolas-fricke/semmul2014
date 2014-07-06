@@ -81,15 +81,9 @@ class TMDbMapper::Mapper
       predicate: "#{@schemas['tmdb']}movie/release_date"
     )
     dates.each do |release_date|
-      begin
-        date_string = nil
-        date_string = Date.parse(release_date.to_s).xmlschema if release_date.to_s.length > 1
-        @virtuoso_writer.new_triple(
-            raw_db_uri, "#{@schemas['schema']}datePublished", "#{date_string}^^#{@schemas['xsd']}date"
-        ) if date_string
-      rescue ArgumentError
-        puts "Could not parse release date `#{release_date.to_s}' as date."
-      end
+      @virtuoso_writer.new_triple(
+          raw_db_uri, "#{@schemas['schema']}datePublished", release_date
+      )
     end if dates
   end
 
@@ -292,15 +286,9 @@ class TMDbMapper::Mapper
         predicate: "#{@schemas['tmdb']}person/birthday"
     )
     birthdates.each do |date|
-      begin
-        date_string = Date.parse(date.to_s).xmlschema
-        @virtuoso_writer.new_triple(
-            person_uri, "#{@schemas['schema']}birthDate", "#{date_string}^^#{@schemas['xsd']}date"
-        )
-          # puts date_string
-      rescue ArgumentError
-        @log.error "Could not parse release date `#{date.to_s}' as date."
-      end
+      @virtuoso_writer.new_triple(
+          person_uri, "#{@schemas['schema']}birthDate", date
+      )
     end if birthdates
     birthplaces = @virtuoso_reader.get_objects_for(
         subject: person_uri,
@@ -319,7 +307,7 @@ class TMDbMapper::Mapper
   end
 
   def set_xsd_type(literal, type)
-    "#{literal}^^#{@schemas['xsd']}#{type}"
+    RDF::Literal.new(literal, datatype: "http://www.w3.org/2001/XMLSchema##{type}")
   end
 
   private
