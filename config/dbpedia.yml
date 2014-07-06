@@ -92,9 +92,17 @@ rules:
   organisation:
     fetch:
       - "http://www.w3.org/2000/01/rdf-schema#label"
+      - "http://dbpedia.org/property/name"
+      - "http://xmlns.com/foaf/0.1/name"
+      - "http://www.w3.org/2002/07/owl#sameAs"
+      - "http://dbpedia.org/ontology/imdbId"
   person:
   place:
     fetch:
       - "http://www.w3.org/2000/01/rdf-schema#label"
+      - "http://dbpedia.org/property/name"
+      - "http://xmlns.com/foaf/0.1/name"
+      - "http://www.w3.org/2002/07/owl#sameAs"
+      - "http://dbpedia.org/ontology/imdbId"
   season:
   show:
