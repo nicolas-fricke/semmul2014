@@ -30,7 +30,9 @@ module FreebaseMapper
     def map(raw_db_uri)
       start_time = Time.now
       p "mapping #{raw_db_uri}"
-      @virtuoso_writer.new_triple raw_db_uri, "#{schemas['rdf']}type", "#{schemas['lom']}Movie"
+      @virtuoso_writer.new_triple raw_db_uri,
+                                  "#{schemas['rdf']}type",
+                                  "#{schemas['lom']}Movie"
 
       map_title raw_db_uri
       map_description raw_db_uri
@@ -78,9 +80,8 @@ module FreebaseMapper
 
 
 
-      @virtuoso_writer.new_triple raw_db_uri,
-                                  @schemas['pav_lastupdateon'],
-                                  set_xsd_type(DateTime.now, 'dateTime')
+      update_pav raw_db_uri
+
       @publisher.enqueue :movie_uri, raw_db_uri
       p "Finished within #{Time.now - start_time}s, writing to #{@publisher.queue_name :movie_uri}"
     end
@@ -264,6 +265,12 @@ module FreebaseMapper
     private
     def set_xsd_type(literal, type)
       "#{literal}^^#{@schemas['xsd']}#{type}"
+    end
+
+    def update_pav(subject)
+      @virtuoso_writer.new_triple  subject,
+                                   schemas['pav_lastupdateon'],
+                                   RDF::Literal.new(Date.today, datatype: RDF::XSD.date)
     end
 
     def schemas
