@@ -315,6 +315,7 @@ module FreebaseUpdater
                   '/common/topic/alias' => [],
                   '/people/person/date_of_birth' => nil
               }
+              p "intermediate query..."
               @crawler.read_mql query do |response|
                 response['type'].each do |type|
                   @virtuoso_writer.new_triple actor_uri,
@@ -411,6 +412,7 @@ module FreebaseUpdater
                   '/common/topic/alias' => [],
                   '/people/person/date_of_birth' => nil
               }
+              p "intermediate query..."
               @crawler.read_mql query do |response|
                 if birthdate = response['/people/person/date_of_birth']
                   @virtuoso_writer.new_triple member_uri,
@@ -473,6 +475,7 @@ module FreebaseUpdater
           '/common/topic/alias' => [],
           '/people/person/date_of_birth' => nil
       }
+      p "intermediate query..."
       @crawler.read_mql query do |response|
         response['type'].each do |type|
           @virtuoso_writer.new_triple person_uri,
