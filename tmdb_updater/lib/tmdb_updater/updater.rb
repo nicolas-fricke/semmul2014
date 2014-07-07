@@ -85,44 +85,58 @@ class TMDbUpdater::Updater
     @virtuoso_writer.new_triple(
         uri_movie, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Movie", literal: false
     )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/id", object: movie.id
-    )
-    @virtuoso_writer.new_triple(
-      uri_movie, "#{@schemas['tmdb']}movie/adult", (set_xsd_type movie.adult, 'boolean')
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/backdrop_path", movie.backdrop_path
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/budget", movie.budget
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/homepage", object: movie.homepage
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/imdb_id", movie.imdb_id
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/original_title", movie.original_title
-    )
+    if movie.id.to_s.length > 0
+      @virtuoso_writer.new_triple(
+        uri_movie, "#{@schemas['tmdb']}movie/id", movie.id
+      )
+    end
+    if movie.adult.to_s.length > 0
+      @virtuoso_writer.new_triple(
+        uri_movie, "#{@schemas['tmdb']}movie/adult", movie.adult
+      )
+    end
+    if movie.backdrop_path.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/backdrop_path", movie.backdrop_path
+      )
+    end
+    if movie.budget.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/budget", movie.budget
+      )
+    end
+    if movie.homepage.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/homepage", movie.homepage
+      )
+    end
+    if movie.imdb_id.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/imdb_id", movie.imdb_id
+      )
+    end
+    if movie.original_title.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/original_title", movie.original_title
+      )
+    end
     @virtuoso_writer.new_triple(
         uri_movie, "#{@schemas['tmdb']}movie/overview", movie.overview
     )
     @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/popularity", (set_xsd_type movie.popularity, 'decimal')
+        uri_movie, "#{@schemas['tmdb']}movie/popularity", movie.popularity
     )
     @virtuoso_writer.new_triple(
         uri_movie, "#{@schemas['tmdb']}movie/poster_path", movie.poster_path
     )
     @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/release_date", (set_xsd_type movie.release_date, 'date')
+        uri_movie, "#{@schemas['tmdb']}movie/release_date", movie.release_date
     )
     @virtuoso_writer.new_triple(
         uri_movie, "#{@schemas['tmdb']}movie/revenue", movie.revenue
     )
     @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/runtime", (set_xsd_type movie.runtime, 'integer')
+        uri_movie, "#{@schemas['tmdb']}movie/runtime", movie.runtime
     )
     @virtuoso_writer.new_triple(
         uri_movie, "#{@schemas['tmdb']}movie/status", movie.status
@@ -134,10 +148,10 @@ class TMDbUpdater::Updater
         uri_movie, "#{@schemas['tmdb']}movie/title", movie.title
     )
     @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/vote_average", (set_xsd_type movie.vote_average, 'decimal')
+        uri_movie, "#{@schemas['tmdb']}movie/vote_average", movie.vote_average
     )
     @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/vote_count", (set_xsd_type movie.vote_count, 'integer')
+        uri_movie, "#{@schemas['tmdb']}movie/vote_count", movie.vote_count
     )
     @virtuoso_writer.new_triple(
         uri_movie, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
@@ -401,7 +415,7 @@ class TMDbUpdater::Updater
           uri_release, "#{@schemas['tmdb']}movie/releases/countries/certification", release['certification']
       )
       @virtuoso_writer.new_triple(
-          uri_release, "#{@schemas['tmdb']}movie/releases/countries/release_date", (set_xsd_type release['release_date'], 'date')
+          uri_release, "#{@schemas['tmdb']}movie/releases/countries/release_date", release['release_date']
       )
       @virtuoso_writer.new_triple(
           uri_release, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
@@ -587,7 +601,7 @@ class TMDbUpdater::Updater
         uri_person, "#{@schemas['tmdb']}person/id", person.id
     )
     @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/adult", (set_xsd_type person.adult, 'boolean')
+        uri_person, "#{@schemas['tmdb']}person/adult", person.adult
     )
     person.also_known_as.each do |name|
       @virtuoso_writer.new_triple(
@@ -647,7 +661,7 @@ class TMDbUpdater::Updater
           uri_cast, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Combined_Cast"
       )
       @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/adult", (set_xsd_type cast['adult'], 'boolean')
+          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/adult", cast['adult']
       )
       @virtuoso_writer.new_triple(
           uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/character", cast['character']
@@ -665,7 +679,7 @@ class TMDbUpdater::Updater
           uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/poster_path", cast['poster_path']
       )
       @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/release_date", (set_xsd_type cast['release_date'], 'date')
+          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/release_date", cast['release_date']
       )
       @virtuoso_writer.new_triple(
           uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/title", cast['title']
@@ -693,7 +707,7 @@ class TMDbUpdater::Updater
 
       # add new triples
       @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/adult", (set_xsd_type crew['adult'], 'boolean')
+          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/adult", crew['adult']
       )
       @virtuoso_writer.new_triple(
           uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/credit_id", crew['credit_id']
@@ -714,7 +728,7 @@ class TMDbUpdater::Updater
           uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/poster_path", crew['poster_path']
       )
       @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/release_date", (set_xsd_type crew['release_date'], 'date')
+          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/release_date", crew['release_date']
       )
       @virtuoso_writer.new_triple(
           uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/title", crew['title']

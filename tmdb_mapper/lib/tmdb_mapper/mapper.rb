@@ -81,9 +81,20 @@ class TMDbMapper::Mapper
       predicate: "#{@schemas['tmdb']}movie/release_date"
     )
     dates.each do |release_date|
-      @virtuoso_writer.new_triple(
-          raw_db_uri, "#{@schemas['schema']}datePublished", release_date
-      )
+      # if date is complete
+      if release_date.to_s=~/^(?<year>(19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{@schemas['schema']}datePublished", (set_xsd_type release_date, 'date')
+        )
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{@schemas['lom']}yearPublished", (set_xsd_type release_date.to_s[0...4], 'gYear')
+        )
+      # if only year (and month) is given
+      elsif release_date.to_s=~/^(?<year>(19|20)\d{2})/
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{@schemas['lom']}yearPublished", (set_xsd_type release_date.to_s[0...4], 'gYear')
+        )
+      end
     end if dates
   end
 
@@ -286,9 +297,20 @@ class TMDbMapper::Mapper
         predicate: "#{@schemas['tmdb']}person/birthday"
     )
     birthdates.each do |date|
-      @virtuoso_writer.new_triple(
-          person_uri, "#{@schemas['schema']}birthDate", date
-      )
+      # if date is complete
+      if date.to_s=~/^(?<year>(19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
+        @virtuoso_writer.new_triple(
+            person_uri, "#{@schemas['schema']}birthDate", (set_xsd_type date, 'date')
+        )
+        @virtuoso_writer.new_triple(
+            person_uri, "#{@schemas['dbpedia']}birthYear", (set_xsd_type date.to_s[0...4], 'gYear')
+        )
+        # if only year (and month) is given
+      elsif date.to_s=~/^(?<year>(19|20)\d{2})/
+        @virtuoso_writer.new_triple(
+            person_uri, "#{@schemas['dbpedia']}birthYear", (set_xsd_type date.to_s[0...4], 'gYear')
+        )
+      end
     end if birthdates
     birthplaces = @virtuoso_reader.get_objects_for(
         subject: person_uri,
