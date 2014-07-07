@@ -1,12 +1,4 @@
-require 'time'
-
 class Merger::Merger
-  def initialize
-    publisher
-    virtuoso_writer
-    virtuoso_reader
-  end
-  
   def register_receiver
     receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri) }
   end
@@ -64,7 +56,6 @@ class Merger::Merger
     # TODO: Update provenience information within MainDB
     # Contains information like last merged at, ...
   end
-
 
   private
   def publisher
