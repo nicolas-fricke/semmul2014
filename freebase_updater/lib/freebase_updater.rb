@@ -26,7 +26,7 @@ module FreebaseUpdater
 
       puts "listening on queue #{@receiver.queue_name :movie_id}"
       @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
-      #update '/m/01_5px'
+      #update '/m/0456zg'
     end
 
     def update(topic_id)
@@ -63,6 +63,7 @@ module FreebaseUpdater
           @publisher.enqueue :movie_uri, movie_uri
         end
       rescue => e
+        p e
         @log.error e
       end
     end
@@ -334,9 +335,9 @@ module FreebaseUpdater
                 end
 
                 if birthdate = response['/people/person/date_of_birth']
-                  @virtuoso_writer.new_triple actor_uri,
-                                              schemas['base_freebase']+'/people/person/date_of_birth',
-                                              RDF::Literal.new(birthdate, datatype: RDF::XSD.date)
+                  write_date actor_uri,
+                             schemas['base_freebase']+'/people/person/date_of_birth',
+                             birthdate
                 end
 
                 response['/common/topic/alias'].each do |name|
@@ -424,9 +425,9 @@ module FreebaseUpdater
               p "intermediate query..." if @verbose
               @crawler.read_mql query do |response|
                 if birthdate = response['/people/person/date_of_birth']
-                  @virtuoso_writer.new_triple member_uri,
-                                              schemas['base_freebase']+'/people/person/date_of_birth',
-                                              RDF::Literal.new(birthdate, datatype: RDF::XSD.date)
+                  write_date member_uri,
+                             schemas['base_freebase']+'/people/person/date_of_birth',
+                             birthdate
                 end
 
                 response['/common/topic/alias'].each do |name|
@@ -495,9 +496,9 @@ module FreebaseUpdater
 
         if birthdate = response['/people/person/date_of_birth']
           begin
-            @virtuoso_writer.new_triple person_uri,
-                                        schemas['base_freebase']+'/people/person/date_of_birth',
-                                        RDF::Literal.new(birthdate, datatype: RDF::XSD.date)
+            write_date person_uri,
+                       schemas['base_freebase']+'/people/person/date_of_birth',
+                       birthdate
           rescue => e
             @log.error e
           end
@@ -586,9 +587,29 @@ module FreebaseUpdater
     end
 
     def update_pav(subject)
-      @virtuoso_writer.new_triple  subject,
-                                   schemas['pav_lastupdateon'],
-                                   RDF::Literal.new(Date.today, datatype: RDF::XSD.date)
+      write_date  subject,
+                  schemas['pav_lastupdateon'],
+                  Date.today.to_s
+    end
+
+    def write_date(subject, predicate, date)
+      yyyy_mm_dd = /^(?<year>(19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
+      yyyy_mm = /^(?<year>(19|20)\d{2})-(?<month>(0[1-9]|1[012]))$/
+      yyyy = /^(?<year>(19|20)\d{2})$/
+
+      object = if matches = yyyy_mm_dd.match(date)
+                 RDF::Literal.new(date, datatype: RDF::XSD.date)
+               elsif matches = yyyy_mm.match(date)
+                 RDF::Literal.new(date, datatype: RDF::XSD.gYearMonth)
+               elsif matches = yyyy.match(date)
+                 RDF::Literal.new(date, datatype: RDF::XSD.gYear)
+               else
+                 nil
+               end
+
+      @virtuoso_writer.new_triple subject,
+                                  predicate,
+                                  object unless object.nil?
     end
 
     private
