@@ -9,9 +9,11 @@ module FreebaseUpdater
   class FreebaseUpdater::Updater
 
     def initialize
+      @verbose = false
+
       @crawler = FreebaseCrawler::Crawler.new
 
-      @virtuoso_writer = VirtuosoWriter.new
+      @virtuoso_writer = VirtuosoWriter.new verbose: @verbose
       @virtuoso_writer.set_graph 'raw'
 
       @receiver = MsgConsumer.new
@@ -24,40 +26,44 @@ module FreebaseUpdater
 
       puts "listening on queue #{@receiver.queue_name :movie_id}"
       @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
-      #update '/m/0cq985'
+      #update '/m/01_5px'
     end
 
     def update(topic_id)
-      # long queries are not necessarily answered, thus we split it
-      p "Looking up MID #{topic_id} ..."
-      start_time = Time.now
+      begin
 
-      retrieve_topic topic_id do |topic_description|
-        movie_uri = schemas['base_freebase'] + topic_id
+        p "Looking up MID #{topic_id} ..."
+        start_time = Time.now
 
-        # try to delete existing triples for movie first
-        @virtuoso_writer.delete_triple subject: movie_uri
+        retrieve_topic topic_id do |topic_description|
+          movie_uri = schemas['base_freebase'] + topic_id
 
-        update_primitives topic_description, topic_id
+          # try to delete existing triples for movie first
+          @virtuoso_writer.delete_triple subject: movie_uri
 
-        # resources
-        update_persons topic_description, topic_id
-        update_language topic_description, topic_id
-        update_country topic_description, topic_id
-        update_genres topic_description, topic_id
-        update_production_companies topic_description, topic_id
-        update_soundtrack topic_description, topic_id
+          update_primitives topic_description, topic_id
 
-        #nested resources
-        update_cast topic_description, topic_id
-        update_runtime topic_description, topic_id
-        update_distributors topic_description, topic_id
-        update_crew topic_description, topic_id
+          # resources
+          update_persons topic_description, topic_id
+          update_language topic_description, topic_id
+          update_country topic_description, topic_id
+          update_genres topic_description, topic_id
+          update_production_companies topic_description, topic_id
+          update_soundtrack topic_description, topic_id
 
-        update_pav movie_uri
+          #nested resources
+          update_cast topic_description, topic_id
+          update_runtime topic_description, topic_id
+          update_distributors topic_description, topic_id
+          update_crew topic_description, topic_id
 
-        p "Finished within #{Time.now - start_time}s, writing to #{@publisher.queue_name :movie_uri}"
-        @publisher.enqueue :movie_uri, movie_uri
+          update_pav movie_uri
+
+          p "Finished within #{Time.now - start_time}s, writing to #{@publisher.queue_name :movie_uri}"
+          @publisher.enqueue :movie_uri, movie_uri
+        end
+      rescue => e
+        @log.error e
       end
     end
 
@@ -243,27 +249,30 @@ module FreebaseUpdater
       distributors= topic_description['/film/film/distributors']
       if distributors
         distributors['values'].each do |distributor|
-          company = distributor['property']['/film/film_film_distributor_relationship/distributor']['values'].first
+          film_film_distributor_relationship = distributor['property']['/film/film_film_distributor_relationship/distributor']
+          if film_film_distributor_relationship
+          company = film_film_distributor_relationship['values'].first
 
           distributor_uri = schemas['base_freebase']+company['id']
 
-          @virtuoso_writer.delete_triple subject: distributor_uri
+            @virtuoso_writer.delete_triple subject: distributor_uri
 
-          @virtuoso_writer.new_triple schemas['base_freebase']+topic_id,
-                                      schemas['base_freebase']+'/film/film/distributors',
-                                      distributor_uri,
-                                      literal: false
+            @virtuoso_writer.new_triple schemas['base_freebase']+topic_id,
+                                        schemas['base_freebase']+'/film/film/distributors',
+                                        distributor_uri,
+                                        literal: false
 
-          @virtuoso_writer.new_triple distributor_uri,
-                                      schemas['base_freebase']+'/type/object/name',
-                                      company['text']
+            @virtuoso_writer.new_triple distributor_uri,
+                                        schemas['base_freebase']+'/type/object/name',
+                                        company['text']
 
-          @virtuoso_writer.new_triple distributor_uri,
-                                      schemas['base_freebase']+'type/object/type',
-                                      schemas['base_freebase']+'/film/film_distributor',
-                                      literal: false
+            @virtuoso_writer.new_triple distributor_uri,
+                                        schemas['base_freebase']+'type/object/type',
+                                        schemas['base_freebase']+'/film/film_distributor',
+                                        literal: false
 
-          update_pav distributor_uri
+            update_pav distributor_uri
+          end
         end
       end
     end
@@ -315,7 +324,7 @@ module FreebaseUpdater
                   '/common/topic/alias' => [],
                   '/people/person/date_of_birth' => nil
               }
-              p "intermediate query..."
+              p "intermediate query..." if @verbose
               @crawler.read_mql query do |response|
                 response['type'].each do |type|
                   @virtuoso_writer.new_triple actor_uri,
@@ -412,7 +421,7 @@ module FreebaseUpdater
                   '/common/topic/alias' => [],
                   '/people/person/date_of_birth' => nil
               }
-              p "intermediate query..."
+              p "intermediate query..." if @verbose
               @crawler.read_mql query do |response|
                 if birthdate = response['/people/person/date_of_birth']
                   @virtuoso_writer.new_triple member_uri,
@@ -475,7 +484,7 @@ module FreebaseUpdater
           '/common/topic/alias' => [],
           '/people/person/date_of_birth' => nil
       }
-      p "intermediate query..."
+      p "intermediate query..." if @verbose
       @crawler.read_mql query do |response|
         response['type'].each do |type|
           @virtuoso_writer.new_triple person_uri,
