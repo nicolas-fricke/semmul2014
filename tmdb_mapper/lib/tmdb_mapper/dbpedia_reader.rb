@@ -22,10 +22,10 @@ class TMDbMapper::DBpediaReader
       'Š'=>'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A',
       'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I',
       'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U',
-      'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss','à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a',
+      'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss','ä'=>'a',  'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a',
       'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i',
       'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ō'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u',
-      'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f'
+      'ú'=>'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f'
     }
     begin
       place_string = place_string.to_s.encode('us-ascii', :fallback => fallback)
@@ -52,7 +52,6 @@ class TMDbMapper::DBpediaReader
       elsif Array(tokens).count > 2
         puts 'again (0, 1) ...'
         string = RDF::Literal.new("#{Array(tokens).first}, #{Array(tokens)[1]}", :language => :en)
-        puts 'before query'
         query = @sparql.select.where([:s, label, string]).where([:s, type, place]).limit(1)
         if query.each_solution.count > 0
           query.each_solution do |solution|
@@ -61,7 +60,7 @@ class TMDbMapper::DBpediaReader
           end
         else
           puts 'again (0 AND last) ...'
-          get_place_uri "#{Array(tokens).first} #{Array(tokens).last}"
+          get_place_uri "#{Array(tokens).first} #{Array(tokens).last}" unless get_place_uri "#{Array(tokens).first} #{Array(tokens)[1]}"
         end
       else
         puts 'nil'

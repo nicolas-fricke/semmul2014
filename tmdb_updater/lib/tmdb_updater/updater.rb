@@ -161,7 +161,7 @@ class TMDbUpdater::Updater
   def update_titles(titles, uri_movie)
     movie_titles = titles['titles']   # id is ignored because its identical with movie_id
     movie_titles.each do |title|
-      uri_title = "#{uri_movie}/alternative_titles/#{title['iso_3166_1']}"
+      uri_title = "#{uri_movie}/alternative_titles/#{title['iso_3166_1']}" unless title
       @virtuoso_writer.new_triple(
           uri_movie, "#{@schemas['tmdb']}movie/alternative_titles/titles", uri_title, literal: false
       )
