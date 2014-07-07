@@ -30,7 +30,8 @@ class VirtuosoWriter
 
     begin
       query = RDF::Virtuoso::Query.insert([subject, predicate, object]).graph(graph)
-      p @repo.insert(query) if @verbose
+      res = @repo.insert(query)
+      p res if @verbose
     rescue Exception => e
       @log.error e
     end
@@ -45,7 +46,8 @@ class VirtuosoWriter
 
     begin
       query = RDF::Virtuoso::Query.insert(*patterns).graph(graph)
-      p @repo.insert(query) if @verbose
+      res = @repo.insert(query)
+      p res if @verbose
     rescue Exception => e
       @log.error e
     end
@@ -59,7 +61,8 @@ class VirtuosoWriter
 
     begin
       query = RDF::Virtuoso::Query.delete([subject, predicate, object]).graph(graph).where([subject, predicate, object])
-      p @repo.insert(query) if @verbose
+      res = @repo.insert(query)
+      p res if @verbose
     rescue Exception => e
       @log.error e
     end
