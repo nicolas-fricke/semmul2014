@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'sparql/client'
+require 'rdf/json'
 require 'rdf'
 require 'logger'
 
@@ -39,6 +40,8 @@ class TMDbMapper::DBpediaReader
     puts place_string
 
     begin
+
+      #query =  @sparql.query('SELECT * WHERE { ?s <http://www.w3.org/2000/01/rdf-schema#label> ?label . ?label <bif:contains> "New AND York AND USA" . ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/ontology/Place> . } LIMIT 1').map { |solution| solution[:s] }
       query = @sparql.select.where([:s, label, :label]).where([:label, contains, string]).where([:s, type, place]).limit(1)
 
       if query.each_solution.count > 0
@@ -49,6 +52,7 @@ class TMDbMapper::DBpediaReader
       elsif Array(tokens).count > 2
         puts 'again (0, 1) ...'
         string = RDF::Literal.new("#{Array(tokens).first}, #{Array(tokens)[1]}", :language => :en)
+        puts 'before query'
         query = @sparql.select.where([:s, label, string]).where([:s, type, place]).limit(1)
         if query.each_solution.count > 0
           query.each_solution do |solution|
