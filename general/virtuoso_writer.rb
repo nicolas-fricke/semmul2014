@@ -45,7 +45,7 @@ class VirtuosoWriter
 
     begin
       query = RDF::Virtuoso::Query.insert(*patterns).graph(graph)
-      p @repo.insert_data(query) if @verbose
+      p @repo.insert(query) if @verbose
     rescue Exception => e
       @log.error e
     end
