@@ -42,7 +42,7 @@ class TMDbMapper::DBpediaReader
     begin
 
       #query =  @sparql.query('SELECT * WHERE { ?s <http://www.w3.org/2000/01/rdf-schema#label> ?label . ?label <bif:contains> "New AND York AND USA" . ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/ontology/Place> . } LIMIT 1').map { |solution| solution[:s] }
-      query = @sparql.select.where([:s, label, :label]).where([:label, contains, string]).where([:s, type, place]).limit(1)
+      query = @sparql.select.where([:s, label, :label]).where([:label, contains, string]).where([:s, type, place]).filter('lang(?label) = "en"').limit(1)
 
       if query.each_solution.count > 0
         query.each_solution do |solution|
