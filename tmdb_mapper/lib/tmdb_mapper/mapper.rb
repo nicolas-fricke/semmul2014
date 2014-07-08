@@ -339,7 +339,6 @@ class TMDbMapper::Mapper
 
   private
   def load_schemas
-    file ||= YAML.load_file '../config/namespaces.yml'
-    @schemas = file['schemas']
+    @schemas ||= YAML.load_file('../config/namespaces.yml')['schemas']
   end
 end
