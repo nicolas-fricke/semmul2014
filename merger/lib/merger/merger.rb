@@ -23,7 +23,7 @@ class Merger::Merger
   end
 
   def find_merged_entity(mapped_entity_uri)
-    # TODO: Check if record in MainDB exists, that looks like { ?s sameAs mapped_entity_uri }
+    # TODO @Kerstin: Check if record in MainDB exists, that looks like { ?s sameAs mapped_entity_uri }
     # returns either merged_uri from MainDB entry or nil
   end
 
@@ -53,7 +53,7 @@ class Merger::Merger
   end
 
   def update_provenience_information(main_db_entity_uri)
-    # TODO: Update provenience information within MainDB
+    # TODO @Kerstin: Update provenience information within MainDB
     # Contains information like last merged at, ...
   end
 
