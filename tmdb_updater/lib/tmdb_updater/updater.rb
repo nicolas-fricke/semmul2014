@@ -850,7 +850,7 @@ class TMDbUpdater::Updater
 
           # add new triples
           @virtuoso_writer.new_triple(
-              uri_cast, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Combined_Crew"
+              uri_crew, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Combined_Crew"
           )
           if crew['adult'].to_s.length > 0
             @virtuoso_writer.new_triple(
