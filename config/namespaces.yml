@@ -5,6 +5,7 @@ schemas:
   lom: 'http://semmul2014.hpi.de/lodofmovies.owl#'
   tmdb: 'http://semmul2014.hpi.de/themoviedb.owl#'
   schema: 'http://schema.org/'
+  schemardfs: 'http://schema.rdfs.org/'
   dbpedia: 'http://dbpedia.org/ontology/'
   dbprop: 'http://dbpedia.org/property/'
   rdf: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'

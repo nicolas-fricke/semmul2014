@@ -60,6 +60,8 @@ class DBpediaMapper::Mapper
       get_property('schema', 'Person') => get_property('schema', 'Person'),
 
       get_property('schema', 'Organization') => get_property('schema', 'Organization'),
+      get_property('schema', 'Organisation') => get_property('schema', 'Organization'),
+      get_property('schemardfs', 'Organisation') => get_property('schema', 'Organization'),
     }
 
     # not tested:
@@ -219,9 +221,9 @@ class DBpediaMapper::Mapper
         map(uri, p, o, initial)
       end
       @virtuoso_writer.new_triple(uri, @schemas['pav_lastupdateon'], set_xsd_type(DateTime.now, 'dateTime'), literal:true)
-    end
-    if initial
-      @publisher.enqueue :movie_uri, uri
+      if initial
+        @publisher.enqueue :movie_uri, uri
+      end
     end
   end
 
