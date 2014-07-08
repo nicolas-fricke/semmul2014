@@ -2,6 +2,16 @@
 
 For crawling DBpedia data (RDF).
 
+## Test run
+
+To make a test run, (e.g. for nifty presentations), execute:
+
+    # assuming working directory semmul2014/dbpedia_crawler
+    ruby bin/dbpedia_crawler.rb -crawler:test:true
+
+This will not change the crawler's queue (but it will still push the IDs of
+fetched entities on the mapper's queue).
+
 ## Running several crawlers for one DBpedia
 
 The crawler can be run several times (as independent processes) to achieve a

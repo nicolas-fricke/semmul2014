@@ -13,6 +13,7 @@ crawler:
   insomnia: true                              # when there is no command left, push the "crawl ids" command again
   mapper_queue: "lom.raw_db.dbpedia"          # first part of the mapper's queue (missing part: type)
   sleep_seconds: 5                            # seconds to sleep if command queue is empty
+  test: false                                 # whether to perform a test run (fetch a fixed set of entities)
 
 queue:
   agent_id: "dbpedia"                         # identifier of this crawler (to determine the queues)
