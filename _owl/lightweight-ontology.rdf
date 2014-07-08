@@ -72,6 +72,14 @@
     <rdfs:domain rdf:resource="&schema;Thing"/>
   </owl:ObjectProperty>
 
+  <!-- Creative Work: yearPublished -->
+    <owl:ObjectProperty rdf:about="&lom;yearPublished">
+      <rdfs:label xml:lang="en">yearPublished</rdfs:label>
+      <rdfs:comment xml:lang="en">Specifies the year in which a movie or television show was published.</rdfs:comment>
+      <rdfs:range rdf:resource="&xsd;gyear"/>
+      <rdfs:domain rdf:resource="&schema;CreativeWork"/>
+    </owl:ObjectProperty>
+
   <!-- Movie: performance -->
   <owl:ObjectProperty rdf:about="&lom;performance">
     <rdfs:label xml:lang="en">performance</rdfs:label>
@@ -84,7 +92,7 @@
   <owl:ObjectProperty rdf:about="&lom;character">
     <rdfs:label xml:lang="en">character</rdfs:label>
     <rdfs:comment xml:lang="en">Specifies the fictional character of a performance.</rdfs:comment>
-    <rdfs:range rdf:resource="&dbpedia;FictionalCharacter"/>
+    <rdfs:range rdf:resource="&xsd;string"/>
     <rdfs:domain rdf:resource="&lom;Performance"/>
   </owl:ObjectProperty>
 

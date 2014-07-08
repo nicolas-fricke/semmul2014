@@ -8,7 +8,8 @@ require 'logger'
 require_relative 'query'
 
 class VirtuosoWriter
-  def initialize
+  def initialize(verbose: true)
+    @verbose = verbose
     @log = Logger.new('log', 'daily')
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                            update_uri: 'http://localhost:8890/sparql-auth',
@@ -29,7 +30,8 @@ class VirtuosoWriter
 
     begin
       query = RDF::Virtuoso::Query.insert([subject, predicate, object]).graph(graph)
-      p @repo.insert(query)
+      res = @repo.insert(query)
+      p res if @verbose
     rescue Exception => e
       @log.error e
     end
@@ -44,7 +46,8 @@ class VirtuosoWriter
 
     begin
       query = RDF::Virtuoso::Query.insert(*patterns).graph(graph)
-      p @repo.insert_data(query)
+      res = @repo.insert(query)
+      p res if @verbose
     rescue Exception => e
       @log.error e
     end
@@ -58,7 +61,8 @@ class VirtuosoWriter
 
     begin
       query = RDF::Virtuoso::Query.delete([subject, predicate, object]).graph(graph).where([subject, predicate, object])
-      p @repo.insert(query)
+      res = @repo.insert(query)
+      p res if @verbose
     rescue Exception => e
       @log.error e
     end

@@ -81,14 +81,19 @@ class TMDbMapper::Mapper
       predicate: "#{@schemas['tmdb']}movie/release_date"
     )
     dates.each do |release_date|
-      begin
-        date_string = nil
-        date_string = Date.parse(release_date.to_s).xmlschema if release_date.to_s.length > 1
+      # if date is complete
+      if release_date.to_s=~/^(?<year>(19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
         @virtuoso_writer.new_triple(
-            raw_db_uri, "#{@schemas['schema']}datePublished", "#{date_string}^^#{@schemas['xsd']}date"
-        ) if date_string
-      rescue ArgumentError
-        puts "Could not parse release date `#{release_date.to_s}' as date."
+            raw_db_uri, "#{@schemas['schema']}datePublished", (set_xsd_type release_date, 'date')
+        )
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{@schemas['lom']}yearPublished", (set_xsd_type release_date.to_s[0...4], 'gYear')
+        )
+      # if only year (and month) is given
+      elsif release_date.to_s=~/^(?<year>(19|20)\d{2})/
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{@schemas['lom']}yearPublished", (set_xsd_type release_date.to_s[0...4], 'gYear')
+        )
       end
     end if dates
   end
@@ -292,14 +297,19 @@ class TMDbMapper::Mapper
         predicate: "#{@schemas['tmdb']}person/birthday"
     )
     birthdates.each do |date|
-      begin
-        date_string = Date.parse(date.to_s).xmlschema
+      # if date is complete
+      if date.to_s=~/^(?<year>(19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
         @virtuoso_writer.new_triple(
-            person_uri, "#{@schemas['schema']}birthDate", "#{date_string}^^#{@schemas['xsd']}date"
+            person_uri, "#{@schemas['schema']}birthDate", (set_xsd_type date, 'date')
         )
-          # puts date_string
-      rescue ArgumentError
-        @log.error "Could not parse release date `#{date.to_s}' as date."
+        @virtuoso_writer.new_triple(
+            person_uri, "#{@schemas['dbpedia']}birthYear", (set_xsd_type date.to_s[0...4], 'gYear')
+        )
+        # if only year (and month) is given
+      elsif date.to_s=~/^(?<year>(19|20)\d{2})/
+        @virtuoso_writer.new_triple(
+            person_uri, "#{@schemas['dbpedia']}birthYear", (set_xsd_type date.to_s[0...4], 'gYear')
+        )
       end
     end if birthdates
     birthplaces = @virtuoso_reader.get_objects_for(
@@ -319,7 +329,7 @@ class TMDbMapper::Mapper
   end
 
   def set_xsd_type(literal, type)
-    "#{literal}^^#{@schemas['xsd']}#{type}"
+    RDF::Literal.new(literal, datatype: "http://www.w3.org/2001/XMLSchema##{type}")
   end
 
   private
@@ -329,7 +339,6 @@ class TMDbMapper::Mapper
 
   private
   def load_schemas
-    file ||= YAML.load_file '../config/namespaces.yml'
-    @schemas = file['schemas']
+    @schemas ||= YAML.load_file('../config/namespaces.yml')['schemas']
   end
 end

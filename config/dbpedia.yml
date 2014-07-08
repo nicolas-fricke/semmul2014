@@ -13,6 +13,7 @@ crawler:
   insomnia: true                              # when there is no command left, push the "crawl ids" command again
   mapper_queue: "lom.raw_db.dbpedia"          # first part of the mapper's queue (missing part: type)
   sleep_seconds: 5                            # seconds to sleep if command queue is empty
+  test: false                                 # whether to perform a test run (fetch a fixed set of entities)
 
 queue:
   agent_id: "dbpedia"                         # identifier of this crawler (to determine the queues)
@@ -46,13 +47,13 @@ types:
   actor: "http://dbpedia.org/ontology/Actor"
   character: "http://dbpedia.org/ontology/FictionalCharacter"
   director: "http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#Director"
-  episode: "http://schema.rdfs.org/Episode"
-  movie: "http://schema.rdfs.org/Movie"
-  organisation: "http://schema.rdfs.org/Organisation"
-  person: "http://schema.rdfs.org/Person"
+  episode: "http://schema.org/Episode"
+  movie: "http://schema.org/Movie"
+  organisation: "http://schema.org/Organisation"
+  person: "http://schema.org/Person"
   place: "http://dbpedia.org/ontology/Place"
-  season: "http://schema.rdfs.org/TVSeason"
-  show: "http://schema.rdfs.org/TVSeries"
+  season: "http://schema.org/TVSeason"
+  show: "http://schema.org/TVSeries"
 
 #
 # Fetching rules:
@@ -92,9 +93,17 @@ rules:
   organisation:
     fetch:
       - "http://www.w3.org/2000/01/rdf-schema#label"
+      - "http://dbpedia.org/property/name"
+      - "http://xmlns.com/foaf/0.1/name"
+      - "http://www.w3.org/2002/07/owl#sameAs"
+      - "http://dbpedia.org/ontology/imdbId"
   person:
   place:
     fetch:
       - "http://www.w3.org/2000/01/rdf-schema#label"
+      - "http://dbpedia.org/property/name"
+      - "http://xmlns.com/foaf/0.1/name"
+      - "http://www.w3.org/2002/07/owl#sameAs"
+      - "http://dbpedia.org/ontology/imdbId"
   season:
   show:

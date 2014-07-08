@@ -85,60 +85,97 @@ class TMDbUpdater::Updater
     @virtuoso_writer.new_triple(
         uri_movie, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Movie", literal: false
     )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/id", object: movie.id
-    )
-    @virtuoso_writer.new_triple(
-      uri_movie, "#{@schemas['tmdb']}movie/adult", (set_xsd_type movie.adult, 'boolean')
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/backdrop_path", movie.backdrop_path
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/budget", movie.budget
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/homepage", object: movie.homepage
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/imdb_id", movie.imdb_id
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/original_title", movie.original_title
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/overview", movie.overview
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/popularity", (set_xsd_type movie.popularity, 'decimal')
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/poster_path", movie.poster_path
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/release_date", movie.release_date
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/revenue", movie.revenue
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/runtime", movie.runtime
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/status", movie.status
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/tagline", movie.tagline
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/title", movie.title
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/vote_average", (set_xsd_type movie.vote_average, 'decimal')
-    )
-    @virtuoso_writer.new_triple(
-        uri_movie, "#{@schemas['tmdb']}movie/vote_count", movie.vote_count
-    )
+    if movie.id.to_s.length > 0
+      @virtuoso_writer.new_triple(
+        uri_movie, "#{@schemas['tmdb']}movie/id", movie.id
+      )
+    end
+    if movie.adult.to_s.length > 0
+      @virtuoso_writer.new_triple(
+        uri_movie, "#{@schemas['tmdb']}movie/adult", movie.adult
+      )
+    end
+    if movie.backdrop_path.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/backdrop_path", movie.backdrop_path
+      )
+    end
+    if movie.budget.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/budget", movie.budget
+      )
+    end
+    if movie.homepage.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/homepage", movie.homepage
+      )
+    end
+    if movie.imdb_id.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/imdb_id", movie.imdb_id
+      )
+    end
+    if movie.original_title.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/original_title", movie.original_title
+      )
+    end
+    if movie.overview.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/overview", movie.overview
+      )
+
+    end
+    if movie.popularity.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/popularity", movie.popularity
+      )
+    end
+    if movie.poster_path.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/poster_path", movie.poster_path
+      )
+    end
+    if movie.release_date.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/release_date", movie.release_date
+      )
+    end
+    if movie.revenue.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/revenue", movie.revenue
+      )
+    end
+    if movie.runtime.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/runtime", movie.runtime
+      )
+    end
+    if movie.status.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/status", movie.status
+      )
+    end
+    if movie.tagline.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/tagline", movie.tagline
+      )
+    end
+    if movie.title.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/title", movie.title
+      )
+      end
+    if movie.vote_average.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/vote_average", movie.vote_average
+      )
+    end
+    if movie.vote_count.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_movie, "#{@schemas['tmdb']}movie/vote_count", movie.vote_count
+      )
+    end
     @virtuoso_writer.new_triple(
         uri_movie, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
     )
@@ -146,116 +183,148 @@ class TMDbUpdater::Updater
   
   def update_titles(titles, uri_movie)
     movie_titles = titles['titles']   # id is ignored because its identical with movie_id
-    movie_titles.each do |title|
-      uri_title = "#{uri_movie}/alternative_titles/#{title['iso_3166_1']}"
-      @virtuoso_writer.new_triple(
-          uri_movie, "#{@schemas['tmdb']}movie/alternative_titles/titles", uri_title, literal: false
-      )
+    if movie_titles
+      movie_titles.each do |title|
+        uri_title = "#{uri_movie}/alternative_titles/#{title['iso_3166_1']}"
+        @virtuoso_writer.new_triple(
+            uri_movie, "#{@schemas['tmdb']}movie/alternative_titles/titles", uri_title, literal: false
+        )
 
-      # try to delete existing triples for title first
-      @virtuoso_writer.delete_triple(
-          subject: uri_title)
+        # try to delete existing triples for title first
+        @virtuoso_writer.delete_triple(
+            subject: uri_title)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_title, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Alternative_Title", literal: false
-      )
-      @virtuoso_writer.new_triple(
-          uri_title, "#{@schemas['tmdb']}movie/alternative_titles/titles/iso_3166_1", title['iso_3166_1']
-      )
-      @virtuoso_writer.new_triple(
-          uri_title, "#{@schemas['tmdb']}movie/alternative_titles/titles/title", title['title']
-      )
-      @virtuoso_writer.new_triple(
-          uri_title, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
+        # add new triples
+        @virtuoso_writer.new_triple(
+            uri_title, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Alternative_Title", literal: false
+        )
+        if title['iso_3166_1'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_title, "#{@schemas['tmdb']}movie/alternative_titles/titles/iso_3166_1", title['iso_3166_1']
+          )
+        end
+        if title['title'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_title, "#{@schemas['tmdb']}movie/alternative_titles/titles/title", title['title']
+          )
+        end
+        @virtuoso_writer.new_triple(
+            uri_title, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+        )
+      end
     end
   end
 
   def update_cast(movie_casts, uri_movie)
-    movie_casts.each do |cast|
-      uri_cast = "#{uri_movie}/cast/#{cast['id']}"
-      @virtuoso_writer.new_triple(
-          uri_movie, "#{@schemas['tmdb']}movie/credits/cast", uri_cast, literal: false
-      )
+    if movie_casts
+      movie_casts.each do |cast|
+        uri_cast = "#{uri_movie}/cast/#{cast['id']}"
+        @virtuoso_writer.new_triple(
+            uri_movie, "#{@schemas['tmdb']}movie/credits/cast", uri_cast, literal: false
+        )
 
-      # try to delete existing triples for cast first
-      @virtuoso_writer.delete_triple(
-          subject: uri_cast)
+        # try to delete existing triples for cast first
+        @virtuoso_writer.delete_triple(
+            subject: uri_cast)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Cast", literal: false
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}cast/id", cast['id']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}cast/cast_id", cast['cast_id']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}cast/character", cast['character']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}cast/name", cast['name']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}cast/order", cast['order']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}cast/profile_path", cast['profile_path']
-      )
-      uri_person = "#{@schemas['base_tmdb']}person/#{cast['id']}"
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}cast/person", uri_person
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
-      # update person
-      update_person cast['id'], uri_person
+        # add new triples
+        @virtuoso_writer.new_triple(
+            uri_cast, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Cast", literal: false
+        )
+        if cast['id'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_cast, "#{@schemas['tmdb']}cast/id", cast['id']
+          )
+        end
+        if cast['cast_id'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_cast, "#{@schemas['tmdb']}cast/cast_id", cast['cast_id']
+          )
+        end
+        if cast['character'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_cast, "#{@schemas['tmdb']}cast/character", cast['character']
+          )
+        end
+        if cast['name'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_cast, "#{@schemas['tmdb']}cast/name", cast['name']
+          )
+        end
+        if cast['order'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_cast, "#{@schemas['tmdb']}cast/order", cast['order']
+          )
+        end
+        if cast['profile_path'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_cast, "#{@schemas['tmdb']}cast/profile_path", cast['profile_path']
+          )
+        end
+        uri_person = "#{@schemas['base_tmdb']}person/#{cast['id']}"
+        @virtuoso_writer.new_triple(
+            uri_cast, "#{@schemas['tmdb']}cast/person", uri_person
+        )
+        @virtuoso_writer.new_triple(
+            uri_cast, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+        )
+        # update person
+        update_person cast['id'], uri_person
+      end
     end
   end
   
   def update_crew(movie_crew, uri_movie)
-    movie_crew.each do |crew|
-      uri_crew = "#{uri_movie}/crew/#{crew['id']}"
-      @virtuoso_writer.new_triple(
-          uri_movie, "#{@schemas['tmdb']}movie/credits/crew", uri_crew, literal: false
-      )
+    if movie_crew
+      movie_crew.each do |crew|
+        uri_crew = "#{uri_movie}/crew/#{crew['id']}"
+        @virtuoso_writer.new_triple(
+            uri_movie, "#{@schemas['tmdb']}movie/credits/crew", uri_crew, literal: false
+        )
 
-      # try to delete existing triples for crew first
-      @virtuoso_writer.delete_triple(
-          subject: uri_crew)
+        # try to delete existing triples for crew first
+        @virtuoso_writer.delete_triple(
+            subject: uri_crew)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Crew", literal: false
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}crew/id", crew['id']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}crew/department", crew['department']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}crew/job", crew['job']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}crew/name", crew['name']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}crew/profile_path", crew['profile_path']
-      )
-      uri_person = "#{@schemas['base_tmdb']}person/#{crew['id']}"
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}crew/person", uri_person
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
-      # update person
-      update_person crew['id'], uri_person
+        # add new triples
+        @virtuoso_writer.new_triple(
+            uri_crew, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Crew", literal: false
+        )
+        if crew['id'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_crew, "#{@schemas['tmdb']}crew/id", crew['id']
+          )
+        end
+        if crew['department'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_crew, "#{@schemas['tmdb']}crew/department", crew['department']
+          )
+        end
+        if crew['job'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_crew, "#{@schemas['tmdb']}crew/job", crew['job']
+          )
+        end
+        if crew['name'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_crew, "#{@schemas['tmdb']}crew/name", crew['name']
+          )
+        end
+        if crew['profile_path'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_crew, "#{@schemas['tmdb']}crew/profile_path", crew['profile_path']
+          )
+        end
+        uri_person = "#{@schemas['base_tmdb']}person/#{crew['id']}"
+        @virtuoso_writer.new_triple(
+            uri_crew, "#{@schemas['tmdb']}crew/person", uri_person
+        )
+        @virtuoso_writer.new_triple(
+            uri_crew, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+        )
+        # update person
+        update_person crew['id'], uri_person
+      end
     end
   end
   
@@ -279,15 +348,21 @@ class TMDbUpdater::Updater
       @virtuoso_writer.new_triple(
           uri_collection, "#{@schemas['tmdb']}movie/belongs_to_collection/id", collection_id
       )
-      @virtuoso_writer.new_triple(
-          uri_collection, "#{@schemas['tmdb']}movie/belongs_to_collection/name", collection.name
-      )
-      @virtuoso_writer.new_triple(
-          uri_collection, "#{@schemas['tmdb']}movie/belongs_to_collection/poster_path", collection.poster_path
-      )
-      @virtuoso_writer.new_triple(
-          uri_collection, "#{@schemas['tmdb']}movie/belongs_to_collection/backdrop_path", collection.backdrop_path
-      )
+      if collection.name.to_s.length > 0
+        @virtuoso_writer.new_triple(
+            uri_collection, "#{@schemas['tmdb']}movie/belongs_to_collection/name", collection.name
+        )
+      end
+      if collection.poster_path.to_s.length > 0
+        @virtuoso_writer.new_triple(
+            uri_collection, "#{@schemas['tmdb']}movie/belongs_to_collection/poster_path", collection.poster_path
+        )
+      end
+      if collection.backdrop_path.to_s.length > 0
+        @virtuoso_writer.new_triple(
+            uri_collection, "#{@schemas['tmdb']}movie/belongs_to_collection/backdrop_path", collection.backdrop_path
+        )
+      end
       @virtuoso_writer.new_triple(
           uri_collection, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
       )
@@ -296,174 +371,214 @@ class TMDbUpdater::Updater
   
   def update_genres(movie, uri_movie)
     movie_genres = movie.genres
-    movie_genres.each do |genre|
-      uri_genre = "#{@schemas['base_tmdb']}genre/#{genre['id']}"
-      @virtuoso_writer.new_triple(
-          uri_movie, "#{@schemas['tmdb']}movie/genres", uri_genre, literal: false
-      )
+    if movie_genres
+      movie_genres.each do |genre|
+        uri_genre = "#{@schemas['base_tmdb']}genre/#{genre['id']}"
+        @virtuoso_writer.new_triple(
+            uri_movie, "#{@schemas['tmdb']}movie/genres", uri_genre, literal: false
+        )
 
-      # try to delete existing triples for genre first
-      @virtuoso_writer.delete_triple(
-          subject: uri_genre)
+        # try to delete existing triples for genre first
+        @virtuoso_writer.delete_triple(
+            subject: uri_genre)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_genre, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Genre", literal: false
-      )
-      @virtuoso_writer.new_triple(
-          uri_genre, "#{@schemas['tmdb']}genres/id", genre['id']
-      )
-      @virtuoso_writer.new_triple(
-          uri_genre, "#{@schemas['tmdb']}genres/name", genre['name']
-      )
-      @virtuoso_writer.new_triple(
-          uri_genre, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
+        # add new triples
+        @virtuoso_writer.new_triple(
+            uri_genre, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Genre", literal: false
+        )
+        if genre['id'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_genre, "#{@schemas['tmdb']}genres/id", genre['id']
+          )
+        end
+        if genre['name'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_genre, "#{@schemas['tmdb']}genres/name", genre['name']
+          )
+        end
+        @virtuoso_writer.new_triple(
+            uri_genre, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+        )
+      end
     end
   end
   
   def update_companies(movie, uri_movie)
     movie_companies = movie.production_companies
-    movie_companies.each do |company|
-      uri_company = "#{@schemas['base_tmdb']}company/#{company['id']}"
-      @virtuoso_writer.new_triple(
-          uri_movie, "#{@schemas['tmdb']}movie/production_companies", uri_company, literal: false
-      )
+    if movie_companies
+      movie_companies.each do |company|
+        uri_company = "#{@schemas['base_tmdb']}company/#{company['id']}"
+        @virtuoso_writer.new_triple(
+            uri_movie, "#{@schemas['tmdb']}movie/production_companies", uri_company, literal: false
+        )
 
-      # try to delete existing triples for company first
-      @virtuoso_writer.delete_triple(
-          subject: uri_company)
+        # try to delete existing triples for company first
+        @virtuoso_writer.delete_triple(
+            subject: uri_company)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_company, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Production_Company", literal: false
-      )
-      @virtuoso_writer.new_triple(
-          uri_company, "#{@schemas['tmdb']}movie/production_companies/id", company['id']
-      )
-      @virtuoso_writer.new_triple(
-        uri_company, "#{@schemas['tmdb']}movie/production_companies/name", company['name']
-      )
-      @virtuoso_writer.new_triple(
-          uri_company, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
+        # add new triples
+        @virtuoso_writer.new_triple(
+            uri_company, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Production_Company", literal: false
+        )
+        if company['id'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_company, "#{@schemas['tmdb']}movie/production_companies/id", company['id']
+          )
+        end
+        if company['name'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+            uri_company, "#{@schemas['tmdb']}movie/production_companies/name", company['name']
+          )
+        end
+        @virtuoso_writer.new_triple(
+            uri_company, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+        )
+      end
     end
   end
   
   def update_countries(movie, uri_movie)
     movie_countries = movie.production_countries
-    movie_countries.each do |country|
-      uri_country = "#{@schemas['base_tmdb']}country/#{country['iso_639_1']}"
-      @virtuoso_writer.new_triple(
-          uri_movie, "#{@schemas['tmdb']}movie/production_countries", uri_country, literal: false
-      )
+    if movie_countries
+      movie_countries.each do |country|
+        uri_country = "#{@schemas['base_tmdb']}country/#{country['iso_639_1']}"
+        @virtuoso_writer.new_triple(
+            uri_movie, "#{@schemas['tmdb']}movie/production_countries", uri_country, literal: false
+        )
 
-      # try to delete existing triples for country first
-      @virtuoso_writer.delete_triple(
-          subject: uri_country)
+        # try to delete existing triples for country first
+        @virtuoso_writer.delete_triple(
+            subject: uri_country)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_country, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Production_Country", literal: false
-      )
-      @virtuoso_writer.new_triple(
-          uri_country, "#{@schemas['tmdb']}movie/production_countries/iso_639_1", country['iso_639_1']
-      )
-      @virtuoso_writer.new_triple(
-          uri_country, "#{@schemas['tmdb']}movie/production_countries/name", country['name']
-      )
-      @virtuoso_writer.new_triple(
-          uri_country, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
+        # add new triples
+        @virtuoso_writer.new_triple(
+            uri_country, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Production_Country", literal: false
+        )
+        if country['iso_639_1'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_country, "#{@schemas['tmdb']}movie/production_countries/iso_639_1", country['iso_639_1']
+          )
+        end
+        if country['name'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_country, "#{@schemas['tmdb']}movie/production_countries/name", country['name']
+          )
+        end
+        @virtuoso_writer.new_triple(
+            uri_country, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+        )
+      end
     end
   end
   
   def update_releases(releases, uri_movie)
     movie_releases = releases['countries']
-    movie_releases.each do |release|
-      uri_release = "#{uri_movie}/releases/#{release['iso_3166_1']}"
-      @virtuoso_writer.new_triple(
-          uri_movie, "#{@schemas['tmdb']}movie/releases/countries", uri_release, literal: false
-      )
+    if movie_releases
+      movie_releases.each do |release|
+        uri_release = "#{uri_movie}/releases/#{release['iso_3166_1']}"
+        @virtuoso_writer.new_triple(
+            uri_movie, "#{@schemas['tmdb']}movie/releases/countries", uri_release, literal: false
+        )
 
-      # try to delete existing triples for release first
-      @virtuoso_writer.delete_triple(
-          subject: uri_release)
+        # try to delete existing triples for release first
+        @virtuoso_writer.delete_triple(
+            subject: uri_release)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_release, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Release_Country", literal: false
-      )
-      @virtuoso_writer.new_triple(
-          uri_release, "#{@schemas['tmdb']}movie/releases/countries/iso_3166_1", release['iso_3166_1']
-      )
-      @virtuoso_writer.new_triple(
-          uri_release, "#{@schemas['tmdb']}movie/releases/countries/certification", release['certification']
-      )
-      @virtuoso_writer.new_triple(
-          uri_release, "#{@schemas['tmdb']}movie/releases/countries/release_date", release['release_date']
-      )
-      @virtuoso_writer.new_triple(
-          uri_release, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
+        # add new triples
+        @virtuoso_writer.new_triple(
+            uri_release, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Release_Country", literal: false
+        )
+        if release['iso_3166_1'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_release, "#{@schemas['tmdb']}movie/releases/countries/iso_3166_1", release['iso_3166_1']
+          )
+        end
+        if release['certification'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_release, "#{@schemas['tmdb']}movie/releases/countries/certification", release['certification']
+          )
+        end
+        if release['release_date'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_release, "#{@schemas['tmdb']}movie/releases/countries/release_date", release['release_date']
+          )
+        end
+        @virtuoso_writer.new_triple(
+            uri_release, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+        )
+      end
     end
   end
 
   def update_languages(movie_languages, uri_movie)
-    movie_languages.each do |language|
-      uri_language = "#{@schemas['base_tmdb']}language/#{language['iso_639_1']}"
-      @virtuoso_writer.new_triple(
-          uri_movie, "#{@schemas['tmdb']}movie/spoken_languages", uri_language, literal: false
-      )
+    if movie_languages
+      movie_languages.each do |language|
+        uri_language = "#{@schemas['base_tmdb']}language/#{language['iso_639_1']}"
+        @virtuoso_writer.new_triple(
+            uri_movie, "#{@schemas['tmdb']}movie/spoken_languages", uri_language, literal: false
+        )
 
-      # try to delete existing triples for language first
-      @virtuoso_writer.delete_triple(
-          subject: uri_language)
+        # try to delete existing triples for language first
+        @virtuoso_writer.delete_triple(
+            subject: uri_language)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_language, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Spoken_Language", literal: false
-      )
-      @virtuoso_writer.new_triple(
-          uri_language, "#{@schemas['tmdb']}movie/spoken_languages/iso_639_1", language['iso_639_1']
-      )
-      @virtuoso_writer.new_triple(
-          uri_language, "#{@schemas['tmdb']}movie/spoken_languages/name", language['name']
-      )
-      @virtuoso_writer.new_triple(
-          uri_language,@schemas['pav_lastupdateon'],(set_xsd_type DateTime.now, 'dateTime')
-      )
+        # add new triples
+        @virtuoso_writer.new_triple(
+            uri_language, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Spoken_Language", literal: false
+        )
+        if language['iso_639_1'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_language, "#{@schemas['tmdb']}movie/spoken_languages/iso_639_1", language['iso_639_1']
+          )
+        end
+        if language['name'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_language, "#{@schemas['tmdb']}movie/spoken_languages/name", language['name']
+          )
+        end
+        @virtuoso_writer.new_triple(
+            uri_language,@schemas['pav_lastupdateon'],(set_xsd_type DateTime.now, 'dateTime')
+        )
+      end
     end
   end
 
   def update_translations(translations, uri_movie)
     movie_translations = translations['translations']
-    movie_translations.each do |translation|
-      uri_translation = "#{@schemas['base_tmdb']}translation/#{translation['iso_639_1']}"
-      @virtuoso_writer.new_triple(
-          uri_movie, "#{@schemas['tmdb']}movie/translations/translations", uri_translation, literal: false
-      )
+    if movie_translations
+      movie_translations.each do |translation|
+        uri_translation = "#{@schemas['base_tmdb']}translation/#{translation['iso_639_1']}"
+        @virtuoso_writer.new_triple(
+            uri_movie, "#{@schemas['tmdb']}movie/translations/translations", uri_translation, literal: false
+        )
 
-      # try to delete existing triples for translation first
-      @virtuoso_writer.delete_triple(
-          subject: uri_translation)
+        # try to delete existing triples for translation first
+        @virtuoso_writer.delete_triple(
+            subject: uri_translation)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_translation, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Translation", literal: false
-      )
-      @virtuoso_writer.new_triple(
-          uri_translation, "#{@schemas['tmdb']}movie/translations/translations/iso_639_1", translation['iso_639_1']
-      )
-      @virtuoso_writer.new_triple(
-          uri_translation, "#{@schemas['tmdb']}movie/translations/translations/name", translation['name']
-      )
-      @virtuoso_writer.new_triple(
-          uri_translation, "#{@schemas['tmdb']}movie/translations/translations/english_name", translation['english_name']
-      )
-      @virtuoso_writer.new_triple(
-          uri_translation, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
+        # add new triples
+        @virtuoso_writer.new_triple(
+            uri_translation, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Translation", literal: false
+        )
+        if translation['iso_639_1'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_translation, "#{@schemas['tmdb']}movie/translations/translations/iso_639_1", translation['iso_639_1']
+          )
+        end
+        if translation['name'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_translation, "#{@schemas['tmdb']}movie/translations/translations/name", translation['name']
+          )
+        end
+        if translation['english_name'].to_s.length > 0
+          @virtuoso_writer.new_triple(
+              uri_translation, "#{@schemas['tmdb']}movie/translations/translations/english_name", translation['english_name']
+          )
+        end
+        @virtuoso_writer.new_triple(
+            uri_translation, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+        )
+      end
     end
   end
 
@@ -583,38 +698,58 @@ class TMDbUpdater::Updater
     @virtuoso_writer.new_triple(
         uri_person, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Person", literal: false
     )
-    @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/id", person.id
-    )
-    @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/adult", (set_xsd_type person.adult, 'boolean')
-    )
-    person.also_known_as.each do |name|
+    if person.id.to_s.length > 0
       @virtuoso_writer.new_triple(
-          uri_person, "#{@schemas['tmdb']}person/also_known_as", name
+          uri_person, "#{@schemas['tmdb']}person/id", person.id
       )
     end
-    @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/biography", person.biography
-    )
-    @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/birthday", person.birthday
-    )
-    @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/deathday", person.deathday
-    )
-    @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/homepage", person.homepage
-    )
-    @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/name", person.name
-    )
-    @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/place_of_birth", person.place_of_birth
-    )
-    @virtuoso_writer.new_triple(
-        uri_person, "#{@schemas['tmdb']}person/profile_path", person.profile_path
-    )
+    if person.adult.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_person, "#{@schemas['tmdb']}person/adult", person.adult
+      )
+    end
+    if person.also_known_as
+      person.also_known_as.each do |name|
+        @virtuoso_writer.new_triple(
+            uri_person, "#{@schemas['tmdb']}person/also_known_as", name
+        )
+      end
+    end
+    if person.biography.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_person, "#{@schemas['tmdb']}person/biography", person.biography
+      )
+    end
+    if person.birthday.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_person, "#{@schemas['tmdb']}person/birthday", person.birthday
+      )
+    end
+    if person.deathday.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_person, "#{@schemas['tmdb']}person/deathday", person.deathday
+      )
+    end
+    if person.homepage.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_person, "#{@schemas['tmdb']}person/homepage", person.homepage
+      )
+    end
+    if person.name.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_person, "#{@schemas['tmdb']}person/name", person.name
+      )
+    end
+    if person.place_of_birth.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_person, "#{@schemas['tmdb']}person/place_of_birth", person.place_of_birth
+      )
+    end
+    if person.profile_path.to_s.length > 0
+      @virtuoso_writer.new_triple(
+          uri_person, "#{@schemas['tmdb']}person/profile_path", person.profile_path
+      )
+    end
     @virtuoso_writer.new_triple(
         uri_person, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
     )
@@ -631,100 +766,145 @@ class TMDbUpdater::Updater
   end
 
   def update_casts(credits, uri_person)
-    casts = credits['cast']
-    casts.each do |cast|
-      uri_cast = "#{uri_person}/cast/#{cast['credit_id']}"
-      @virtuoso_writer.new_triple(
-          uri_person, "#{@schemas['tmdb']}person/combined_credits/cast", uri_cast
-      )
+    if credits
+      casts = credits['cast']
+      if casts
+        casts.each do |cast|
+          uri_cast = "#{uri_person}/cast/#{cast['credit_id']}"
+          @virtuoso_writer.new_triple(
+              uri_person, "#{@schemas['tmdb']}person/combined_credits/cast", uri_cast
+          )
 
-      # try to delete existing triples for cast first
-      @virtuoso_writer.delete_triple(
-          subject: uri_cast)
+          # try to delete existing triples for cast first
+          @virtuoso_writer.delete_triple(
+              subject: uri_cast)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Combined_Cast"
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/adult", (set_xsd_type cast['adult'], 'boolean')
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/character", cast['character']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/credit_id", cast['credit_id']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/id", cast['id']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/original_title", cast['original_title']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/poster_path", cast['poster_path']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/release_date", cast['release_date']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/title", cast['title']
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/media_type", 'movie'
-      )
-      @virtuoso_writer.new_triple(
-          uri_cast, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
+          # add new triples
+          @virtuoso_writer.new_triple(
+              uri_cast, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Combined_Cast"
+          )
+          if cast['adult'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/adult", cast['adult']
+            )
+          end
+          if cast['character'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/character", cast['character']
+            )
+          end
+          if cast['credit_id'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/credit_id", cast['credit_id']
+            )
+          end
+          if cast['id'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/id", cast['id']
+            )
+          end
+          if cast['original_title'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/original_title", cast['original_title']
+            )
+          end
+          if cast['poster_path'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/poster_path", cast['poster_path']
+            )
+          end
+          if cast['release_date'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/release_date", cast['release_date']
+            )
+          end
+          if cast['title'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/title", cast['title']
+            )
+          end
+          @virtuoso_writer.new_triple(
+              uri_cast, "#{@schemas['tmdb']}person/combined_credits/cast/media_type", 'movie'
+          )
+          @virtuoso_writer.new_triple(
+              uri_cast, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+          )
+        end
+      end
     end
   end
 
   def update_crews(credits, uri_person)
-    crews = credits['crew']
-    crews.each do |crew|
-      uri_crew = "#{uri_person}/cast/#{crew['credit_id']}"
-      @virtuoso_writer.new_triple(
-          uri_person, "#{@schemas['tmdb']}person/combined_credits/crew", uri_crew
-      )
+    if credits
+      crews = credits['crew']
+      if crews
+        crews.each do |crew|
+          uri_crew = "#{uri_person}/cast/#{crew['credit_id']}"
+          @virtuoso_writer.new_triple(
+              uri_person, "#{@schemas['tmdb']}person/combined_credits/crew", uri_crew
+          )
 
-      # try to delete existing triples for crew first
-      @virtuoso_writer.delete_triple(
-          subject: uri_crew)
+          # try to delete existing triples for crew first
+          @virtuoso_writer.delete_triple(
+              subject: uri_crew)
 
-      # add new triples
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/adult", (set_xsd_type crew['adult'], 'boolean')
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/credit_id", crew['credit_id']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/id", crew['id']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/department", crew['department']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/job", crew['job']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/original_title", crew['original_title']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/poster_path", crew['poster_path']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/release_date", crew['release_date']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/title", crew['title']
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/media_type", 'movie'
-      )
-      @virtuoso_writer.new_triple(
-          uri_crew, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
-      )
+          # add new triples
+          @virtuoso_writer.new_triple(
+              uri_crew, "#{@schemas['rdf']}type", "#{@schemas['tmdb']}Combined_Crew"
+          )
+          if crew['adult'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/adult", crew['adult']
+            )
+          end
+          if crew['credit_id'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/credit_id", crew['credit_id']
+            )
+          end
+          if crew['id'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/id", crew['id']
+            )
+          end
+          if crew['department'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/department", crew['department']
+            )
+          end
+          if crew['job'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/job", crew['job']
+            )
+          end
+          if crew['original_title'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/original_title", crew['original_title']
+            )
+          end
+          if crew['poster_path'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/poster_path", crew['poster_path']
+            )
+          end
+          if crew['release_date'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/release_date", crew['release_date']
+            )
+          end
+          if crew['title'].to_s.length > 0
+            @virtuoso_writer.new_triple(
+                uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/title", crew['title']
+            )
+          end
+          @virtuoso_writer.new_triple(
+              uri_crew, "#{@schemas['tmdb']}person/combined_credits/crew/media_type", 'movie'
+          )
+          @virtuoso_writer.new_triple(
+              uri_crew, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+          )
+        end
+      end
     end
   end
 
@@ -742,7 +922,7 @@ class TMDbUpdater::Updater
   end
 
   def set_xsd_type(literal, type)
-    "#{literal}^^#{@schemas['xsd']}#{type}"
+    RDF::Literal.new(literal, datatype: "http://www.w3.org/2001/XMLSchema##{type}")
   end
 
   private
@@ -756,7 +936,6 @@ class TMDbUpdater::Updater
 
   private
   def load_schemas
-    file ||= YAML.load_file '../config/namespaces.yml'
-    @schemas = file['schemas']
+    @schemas ||= YAML.load_file('../config/namespaces.yml')['schemas']
   end
 end

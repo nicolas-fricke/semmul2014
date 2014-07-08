@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'sparql/client'
+require 'rdf/json'
 require 'rdf'
 require 'logger'
 
@@ -21,10 +22,10 @@ class TMDbMapper::DBpediaReader
       'Š'=>'S', 'š'=>'s', 'Ð'=>'Dj','Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A',
       'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E', 'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I',
       'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U', 'Ú'=>'U',
-      'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss','à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a',
+      'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss','ä'=>'a',  'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a',
       'å'=>'a', 'æ'=>'a', 'ç'=>'c', 'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i',
       'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ō'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o', 'ö'=>'o', 'ø'=>'o', 'ù'=>'u',
-      'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f'
+      'ú'=>'u', 'û'=>'u', 'ü'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f'
     }
     begin
       place_string = place_string.to_s.encode('us-ascii', :fallback => fallback)
@@ -39,7 +40,9 @@ class TMDbMapper::DBpediaReader
     puts place_string
 
     begin
-      query = @sparql.select.where([:s, label, :label]).where([:label, contains, string]).where([:s, type, place]).limit(1)
+
+      #query =  @sparql.query('SELECT * WHERE { ?s <http://www.w3.org/2000/01/rdf-schema#label> ?label . ?label <bif:contains> "New AND York AND USA" . ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://dbpedia.org/ontology/Place> . } LIMIT 1').map { |solution| solution[:s] }
+      query = @sparql.select.where([:s, label, :label]).where([:label, contains, string]).where([:s, type, place]).filter('lang(?label) = "en"').limit(1)
 
       if query.each_solution.count > 0
         query.each_solution do |solution|
@@ -57,7 +60,7 @@ class TMDbMapper::DBpediaReader
           end
         else
           puts 'again (0 AND last) ...'
-          get_place_uri "#{Array(tokens).first} #{Array(tokens).last}"
+          get_place_uri "#{Array(tokens).first} #{Array(tokens).last}" unless get_place_uri "#{Array(tokens).first} #{Array(tokens)[1]}"
         end
       else
         puts 'nil'
@@ -71,7 +74,6 @@ class TMDbMapper::DBpediaReader
   end
 
   def load_schemas
-    file  ||= YAML.load_file '../config/namespaces.yml'
-    @schemas = file['schemas']
+    @schemas ||= YAML.load_file('../config/namespaces.yml')['schemas']
   end
 end

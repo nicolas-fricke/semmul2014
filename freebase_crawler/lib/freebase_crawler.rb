@@ -67,7 +67,7 @@ module FreebaseCrawler
 
     private
     def api_key
-      @secrets ||= YAML.load_file '../freebase_crawler/config/secrets.yml'
+      @secrets ||= YAML.load_file '../config/secrets.yml'
       @secrets['services']['freebase']['api_key']
     end
   end

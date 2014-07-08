@@ -1,35 +1,29 @@
-require 'time'
-
 class Merger::Merger
-  def initialize
-    publisher
-    virtuoso_writer
-    virtuoso_reader
-  end
-  
   def register_receiver
     receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri) }
   end
 
-  def merge(mapped_movie_uri)
-    main_db_entity_uri = find_merged_entity(mapped_movie_uri)
+  def merge(mapped_entity_uri)
+    main_db_entity_uri = find_merged_entity(mapped_entity_uri)
     if main_db_entity_uri
-      merge_into_entity new_entity_uri: mapped_movie_uri, existing_entity_uri: main_db_entity_uri
+      merge_into_entity new_entity_uri: mapped_entity_uri, existing_entity_uri: main_db_entity_uri
     else
-      main_db_entity_uri = find_matching_entity(mapped_movie_uri)
+      main_db_entity_uri = find_matching_entity(mapped_entity_uri)
       if main_db_entity_uri
-        merge_into_entity new_entity_uri: mapped_movie_uri, existing_entity_uri: main_db_entity_uri
+        merge_into_entity new_entity_uri: mapped_entity_uri, existing_entity_uri: main_db_entity_uri
       else
-        main_db_entity_uri = create_new_entity new_entity_uri: mapped_movie_uri
+        main_db_entity_uri = create_new_entity mapped_entity_uri: mapped_entity_uri
       end
-      set_same_as_references new_entity_uri: mapped_movie_uri, existing_entity_uri: main_db_entity_uri
+      set_same_as_references main_db_uri: mapped_entity_uri, map_db_entry: main_db_entity_uri
     end
     update_provenience_information(main_db_entity_uri)
     # TODO: enqueue message with main_db_entity_uri onto mapped queue for consolidation
+    # return main db uri
+    main_db_entity_uri
   end
 
-  def find_merged_entity(mapped_movie_uri)
-    # TODO: Check if record in MainDB exists, that looks like { ?s sameAs mapped_movie_uri }
+  def find_merged_entity(mapped_entity_uri)
+    # TODO @Kerstin: Check if record in MainDB exists, that looks like { ?s sameAs mapped_entity_uri }
     # returns either merged_uri from MainDB entry or nil
   end
 
@@ -40,25 +34,28 @@ class Merger::Merger
     # Merge accordingly into record
   end
 
-  def find_matching_entity(mapped_movie_uri)
+  def find_matching_entity(mapped_entity_uri)
     # TODO @Flo: Employ matcher to find matching entity within MainDB
     # returns matching entity's URI or nil
   end
 
-  def create_new_entity(new_entity_uri:)
-    # TODO @Nico: Copy entity from MapDB into MainDB and update URIs to match MainDB schema
-    # return newly created entity URI
+  def create_new_entity(mapped_entity_uri:)
+    # (Nico) Copy entity from MapDB into MainDB and update URIs to match MainDB schema
+    copy_machine = Merger::CopyMachine.new mapped_entity_uri
+    copy_machine.process # returns newly created entity URI
   end
 
-  def set_same_as_references(new_entity_uri:, existing_entity_uri:)
-    # TODO: Set same_as reference within MainDB representing { existing_entity_uri sameAs new_entity_uri }
+  def set_same_as_references(main_db_uri:, map_db_entry:)
+    # (Nico)
+    virtuoso_writer.new_triple main_db_uri,
+                               "#{Merger::Config.namespaces['owl']}sameAs",
+                               map_db_entry, literal: false
   end
 
   def update_provenience_information(main_db_entity_uri)
-    # TODO: Update provenience information within MainDB
+    # TODO @Kerstin: Update provenience information within MainDB
     # Contains information like last merged at, ...
   end
-
 
   private
   def publisher
