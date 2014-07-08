@@ -218,6 +218,32 @@ private
     @mapper_queues[type].push uri
   end
 
+  # Fetch and store a test set and push it to the mapper's queue.
+  def run_test
+    puts "### TEST RUN ###"
+    @queues = nil # do not accidentally push something that should not be pushed
+
+    uris = ["http://dbpedia.org/resource/Star_Trek_(film)",
+            "http://dbpedia.org/resource/Star_Trek_Into_Darkness",
+            "http://dbpedia.org/resource/Bambi",
+            "http://dbpedia.org/resource/300_(film)",
+            "http://dbpedia.org/resource/Star_Wars_Episode_IV:_A_New_Hope",
+            "http://dbpedia.org/resource/Margin_Call_(film)",
+            "http://dbpedia.org/resource/Fast_&_Furious_6",
+            "http://dbpedia.org/resource/Despicable_Me",
+            "http://dbpedia.org/resource/Her_(film)",
+            "http://dbpedia.org/resource/Walk_the_Line",
+            "http://dbpedia.org/resource/King_Kong_(1976_film)",
+            "http://dbpedia.org/resource/King_Kong_(2005_film)" ]
+
+    uris.each do |uri|
+      command = convert_command(uri, "movie").merge({ retries: 0 });
+      execute(command, nil);
+    end
+
+    exit
+  end
+
 public
 
   # Create a new Crawler using the given configuration hash.
@@ -227,19 +253,25 @@ public
     # load types and fetching rules
     types, rules = configuration["types"], configuration["rules"]
     # create other components
-    @queues = create_queues(types, configuration["queue"])
-    @queue_index = 0	# index of the next queue to pop a command from
     @mapper_queues = create_mapper_queues types
     @source = DBpediaCrawler::Source.new configuration["source"]
     @type_checker = DBpediaCrawler::TypeChecker.new configuration["type_checker"]
     @writer = DBpediaCrawler::Writer.new configuration["writer"]
     @fetcher = DBpediaCrawler::Fetcher.new(@source, types, rules)
+    unless @config["test"] === true
+      @queues = create_queues(types, configuration["queue"])
+      @queue_index = 0	# index of the next queue to pop a command from
+    end
   end
 
   # Start the crawler. Pushes the initial command (to query all relevant
   # IDs) to the command queue and enters an inifinite loop which gets and
   # executes commands.
   def run
+    # if test: fetch specified test set
+    if @config["test"] === true
+      run_test
+    end
     # initial command: query all ids
     if @config["crawl_all_ids"] === true
       @queues["crawler"].push(command: :all_ids, retries: @config["command_retries"])
