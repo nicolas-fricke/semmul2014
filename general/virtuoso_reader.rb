@@ -19,6 +19,7 @@ class VirtuosoReader
     @graph = graphs[graph.to_s]
   end
 
+  # TODO: insert filter and several results (object and predicate); that is needed for merger
   def get_objects_for(subject: , predicate: , graph: @graph)
     graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
@@ -53,7 +54,6 @@ class VirtuosoReader
   end
 
   def graphs
-    file  ||= YAML.load_file '../config/namespaces.yml'
-    @graphs = file['graphs']
+    @graphs ||= YAML.load_file('../config/namespaces.yml')['graphs']
   end
 end

@@ -23,7 +23,7 @@ class MsgPublisher
 
   private
   def queues
-    file ||= YAML.load_file '../config/namespaces.yml'
-    @queues = file['queues']
+    @queues ||= YAML.load_file('../config/namespaces.yml')['queues']
   end
+
 end

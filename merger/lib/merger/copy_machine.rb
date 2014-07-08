@@ -23,6 +23,7 @@ class Merger::CopyMachine
     copy_entities(map_db_uri, new_main_db_uri)
   end
 
+  # TODO test SPARQL query
   def copy_literals(map_db_uri, new_main_db_uri)
     belonging_literals =
         virtuoso_reader.get_objects_for subject: map_db_uri,

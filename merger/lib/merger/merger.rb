@@ -48,29 +48,45 @@ class Merger::Merger
   def set_same_as_references(main_db_uri:, map_db_entry:)
     # (Nico)
     virtuoso_writer.new_triple main_db_uri,
-                               "#{Merger::Config.namespaces['owl']}sameAs",
+                               "#{schemas['owl']}sameAs",
                                map_db_entry, literal: false
   end
 
   def update_provenience_information(main_db_entity_uri)
-    # TODO @Kerstin: Update provenience information within MainDB
-    # Contains information like last merged at, ...
+    virtuoso_writer.delete_triple(
+      predicate: schemas['pav_lastupdateon']
+    )
+    virtuoso_writer.new_triple (
+      main_db_entity_uri, schemas['pav_lastupdateon'], RDF::Literal.new(DateTime.now, datatype: "#{schemas['xsd']}dateTime")
+    )
   end
 
   private
   def publisher
-    @publisher ||= Merger::MsgPublisher.new
+    @publisher ||= MsgPublisher.new
+    @publisher.set_queue queues['merging']
   end
 
   def receiver
-    @receiver ||= Merger::MsgConsumer.new
+    @receiver ||= MsgConsumer.new
+    @receiver.set_queue queues['mapping']
   end
 
   def virtuoso_writer
-    @virtuoso_writer ||= Merger::VirtuosoWriter.new
+    @virtuoso_writer ||= VirtuosoWriter.new
+    @virtuoso_writer.set_graph 'merged'
   end
 
   def virtuoso_reader
-    @virtuoso_reader ||= Merger::VirtuosoReader.new
+    @virtuoso_reader ||= VirtuosoReader.new
+    @virtuoso_reader.set_graph 'mapped'
+  end
+
+  def schemas
+    @schemas ||= Merger::Config.namespaces['schemas']
+  end
+
+  def queues
+    @queues ||= Merger::Config.namespaces['queues']
   end
 end
