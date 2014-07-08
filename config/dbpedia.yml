@@ -46,13 +46,13 @@ types:
   actor: "http://dbpedia.org/ontology/Actor"
   character: "http://dbpedia.org/ontology/FictionalCharacter"
   director: "http://www.hpi.uni-potsdam.de/semmul2014/lodofmovies.owl#Director"
-  episode: "http://schema.rdfs.org/Episode"
-  movie: "http://schema.rdfs.org/Movie"
-  organisation: "http://schema.rdfs.org/Organisation"
-  person: "http://schema.rdfs.org/Person"
+  episode: "http://schema.org/Episode"
+  movie: "http://schema.org/Movie"
+  organisation: "http://schema.org/Organisation"
+  person: "http://schema.org/Person"
   place: "http://dbpedia.org/ontology/Place"
-  season: "http://schema.rdfs.org/TVSeason"
-  show: "http://schema.rdfs.org/TVSeries"
+  season: "http://schema.org/TVSeason"
+  show: "http://schema.org/TVSeries"
 
 #
 # Fetching rules:
