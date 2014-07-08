@@ -7,8 +7,9 @@ For crawling DBpedia data (RDF).
 The crawler can be run several times (as independent processes) to achieve a
 greater throughput of commands:
 
-First crawler (working directory does not matter, adjust the path as necessary):
+First crawler:
 
+    # assuming working directory semmul2014/dbpedia_crawler
     ruby bin/dbpedia_crawler.rb
 
 With default options, the first crawler purges the queue, pushes the initial "crawl all IDs" command on the queue,
@@ -16,12 +17,13 @@ and when there are no commands left anymore, it pushes the "crawl all IDs" comma
 
 Further crawlers ("do not crawl ids on start / do not crawl ids when no command is left / do not purge the queue"):
 
+    # assuming working directory semmul2014/dbpedia_crawler
     ruby bin/dbpedia_crawler.rb -crawler:crawl_all_ids:false -crawler:insomnia:false -queue:purge:false
 
 This crawler only handles commands which are on the queue, but will not push a "crawl all IDs" command (if there 
 are no commands left, it will sleep).
 
-## Crawling another DBpedia
+## Crawling another DBpedia (not fully supported)
 
 By default, the crawler crawls data from "http://dbpedia.org/sparql".
 To crawl data from another DBpedia, start the crawler with the respective options, e.g.:
@@ -37,7 +39,7 @@ language-specific prefixes for its entities like the other DBpedias, except the 
 Note that it is not possible right now to specify which SPARQL queries to use, so if an endpoint cannot deal
 with the queries which are used by the crawler, crawling may not work (e.g. property paths).
 
-## Type Checking
+## Type Checking (not fully supported)
 
 Type checking for crawled movies and shows can be activated by setting the options "crawler:check_types"
 and "fetcher:threshold" accordingly. 
