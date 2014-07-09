@@ -19,7 +19,32 @@ class VirtuosoReader
     @graph = graphs[graph.to_s]
   end
 
-  # TODO: insert filter and several results (object and predicate); that is needed for merger
+  def get_predicates_and_objects_for(subject: , graph: @graph, filter: [])
+    graph = RDF::URI.new(graph)
+    subject = RDF::URI.new(subject)
+
+    begin
+      query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).filters(filter).graph(graph)
+      @repo.select(query)
+    rescue Exception => e
+      @log.error e
+    end
+  end
+
+  def get_subjects_for(predicate: , object: , graph: @graph)
+    graph = RDF::URI.new(graph)
+    predicate = RDF::URI.new(predicate)
+    object = RDF::URI.new(object)
+
+    begin
+      query = RDF::Virtuoso::Query.select.where([:s, predicate, object]).graph(graph)
+      result = @repo.select(query)
+      result.bindings[:s]
+    rescue Exception => e
+      @log.error e
+    end
+  end
+
   def get_objects_for(subject: , predicate: , graph: @graph)
     graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
