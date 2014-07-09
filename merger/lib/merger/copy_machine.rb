@@ -24,27 +24,17 @@ class Merger::CopyMachine
   end
 
   def copy_literals(map_db_uri, new_main_db_uri)
-    belonging_literals =
-        virtuoso_reader.get_objects_for subject: map_db_uri,
-                                        predicate: :p,
-                                        filter: 'isLiteral(?o)',
-                                        result: [:p, :o]
-    belonging_literals.each do |predicate, object_literal|
-      virtuoso_writer.new_triple new_main_db_uri, predicate, object_literal,
-                                 literal: true
+    results = virtuoso_reader.get_predicates_and_objects_for subject: map_db_uri, filter: ['isLiteral(?o)']
+    results.each do |result|
+      virtuoso_writer.new_triple new_main_db_uri, result[:p], result[:o],
     end
   end
 
   def copy_entities(map_db_uri, new_main_db_uri)
-    belonging_uris =
-        virtuoso_reader.get_objects_for subject: map_db_uri,
-                                        predicate: :p,
-                                        filter: 'isURI(?o)',
-                                        result: [:p, :o]
-    belonging_uris.each do |predicate, object_uri|
-      merged_uri = Merger::Merger.merge(object_uri)
-      virtuoso_writer.new_triple new_main_db_uri, predicate, merged_uri,
-                                 literal: false
+    results = virtuoso_reader.get_predicates_and_objects_for subject: map_db_uri, filter: ['isURI(?o)']
+    results.each do |result|
+      merged_uri = Merger::Merger.merge(result[:o])
+      virtuoso_writer.new_triple new_main_db_uri, result[:p], merged_uri, literal: false
     end
   end
 
@@ -60,11 +50,11 @@ class Merger::CopyMachine
   end
 
   def virtuoso_writer
-    @virtuoso_writer ||= Merger::VirtuosoWriter.new
+    @virtuoso_writer ||= VirtuosoWriter.new
   end
 
   def virtuoso_reader
-    @virtuoso_reader ||= Merger::VirtuosoReader.new
+    @virtuoso_reader ||= VirtuosoReader.new
   end
 end
 
