@@ -17,21 +17,34 @@ class Merger::Merger
       set_same_as_references main_db_uri: mapped_entity_uri, map_db_entry: main_db_entity_uri
     end
     update_provenience_information(main_db_entity_uri)
-    # TODO: enqueue message with main_db_entity_uri onto mapped queue for consolidation
-    # return main db uri
+    publisher.enqueue :movie_uri, main_db_entity_uri
     main_db_entity_uri
   end
 
   def find_merged_entity(mapped_entity_uri)
-    # TODO @Kerstin: Check if record in MainDB exists, that looks like { ?s sameAs mapped_entity_uri }
+    # (@Kerstin) Check if record in MainDB exists, that looks like { ?s sameAs mapped_entity_uri }
     # returns either merged_uri from MainDB entry or nil
+    virtuoso_reader.set_graph 'merged'
+    record = virtuoso_reader.get_subjects_for "#{schemas['owl']}sameAs", mapped_entity_uri
+    if record
+      return record
+    else
+      return nil
+    end
   end
 
   def merge_into_entity(new_entity_uri:, existing_entity_uri:)
-    # TODO: Per attribute from new record, merge into existing record
-    # Therefore, get origin records the matching attribute in MainDB is built of from MapDB
-    # Specific per attribute, choose merge strategy (vote, trustworthy source, ...)
-    # Merge accordingly into record
+    # (@Kerstin) Per attribute from new record, merge into existing record
+    virtuoso_reader.set_graph 'mapped'
+    attributes_with_literals = virtuoso_reader.get_predicates_and_objects_for new_entity_uri
+    attributes_with_literals.each do |attribute|
+      virtuoso_writer.new_triple existing_entity_uri, attribute[:p], attribute[:o]
+    end
+    attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for new_entity_uri
+    attributes_with_uris.each do |attribute|
+      merged_uri = Merger::Merger.merge(result[:o])
+      virtuoso_writer.new_triple existing_entity_uri, attribute[:p], merged_uri, literal: false
+    end
   end
 
   def find_matching_entity(mapped_entity_uri)
@@ -40,19 +53,20 @@ class Merger::Merger
   end
 
   def create_new_entity(mapped_entity_uri:)
-    # (Nico) Copy entity from MapDB into MainDB and update URIs to match MainDB schema
+    # (@Nico) Copy entity from MapDB into MainDB and update URIs to match MainDB schema
     copy_machine = Merger::CopyMachine.new mapped_entity_uri
     copy_machine.process # returns newly created entity URI
   end
 
   def set_same_as_references(main_db_uri:, map_db_entry:)
-    # (Nico)
+    # (@Nico)
     virtuoso_writer.new_triple main_db_uri,
                                "#{schemas['owl']}sameAs",
                                map_db_entry, literal: false
   end
 
   def update_provenience_information(main_db_entity_uri)
+    # (@Kerstin)
     virtuoso_writer.delete_triple(
       predicate: schemas['pav_lastupdateon']
     )
@@ -79,7 +93,6 @@ class Merger::Merger
 
   def virtuoso_reader
     @virtuoso_reader ||= VirtuosoReader.new
-    @virtuoso_reader.set_graph 'mapped'
   end
 
   def schemas
