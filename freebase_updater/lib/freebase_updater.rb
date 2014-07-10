@@ -60,6 +60,10 @@ module FreebaseUpdater
           # try to delete existing triples for movie first
           @virtuoso_writer.delete_triple subject: movie_uri
 
+          @virtuoso_writer.new_triple movie_uri,
+                                      schemas['base_freebase']+'/type/object/mid',
+                                      topic_id
+
           update_primitives topic_description, topic_id
 
           # resources
