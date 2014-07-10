@@ -11,7 +11,7 @@ module FreebaseUpdater
 
     def initialize
       # ========== settings ==========
-      @verbose = false
+      @verbose = true
       @demo = false
       # ==============================
 
@@ -86,7 +86,7 @@ module FreebaseUpdater
           @publisher.enqueue :movie_uri, movie_uri
         end
       rescue => e
-        p e
+        p ">>>>>>>>>>>>>>>>>> #{e}"
         @log.error e
       end
     end
@@ -102,7 +102,8 @@ module FreebaseUpdater
         /film/film/traileraddict_id
         /film/film/trailers
         /media_common/netflix_title/netflix_genres
-        /type/object/name).each do |locator|
+        /type/object/name
+        /common/topic/alias).each do |locator|
         retrieve_text topic_description, topic_id, locator
       end
 
