@@ -3,13 +3,14 @@ require 'set'
 class Merger::CopyMachine
   attr_reader :map_db_uri, :main_db_uri
 
-  def initialize(mapped_movie_uri, type: :generic, generate_new_uri: true)
+  def initialize(mapped_movie_uri, with_merger: nil, type: :generic, generate_new_uri: true)
     @map_db_uri = mapped_movie_uri
     @main_db_uri = if generate_new_uri
                      Merger::URIGenerator.new_uri for_type: type
                    else
                      mapped_movie_uri
                    end
+    @merger = with_merger
   end
 
   def process
@@ -33,7 +34,7 @@ class Merger::CopyMachine
   def copy_entities(map_db_uri, new_main_db_uri)
     results = virtuoso_reader.get_predicates_and_objects_for subject: map_db_uri, filter: ['isURI(?o)']
     results.each do |result|
-      merged_uri = Merger::Merger.merge result[:o]
+      merged_uri = merger.merge result[:o]
       virtuoso_writer.new_triple new_main_db_uri, result[:p], merged_uri, literal: false
     end
   end
@@ -55,6 +56,10 @@ class Merger::CopyMachine
 
   def virtuoso_reader
     @virtuoso_reader ||= VirtuosoReader.new
+  end
+
+  def merger
+    @merger ||= Merger::Merger.new
   end
 end
 

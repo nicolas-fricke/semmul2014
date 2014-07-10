@@ -52,7 +52,7 @@ class Merger::Merger
 
   def create_new_entity(mapped_entity_uri:)
     # (@Nico) Copy entity from MapDB into MainDB and update URIs to match MainDB schema
-    copy_machine = Merger::CopyMachine.new mapped_entity_uri
+    copy_machine = Merger::CopyMachine.new mapped_entity_uri, with_merger: self
     copy_machine.process # returns newly created entity URI
   end
 
