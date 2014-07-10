@@ -25,12 +25,10 @@ class Merger::Merger
     # (@Kerstin) Check if record in MainDB exists, that looks like { ?s sameAs mapped_entity_uri }
     # returns either merged_uri from MainDB entry or nil
     virtuoso_reader.set_graph 'merged'
-    record = virtuoso_reader.get_subjects_for "#{schemas['owl']}sameAs", mapped_entity_uri
-    if record
-      return record
-    else
-      return nil
-    end
+    record =
+        virtuoso_reader.get_subjects_for predicate: "#{schemas['owl']}sameAs",
+                                         object: mapped_entity_uri
+    record.first unless record.nil? # nil if no subject is found
   end
 
   def merge_into_entity(new_entity_uri:, existing_entity_uri:)
@@ -70,25 +68,22 @@ class Merger::Merger
     virtuoso_writer.delete_triple(
       predicate: schemas['pav_lastupdateon']
     )
-    virtuoso_writer.new_triple (
+    virtuoso_writer.new_triple(
       main_db_entity_uri, schemas['pav_lastupdateon'], RDF::Literal.new(DateTime.now, datatype: "#{schemas['xsd']}dateTime")
     )
   end
 
   private
   def publisher
-    @publisher ||= MsgPublisher.new
-    @publisher.set_queue queues['merging']
+    @publisher ||= MsgPublisher.new.tap {|p| p.set_queue 'merging' }
   end
 
   def receiver
-    @receiver ||= MsgConsumer.new
-    @receiver.set_queue queues['mapping']
+    @receiver ||= MsgConsumer.new.tap {|r| r.set_queue 'mapping' }
   end
 
   def virtuoso_writer
-    @virtuoso_writer ||= VirtuosoWriter.new
-    @virtuoso_writer.set_graph 'merged'
+    @virtuoso_writer ||= VirtuosoWriter.new.tap {|vw| vw.set_graph 'merged' }
   end
 
   def virtuoso_reader
@@ -97,9 +92,5 @@ class Merger::Merger
 
   def schemas
     @schemas ||= Merger::Config.namespaces['schemas']
-  end
-
-  def queues
-    @queues ||= Merger::Config.namespaces['queues']
   end
 end

@@ -25,7 +25,8 @@ class VirtuosoReader
 
     begin
       query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).filters(filter).graph(graph)
-      @repo.select(query)
+      results = @repo.select(query)
+      hash_of_arrays_to_array_of_hashes results.bindings
     rescue Exception => e
       @log.error e
     end
@@ -74,6 +75,15 @@ class VirtuosoReader
   end
 
   private
+  def hash_of_arrays_to_array_of_hashes(hash)
+    hash.inject([]) do |array, (key,values)|
+      values.each_with_index do |value,index|
+        (array[index] ||= {})[key] = value
+      end
+      array
+    end
+  end
+
   def secrets
     @secrets ||= YAML.load_file '../config/secrets.yml'
   end
