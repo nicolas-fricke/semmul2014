@@ -5,6 +5,7 @@ module FreebaseUpdater
   require_relative '../../general/msg_publisher'
   require 'yaml'
   require 'json'
+  require 'rdf'
 
   class FreebaseUpdater::Updater
 
@@ -26,7 +27,22 @@ module FreebaseUpdater
 
       puts "listening on queue #{@receiver.queue_name :movie_id}"
       @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
-      #update '/m/0456zg'
+      %w(
+      /m/08phg9
+      /m/0hhqv27
+      /m/04j1zjw
+      /m/07f_t4
+      /m/0dtfn
+      /m/0cc7hmk
+      /m/0gtxbqr
+      /m/06zkfsy
+      /m/0lq6fb5
+      /m/05jzt3
+      /m/02ktj7
+      /m/02dr9j
+      ).each do |movie_id|
+        update movie_id
+      end
     end
 
     def update(topic_id)
