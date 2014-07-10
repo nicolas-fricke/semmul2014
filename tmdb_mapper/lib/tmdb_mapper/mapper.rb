@@ -196,7 +196,7 @@ class TMDbMapper::Mapper
 
           # add new triples
         @virtuoso_writer.new_triple(
-            cast_mapped_uri, "#{@schemas['lom']}character", performance_character, literal:false
+            cast_mapped_uri, "#{@schemas['lom']}character", performance_character
         )
           #@virtuoso_writer.new_triple(
           #    character_uri, "#{@schemas['rdf']}type", "#{@schemas['dbpedia']}FictionalCharacter", literal:false
@@ -270,18 +270,18 @@ class TMDbMapper::Mapper
         predicate: "#{@schemas['tmdb']}person/name"
     )
     names.each do |person_name|
-      person_names = person_name.to_s.split(' ')
+      #person_names = person_name.to_s.split(' ')
       @virtuoso_writer.new_triple(
           person_uri, "#{@schemas['schema']}name", person_name
       )
 
-      @virtuoso_writer.new_triple(
-          person_uri, "#{@schemas['schema']}givenName", person_names.first
-      )
+      #@virtuoso_writer.new_triple(
+      #    person_uri, "#{@schemas['schema']}givenName", person_names.first
+      #)
 
-      @virtuoso_writer.new_triple(
-          person_uri, "#{@schemas['schema']}familyName", person_names.last
-      )
+      #@virtuoso_writer.new_triple(
+      #    person_uri, "#{@schemas['schema']}familyName", person_names.last
+      #)
     end if names
     aliases = @virtuoso_reader.get_objects_for(
         subject: person_uri,
