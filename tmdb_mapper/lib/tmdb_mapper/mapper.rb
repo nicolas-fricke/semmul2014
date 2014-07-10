@@ -10,7 +10,7 @@ class TMDbMapper::Mapper
     load_schemas()
     @log = Logger.new('log', 'daily')
     @publisher = MsgPublisher.new
-    @publisher.set_queue ''
+    @publisher.set_queue 'mapping'
     @virtuoso_writer = VirtuosoWriter.new
     @virtuoso_writer.set_graph 'mapped'
     @virtuoso_reader = VirtuosoReader.new
@@ -20,7 +20,7 @@ class TMDbMapper::Mapper
 
   def register_receiver
     @receiver = MsgConsumer.new
-    @receiver.set_queue ''
+    @receiver.set_queue 'raw_tmdb'
     @receiver.subscribe(type: :movie_uri) { |movie_uri| map(movie_uri) }
   end
 
