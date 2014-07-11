@@ -33,7 +33,7 @@ module FreebaseMapper
     end
 
     def map(raw_db_uri)
-      # begin
+      begin
         start_time = Time.now
         p "mapping #{raw_db_uri}"
         @virtuoso_writer.new_triple raw_db_uri,
@@ -92,10 +92,10 @@ module FreebaseMapper
 
         @publisher.enqueue :movie_uri, raw_db_uri
         p "Finished within #{Time.now - start_time}s, writing to #{@publisher.queue_name :movie_uri}"
-      # rescue => e
-      #   p ">>>>>>>>>>>>>>>>>> #{e}"
-      #   @log.error e
-      # end
+      rescue => e
+        p ">>>>>>>>>>>>>>>>>> #{e}"
+        @log.error e
+      end
     end
 
     def map_id(raw_db_uri)
