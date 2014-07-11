@@ -38,11 +38,11 @@ class Merger::Merger
   def merge_into_entity(new_entity_uri:, existing_entity_uri:)
     # (@Kerstin) Per attribute from new record, merge into existing record
     virtuoso_reader.set_graph 'mapped'
-    attributes_with_literals = virtuoso_reader.get_predicates_and_objects_for new_entity_uri
+    attributes_with_literals = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_literals.each do |attribute|
       virtuoso_writer.new_triple existing_entity_uri, attribute[:p], attribute[:o]
     end
-    attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for new_entity_uri
+    attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_uris.each do |attribute|
       merged_uri = Merger::Merger.merge(result[:o])
       virtuoso_writer.new_triple existing_entity_uri, attribute[:p], merged_uri, literal: false
