@@ -34,15 +34,32 @@ class Matcher::Triples
     end
 
     def get_type()
-        movie = "http://semmul2014.hpi.de/lodofmovies.owl#Movie"
+        #movie = "http://semmul2014.hpi.de/lodofmovies.owl#Movie"
+        movie = "http://schema.org/Movie"
+        person = "http://schema.org/Person"
+        organization = "http://schema.org/Organization"
+        director = "http://semmul2014.hpi.de/lodofmovies.owl#Director"
+        performance = "http://semmul2014.hpi.de/lodofmovies.owl#Performance"
 
         types = get_objects(RDF.type)
         types.each do |type|
-            if type.to_s == movie
-                return RDF::URI.new(movie)
+            case type
+                when movie
+                    return RDF::URI.new(movie)
+                when person
+                    return RDF::URI.new(person)
+                when organization
+                    return RDF::URI.new(organization)
+                when director
+                    return RDF::URI.new(director)
+                when performance
+                    return RDF::URI.new(performance)
             end
         end
+
+        # if no type matched any of the above return nil
         return nil
+
     end
 
     def get_name()
@@ -120,5 +137,15 @@ class Matcher::Triples
         return actor_uris
     end
 
+
+    def get_character()
+        char_prop = "http://semmul2014.hpi.de/lodofmovies.owl#character"
+        char_uris = get_objects(char_prop)
+
+        if char_uris.empty?
+            return nil
+        end
+        return char_uris[0]
+    end
 
 end

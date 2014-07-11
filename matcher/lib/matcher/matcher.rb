@@ -3,13 +3,15 @@ require 'date'
 require 'levenshtein'
 require 'set'
 
+
+
+
 class Matcher::Matcher
-
-
 
     def initialize
         @virtuoso = Matcher::Virtuoso.new
         @default_threshold = 0.8
+        @debug = true
     end
 
     # find:
@@ -17,23 +19,21 @@ class Matcher::Matcher
         entity_tripels = @virtuoso.get_triples(entity_uri)
         identic = find_same(entity_tripels)
 
-        if identic.size > 0
+        # trying to be more rubyiomatic
+        unless identic.empty?
             return identic
         else
             matching = find_thresh_matching(entity_tripels, @default_threshold)
-            if !matching.nil?
-                return matching
-            end
+            # matching will be a list of matches (sorted), or nil
+            return matching
         end
-
-        return nil
     end
 
 
     def find_same(entity_triples)
         same_entities = []
 
-        # todo: check for same_as links
+        same_entities.concat(@virtuoso.get_same_as(entity_triples))
 
         # check for imdb ids if it is a movie
         entity_type = entity_triples.get_type()
@@ -47,8 +47,13 @@ class Matcher::Matcher
             end
         end
 
-        return Set.new(same_entities)
+        # todo: use freebase_mid from dbpedia
 
+        if same_entities.empty?
+            return Set.new()
+        else
+            return Set.new(same_entities)
+        end
     end
 
     def find_thresh_matching(entity_triples, threshold)
@@ -75,10 +80,14 @@ class Matcher::Matcher
         entity_type = entity_triples.get_type()
 
         # get all with same type from virtuoso
-        all_subjects = @virtuoso.get_entities_of_type(entity_type)[0..5]
+        all_subjects = @virtuoso.get_entities_of_type(entity_type)
+        if @debug
+            all_subjects = all_subjects[1..5]
+        end
+
         all_matches = {}
 
-        puts "Calculating matches ..."
+        #puts "Calculating matches ..."
         all_subjects_size = all_subjects.size
         counter = 0
         all_subjects.each do |subject_uri|
@@ -87,12 +96,12 @@ class Matcher::Matcher
                 other_triples = @virtuoso.get_triples(subject_uri)
                 match = calculate_match(entity_triples, other_triples, entity_type)
                 counter += 1
-                STDOUT.write("\r #{counter}/#{all_subjects_size}")
-                STDOUT.flush
+                #STDOUT.write("\r #{counter}/#{all_subjects_size}")
+                #STDOUT.flush
                 all_matches[subject_uri.to_s] = match
             end
         end
-        puts ""
+        #puts ""
 
         #puts "matched against #{all_matches.size} subjects"
         all_sorted_matches = all_matches.sort_by {|uri, match| match}
@@ -105,17 +114,29 @@ class Matcher::Matcher
 	# => persons
 	# => locations
 
-    def calculate_match(a_tripels, b_tripels, type)
+    def calculate_match(a_triples, b_triples, type)
 
-        movie_type = "http://semmul2014.hpi.de/lodofmovies.owl#Movie"
+        # todo: put into config
+        movie = "http://schema.org/Movie"
+        person = "http://schema.org/Person"
+        organization = "http://schema.org/Organization"
+        director = "http://semmul2014.hpi.de/lodofmovies.owl#Director"
+        performance = "http://semmul2014.hpi.de/lodofmovies.owl#Performance"
 
-        if type == movie_type
-            return match_movie(a_tripels,b_tripels)
-        else
-            return 0.0
+        case type
+            when movie
+                return match_movie(a_triples, b_triples)
+            when person
+                return person_match(a_triples, b_triples)
+            when director
+                return person_match(a_triples, b_triples)
+            when organization
+                return 0.0 # todo: match org.
+            when performance
+                return performance_match(a_triples, b_triples)
+            else
+                return 0.0
         end
-
-
     end
 
     def type_match(a,b)
@@ -133,6 +154,28 @@ class Matcher::Matcher
         end
 
         return false
+    end
+
+
+    def performance_match(a,b)
+
+        # match character
+        character_a = @virtuoso.get_triples(a.get_character()).get_name().to_s
+        character_b = @virtuoso.get_triples(b.get_character()).get_name().to_s
+        match_char = levenshtein_match(character_a, character_b)
+
+        # match actor
+        actor_a_uri = a.get_actor()[0]
+        actor_b_uri = b.get_actor()[0]
+        actor_a = @virtuoso.get_triples(actor_a_uri)
+        actor_b = @virtuoso.get_triples(actor_b_uri)
+        match_actor = person_match(actor_a, actor_b)
+
+        w_character = 0.4
+        w_actor = 0.6
+
+        match_degree = (w_character * match_char) + (w_actor * match_actor)
+        return match_degree
     end
 
 	def match_movie(a,b)
@@ -201,6 +244,7 @@ class Matcher::Matcher
             use_birthdate = false
         end
 
+        # todo: birthplace match as string-match
 
         #birthplace_match = location_match(a[:birthplace],b[:birthplace])
         # todo: vector over works
