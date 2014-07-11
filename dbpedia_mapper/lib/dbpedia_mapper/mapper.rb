@@ -29,34 +29,34 @@ class DBpediaMapper::Mapper
       'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', 'ƒ'=>'f'
     }
 
-    @date_formatting = [get_property('schema', 'datePublished'), get_property('schema', 'startDate'), get_property('schema', 'endDate'), get_property('schema', 'birthDate')]
+    @date_formatting = [get_property('schema', 'datePublished'), get_property('schema', 'birthDate')]
     
-    @further_entities = [get_property('schema', 'director'), get_property('schema', 'productionCompany'), get_property('schema', 'episode'), get_property('schema', 'partOfSeries'), get_property('schema', 'partOfSeason'), get_property('dbpedia', 'birthPlace'), get_property('schema', 'actor')]
+    @further_entities = [get_property('schema', 'director'), get_property('schema', 'productionCompany'), get_property('dbpedia', 'birthPlace'), get_property('dbpedia', 'actor')]
     
-    @literals = [get_property('schema', 'name'), get_property('schema', 'imdbId'), get_property('schema', 'datePublished'), get_property('schema', 'startDate'), get_property('schema', 'endDate'), get_property('schema', 'numberOfSeasons'), get_property('schema', 'numberOfEpisodes'), get_property('schema', 'episodeNumber'), get_property('schema', 'givenName'), get_property('schema', 'familyName'), get_property('schema', 'birthDate'), get_property('schema', 'alias')]
+    @literals = [get_property('schema', 'name'), get_property('lom', 'imdb_id'), get_property('lom', 'freebase_mid'), get_property('schema', 'datePublished'), get_property('schema', 'givenName'), get_property('schema', 'familyName'), get_property('schema', 'birthDate'), get_property('schema', 'alternateName')]
 
     @object_mappings = {
       get_property('owl', 'Thing') => get_property('schema', 'Thing'),
       get_property('dbpedia', 'Work') => get_property('schema', 'CreativeWork'),
       get_property('dbpedia', 'Film') => get_property('schema', 'Movie'),
-      get_property('dbpedia', 'TelevisionShow') => get_property('schema', 'TVSeries'),
-      get_property('dbpedia', 'TelevisionSeason') => get_property('schema', 'TVSeason'),
-      get_property('dbpedia', 'TelevisionEpisode') => get_property('schema', 'Episode'),
+      # get_property('dbpedia', 'TelevisionShow') => get_property('schema', 'TVSeries'),
+      # get_property('dbpedia', 'TelevisionSeason') => get_property('schema', 'TVSeason'),
+      # get_property('dbpedia', 'TelevisionEpisode') => get_property('schema', 'Episode'),
       get_property('foaf', 'Person') => get_property('schema', 'Person'),
       get_property('dbpedia', 'Person') => get_property('schema', 'Person'),
 
       get_property('dbpedia', 'Organisation') => get_property('schema', 'Organization'),
       get_property('dbpedia', 'Company') => get_property('schema', 'Organization'),
 
-      get_property('dbpedia', 'Actor') => get_property('schema', 'Actor'),
-      get_property('dbpedia', 'FictionalCharacter') => get_property('schema', 'FictionalCharacter'),
+      get_property('dbpedia', 'Actor') => get_property('dbpedia', 'Actor'),
+      get_property('dbpedia', 'FictionalCharacter') => get_property('dbpedia', 'FictionalCharacter'),
       
       get_property('schema', 'Thing') => get_property('schema', 'Thing'),
       get_property('schema', 'CreativeWork') => get_property('schema', 'CreativeWork'),
       get_property('schema', 'Movie') => get_property('schema', 'Movie'),
-      get_property('schema', 'TVSeries') => get_property('schema', 'TVSeries'),
-      get_property('schema', 'TVSeason') => get_property('schema', 'TVSeason'),
-      get_property('schema', 'Episode') => get_property('schema', 'Episode'),
+      # get_property('schema', 'TVSeries') => get_property('schema', 'TVSeries'),
+      # get_property('schema', 'TVSeason') => get_property('schema', 'TVSeason'),
+      # get_property('schema', 'Episode') => get_property('schema', 'Episode'),
       get_property('schema', 'Person') => get_property('schema', 'Person'),
 
       get_property('schema', 'Organization') => get_property('schema', 'Organization'),
@@ -73,76 +73,78 @@ class DBpediaMapper::Mapper
     # name: "first last" and "last, first"
     # sameAs: direction
     @property_mappings = {
-      get_property('dbprop', 'name') => get_property('schema', 'name'),
+      get_property('dbprop', 'name') => get_property('schema', 'name'), # literal, string
       get_property('foaf', 'name') => get_property('schema', 'name'),
       get_property('schema', 'name') => get_property('schema', 'name'),
 
-      get_property('owl', 'sameAs') => get_property('schema', 'sameAs'),
+      get_property('owl', 'sameAs') => get_property('schema', 'sameAs'), # URI
       get_property('schema', 'sameAs') => get_property('schema', 'sameAs'),
 
-      get_property('dbpedia', 'imdbId') => get_property('lom', 'imdbId'),
-      get_property('lom', 'imdbId') => get_property('lom', 'imdbId'),
+      get_property('dbpedia', 'imdbId') => get_property('lom', 'imdb_id'), # literal, string
+      get_property('lom', 'imdb_id') => get_property('lom', 'imdb_id'),
 
-      get_property('dbpedia', 'releaseDate') => get_property('schema', 'datePublished'),
+      get_property('lom', 'freebase_mid') => get_property('lom', 'freebase_mid'), # literal, string
+
+      get_property('dbpedia', 'releaseDate') => get_property('schema', 'datePublished'), # literal, date
       get_property('dbprop', 'releaseDate') => get_property('schema', 'datePublished'),
       get_property('schema', 'datePublished') => get_property('schema', 'datePublished'),
 
-      get_property('dbpedia', 'director') => get_property('schema', 'director'),
+      get_property('dbpedia', 'director') => get_property('schema', 'director'), # URI
       get_property('dbprop', 'director') => get_property('schema', 'director'),
       get_property('schema', 'director') => get_property('schema', 'director'),
 
-      get_property('dbpedia', 'distributor') => get_property('schema', 'productionCompany'),
+      get_property('dbpedia', 'distributor') => get_property('schema', 'productionCompany'), # URI
       get_property('dbprop', 'distributor') => get_property('schema', 'productionCompany'),
       get_property('dbprop', 'distributors') => get_property('schema', 'productionCompany'),
       get_property('dbprop', 'studio') => get_property('schema', 'productionCompany'),
       get_property('schema', 'productionCompany') => get_property('schema', 'productionCompany'),
 
-      get_property('dbprop', 'firstAired') => get_property('schema', 'startDate'),
-      get_property('schema', 'startDate') => get_property('schema', 'startDate'),
+      # get_property('dbprop', 'firstAired') => get_property('schema', 'startDate'), # literal, date
+      # get_property('schema', 'startDate') => get_property('schema', 'startDate'),
 
-      get_property('dbprop', 'lastAired') => get_property('schema', 'endDate'),
-      get_property('schema', 'endDate') => get_property('schema', 'endDate'),
+      # get_property('dbprop', 'lastAired') => get_property('schema', 'endDate'), #literal, date
+      # get_property('schema', 'endDate') => get_property('schema', 'endDate'),
 
-      get_property('dbpedia', 'numberOfSeasons') => get_property('schema', 'numberOfSeasons'),
-      get_property('dbprop', 'numSeasons') => get_property('schema', 'numberOfSeasons'),
-      get_property('schema', 'numberOfSeasons') => get_property('schema', 'numberOfSeasons'),
+      # get_property('dbpedia', 'numberOfSeasons') => get_property('schema', 'numberOfSeasons'), # literal, integer
+      # get_property('dbprop', 'numSeasons') => get_property('schema', 'numberOfSeasons'),
+      # get_property('schema', 'numberOfSeasons') => get_property('schema', 'numberOfSeasons'),
 
-      get_property('dbpedia', 'numberOfEpisodes') => get_property('schema', 'numberOfEpisodes'),
-      get_property('dbprop', 'numEpisodes') => get_property('schema', 'numberOfEpisodes'),
-      get_property('schema', 'numberOfEpisodes') => get_property('schema', 'numberOfEpisodes'),
+      # get_property('dbpedia', 'numberOfEpisodes') => get_property('schema', 'numberOfEpisodes'), # literal, integer
+      # get_property('dbprop', 'numEpisodes') => get_property('schema', 'numberOfEpisodes'),
+      # get_property('schema', 'numberOfEpisodes') => get_property('schema', 'numberOfEpisodes'),
 
-      get_property('dbprop', 'episodeList') => get_property('schema', 'episode'),
-      get_property('schema', 'episode') => get_property('schema', 'episode'),
+      # get_property('dbprop', 'episodeList') => get_property('schema', 'episode'), # URI
+      # get_property('schema', 'episode') => get_property('schema', 'episode'),
 
-      get_property('dbprop', 'series') => get_property('schema', 'partOfSeries'),
-      get_property('schema', 'partOfSeries') => get_property('schema', 'partOfSeries'),
+      # get_property('dbprop', 'series') => get_property('schema', 'partOfSeries'), # URI
+      # get_property('schema', 'partOfSeries') => get_property('schema', 'partOfSeries'),
 
-      get_property('dbpedia', 'episodeNumber') => get_property('schema', 'episodeNumber'),
-      get_property('dbprop', 'episode') => get_property('schema', 'episodeNumber'),
-      get_property('schema', 'episodeNumber') => get_property('schema', 'episodeNumber'),
+      # get_property('dbpedia', 'episodeNumber') => get_property('schema', 'episodeNumber'), # literal, integer
+      # get_property('dbprop', 'episode') => get_property('schema', 'episodeNumber'),
+      # get_property('schema', 'episodeNumber') => get_property('schema', 'episodeNumber'),
 
-      get_property('dbpedia', 'seasonNumber') => get_property('schema', 'partOfSeason'),
-      get_property('dbprop', 'season') => get_property('schema', 'partOfSeason'),
-      get_property('schema', 'partOfSeason') => get_property('schema', 'partOfSeason'),
+      # get_property('dbpedia', 'seasonNumber') => get_property('schema', 'partOfSeason'), # URI
+      # get_property('dbprop', 'season') => get_property('schema', 'partOfSeason'),
+      # get_property('schema', 'partOfSeason') => get_property('schema', 'partOfSeason'),
 
-      get_property('foaf', 'givenName') => get_property('schema', 'givenName'),
+      get_property('foaf', 'givenName') => get_property('schema', 'givenName'), # literal, string
       get_property('schema', 'givenName') => get_property('schema', 'givenName'),
 
-      get_property('foaf', 'surname') => get_property('schema', 'familyName'),
+      get_property('foaf', 'surname') => get_property('schema', 'familyName'), # literal, string
       get_property('schema', 'familyName') => get_property('schema', 'familyName'),
 
-      get_property('dbpedia', 'birthDate') => get_property('schema', 'birthDate'),
+      get_property('dbpedia', 'birthDate') => get_property('schema', 'birthDate'), # literal, date
       get_property('dbprop', 'birthDate') => get_property('schema', 'birthDate'),
       get_property('schema', 'birthDate') => get_property('schema', 'birthDate'),
 
-      get_property('dbpedia', 'birthPlace') => get_property('dbpedia', 'birthPlace'),
+      get_property('dbpedia', 'birthPlace') => get_property('dbpedia', 'birthPlace'), # URI
       get_property('dbprop', 'placeOfBirth') => get_property('dbpedia', 'birthPlace'),
 
-      get_property('dbpedia', 'starring') => get_property('lom', 'actor'),
-      get_property('dbprop', 'starring') => get_property('lom', 'actor'),
-      get_property('lom', 'actor') => get_property('lom', 'actor'),
+      get_property('dbpedia', 'starring') => get_property('lom', 'performance'), # URI
+      get_property('dbprop', 'starring') => get_property('lom', 'performance'),
+      get_property('lom', 'performance') => get_property('lom', 'performance'),
 
-      get_property('dbprop', 'alternativeNames') => get_property('schema', 'alternateName'),
+      get_property('dbprop', 'alternativeNames') => get_property('schema', 'alternateName'), # literal, string
       get_property('dbpedia', 'alias') => get_property('schema', 'alternateName'),
       get_property('schema', 'alternateName') => get_property('schema', 'alternateName'),
     }
@@ -179,15 +181,35 @@ class DBpediaMapper::Mapper
       # map dates
       if @date_formatting.include?(mp)
         begin
-          date_string = Date.parse(object.to_s).xmlschema
-          @virtuoso_writer.new_triple(subject, mp, set_xsd_type(date_string, 'date'), literal:@literals.include?(mp))
+          if date? object
+            date_string = RDF::Literal.new(object, datatype: RDF::XSD.date)
+            @virtuoso_writer.new_triple(subject, mp, date_string, literal:false)
+          end
+          if (matches = year_month? object) or (matches = year? object)
+            date_string = RDF::Literal.new(matches[:year], datatype: RDF::XSD.gYear)
+            @virtuoso_writer.new_triple(subject, mp, date_string, literal:false)
+          end
         rescue ArgumentError
           @log.error "Could not parse release date `#{object.to_s}' as date."
         end
 
+      # map actors in performances
+      elsif mp == get_property('lom', 'performance')
+        performance = get_property('lom_dbpedia', "movie/#{subject}/performance/#{object}")
+        @virtuoso_writer.new_triple(subject, get_property('lom', 'performance'), performance, literal:false)
+        @virtuoso_writer.new_triple(performance, get_property('rdf', 'type'), get_property('lom', 'Performance'), literal:false)
+        @virtuoso_writer.new_triple(performance, get_property('lom', 'actor'), object, literal:false)
+        @virtuoso_writer.new_triple(uri, @schemas['pav_lastupdateon'], RDF::Literal.new(DateTime.now, datatype: RDF::XSD.dateTime))
+
+        map_entity(object, false)
+        @virtuoso_writer.new_triple(object, get_property('rdf', 'typeOf'), get_property('dbpedia', 'Actor '), literal:false)
+
       # map objects with URIs to other entities that have to be mapped
       elsif go_deeper and @further_entities.include?(mp)
         map_entity(object, false)
+        if mp == get_property('schema', 'Director')
+          @virtuoso_writer.new_triple(object, get_property('rdf', 'typeOf'), get_property('lom', 'Director'), literal:false)
+        end
         @virtuoso_writer.new_triple(subject, mp, clean(object), literal:@literals.include?(mp))
 
       # map freebase ids
@@ -220,7 +242,7 @@ class DBpediaMapper::Mapper
         o = v.bindings[:o]
         map(uri, p, o, initial)
       end
-      @virtuoso_writer.new_triple(uri, @schemas['pav_lastupdateon'], set_xsd_type(DateTime.now, 'dateTime'), literal:true)
+      @virtuoso_writer.new_triple(uri, @schemas['pav_lastupdateon'], RDF::Literal.new(DateTime.now, datatype: RDF::XSD.dateTime))
       if initial
         @publisher.enqueue :movie_uri, uri
       end
@@ -245,6 +267,21 @@ class DBpediaMapper::Mapper
 
   def set_xsd_type(literal, type)
     "#{literal}^^#{@schemas['xsd']}#{type}"
+  end
+
+  def date?(datestring)
+    yyyy_mm_dd = /^(?<year>(18|19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
+    yyyy_mm_dd.match datestring
+  end
+
+  def year_month?(datestring)
+    yyyy_mm = /^(?<year>(18|19|20)\d{2})-(?<month>(0[1-9]|1[012]))$/
+    yyyy_mm.match datestring
+  end
+
+  def year?(datestring)
+    yyyy = /^(?<year>(18|19|20)\d{2})$/
+    yyyy.match datestring
   end
 
   private
