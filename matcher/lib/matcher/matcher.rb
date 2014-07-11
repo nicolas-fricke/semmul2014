@@ -87,7 +87,7 @@ class Matcher::Matcher
 
         all_matches = {}
 
-        puts "Calculating matches ..."
+        #puts "Calculating matches ..."
         all_subjects_size = all_subjects.size
         counter = 0
         all_subjects.each do |subject_uri|
@@ -96,12 +96,12 @@ class Matcher::Matcher
                 other_triples = @virtuoso.get_triples(subject_uri)
                 match = calculate_match(entity_triples, other_triples, entity_type)
                 counter += 1
-                STDOUT.write("\r #{counter}/#{all_subjects_size}")
-                STDOUT.flush
+                #STDOUT.write("\r #{counter}/#{all_subjects_size}")
+                #STDOUT.flush
                 all_matches[subject_uri.to_s] = match
             end
         end
-        puts ""
+        #puts ""
 
         #puts "matched against #{all_matches.size} subjects"
         all_sorted_matches = all_matches.sort_by {|uri, match| match}

@@ -7,4 +7,5 @@ module Merger
   require_relative '../../general/msg_publisher'
   require_relative '../../general/virtuoso_writer'
   require_relative '../../general/virtuoso_reader'
+  require_relative '../../matcher/lib/matcher'
 end
