@@ -11,7 +11,7 @@ class Matcher::Matcher
     def initialize
         @virtuoso = Matcher::Virtuoso.new
         @default_threshold = 0.8
-        @debug = true
+        @debug = false
     end
 
     # find:
