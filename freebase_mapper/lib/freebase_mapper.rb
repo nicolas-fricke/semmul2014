@@ -27,9 +27,11 @@ module FreebaseMapper
       @crawler = FreebaseCrawler::Crawler.new
       @place_finder = DBpediaReader.new
 
+      @log = Logger.new('log', 'daily')
+
       puts "listening on queue #{@receiver.queue_name :movie_uri}"
-      @receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
-      # map 'http://rdf.freebase.com/ns/m/08phg9'
+      # @receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
+      map 'http://rdf.freebase.com/ns/m/0c2l1s'
     end
 
     def map(raw_db_uri)
@@ -323,7 +325,7 @@ module FreebaseMapper
         @virtuoso_writer.new_triple subject,
                                     "#{schemas['dbpedia']}birthYear",
                                     RDF::Literal(matches[:year], datatype: RDF::XSD.gYear)
-      elsif (matches = year? release_date.to_s)
+      elsif (matches = year? date.to_s)
         @virtuoso_writer.new_triple subject,
                                     "#{schemas['dbpedia']}birthYear",
                                     RDF::Literal(matches[:year], datatype: RDF::XSD.gYear)
