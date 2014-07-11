@@ -5,9 +5,11 @@ class Merger::Merger
 
   def register_receiver
     receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri) }
+    # merge 'http://rdf.freebase.com/ns/m/0hhqv27'
   end
 
   def merge(mapped_entity_uri)
+    p "merging #{mapped_entity_uri}"
     main_db_entity_uri = find_merged_entity(mapped_entity_uri)
     if main_db_entity_uri
       merge_into_entity new_entity_uri: mapped_entity_uri, existing_entity_uri: main_db_entity_uri
