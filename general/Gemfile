@@ -1,4 +1,5 @@
 gem 'bunny'
 gem 'rdf'
 gem 'rdf-virtuoso'
+gem 'rdf-json'
 gem 'sparql-client'

@@ -12,7 +12,7 @@ module FreebaseUpdater
     def initialize
       # ========== settings ==========
       @verbose = true
-      @demo = false
+      @demo = true
       # ==============================
 
       @crawler = FreebaseCrawler::Crawler.new
@@ -367,7 +367,12 @@ module FreebaseUpdater
                   response['/people/person/place_of_birth']['values'].each do |birthplace|
                     @virtuoso_writer.new_triple actor_uri,
                                                 schemas['base_freebase']+'/people/person/place_of_birth',
-                                                schemas['base_freebase']+birthplace['id']
+                                                schemas['base_freebase']+birthplace['id'],
+                                                literal: true
+
+                    @virtuoso_writer.new_triple schemas['base_freebase']+birthplace['id'],
+                                                schemas['base_freebase']+'/type/object/name',
+                                                birthplace['text']
                   end
                 end
 
@@ -376,7 +381,7 @@ module FreebaseUpdater
                   response['/common/topic/alias']['values'].each do |alternative_name|
                     @virtuoso_writer.new_triple actor_uri,
                                                 schemas['base_freebase']+'/common/topic/alias',
-                                                schemas['base_freebase']+alternative_name['value']
+                                                alternative_name['value']
                   end
                 end
               end
@@ -467,7 +472,12 @@ module FreebaseUpdater
                   response['/people/person/place_of_birth']['values'].each do |birthplace|
                     @virtuoso_writer.new_triple member_uri,
                                                 schemas['base_freebase']+'/people/person/place_of_birth',
-                                                schemas['base_freebase']+birthplace['id']
+                                                schemas['base_freebase']+birthplace['id'],
+                                                literal: true
+
+                    @virtuoso_writer.new_triple schemas['base_freebase']+birthplace['id'],
+                                                schemas['base_freebase']+'/type/object/name',
+                                                birthplace['text']
                   end
                 end
 
@@ -476,7 +486,7 @@ module FreebaseUpdater
                   response['/common/topic/alias']['values'].each do |alternative_name|
                     @virtuoso_writer.new_triple member_uri,
                                                 schemas['base_freebase']+'/common/topic/alias',
-                                                schemas['base_freebase']+alternative_name['value']
+                                                alternative_name['value']
                   end
                 end
               end
@@ -551,7 +561,12 @@ module FreebaseUpdater
           response['/people/person/place_of_birth']['values'].each do |birthplace|
             @virtuoso_writer.new_triple person_uri,
                                         schemas['base_freebase']+'/people/person/place_of_birth',
-                                        schemas['base_freebase']+birthplace['id']
+                                        schemas['base_freebase']+birthplace['id'],
+                                        literal: false
+
+            @virtuoso_writer.new_triple schemas['base_freebase']+birthplace['id'],
+                                        schemas['base_freebase']+'/type/object/name',
+                                        birthplace['text']
           end
         end
 
@@ -560,7 +575,7 @@ module FreebaseUpdater
           response['/common/topic/alias']['values'].each do |alternative_name|
             @virtuoso_writer.new_triple person_uri,
                                         schemas['base_freebase']+'/common/topic/alias',
-                                        schemas['base_freebase']+alternative_name['value']
+                                        alternative_name['value']
           end
         end
       end

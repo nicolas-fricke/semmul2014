@@ -10,4 +10,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'rdf', '~>1.1.4.2'
   s.add_dependency 'rdf-virtuoso', '~>0.1', '>=0.1.6'
   s.add_dependency 'sparql-client', '~>1.1', '>=1.1.2'
+  s.add_dependency 'rdf-json', '~>1.1', '>=1.1.0'
 end
