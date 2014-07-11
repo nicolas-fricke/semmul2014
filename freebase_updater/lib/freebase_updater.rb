@@ -5,11 +5,15 @@ module FreebaseUpdater
   require_relative '../../general/msg_publisher'
   require 'yaml'
   require 'json'
+  require 'rdf'
 
   class FreebaseUpdater::Updater
 
     def initialize
+      # ========== settings ==========
       @verbose = false
+      @demo = false
+      # ==============================
 
       @crawler = FreebaseCrawler::Crawler.new
 
@@ -24,14 +28,29 @@ module FreebaseUpdater
 
       @log = Logger.new('log', 'daily')
 
-      puts "listening on queue #{@receiver.queue_name :movie_id}"
-      @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
-      #update '/m/0456zg'
+      if @demo
+        %w(
+          /m/08phg9
+          /m/0hhqv27
+          /m/04j1zjw
+          /m/07f_t4
+          /m/0dtfn
+          /m/0cc7hmk
+          /m/0gtxbqr
+          /m/06zkfsy
+          /m/0lq6fb5
+          /m/05jzt3
+          /m/02ktj7
+          /m/02dr9j
+          ).each { |movie_id| update movie_id }
+      else
+        puts "listening on queue #{@receiver.queue_name :movie_id}"
+        @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
+      end
     end
 
     def update(topic_id)
       begin
-
         p "Looking up MID #{topic_id} ..."
         start_time = Time.now
 
@@ -316,38 +335,48 @@ module FreebaseUpdater
                                           schemas['base_freebase']+'/type/object/name',
                                           actor['text']
 
-              update_pav actor_uri
 
-              # query their type
-              query = {
-                  'mid' => actor['id'],
-                  'type' => [],
-                  '/common/topic/alias' => [],
-                  '/people/person/date_of_birth' => nil
-              }
               p "intermediate query..." if @verbose
-              @crawler.read_mql query do |response|
-                response['type'].each do |type|
-                  @virtuoso_writer.new_triple actor_uri,
-                                              schemas['base_freebase']+'/type/object/type',
-                                              schemas['base_freebase'] + type,
-                                              literal: false
+              retrieve_topic actor['id'] do |response|
+                # types
+                if response['/type/object/type']
+                  response['/type/object/type']['values'].each do |type|
+                    @virtuoso_writer.new_triple actor_uri,
+                                                schemas['base_freebase']+'/type/object/type',
+                                                schemas['base_freebase'] + type['id'],
+                                                literal: false
+                  end
                 end
 
-                if birthdate = response['/people/person/date_of_birth']
-                  write_birthdate actor_uri,
-                             schemas['base_freebase']+'/people/person/date_of_birth',
-                             birthdate
+                # birthdate
+                if response['/people/person/date_of_birth']
+                  response['/people/person/date_of_birth']['values'].each do |birthdate|
+                    @virtuoso_writer.new_triple actor_uri,
+                                                schemas['base_freebase']+'/people/person/date_of_birth',
+                                                birthdate['value']
+                  end
                 end
 
-                response['/common/topic/alias'].each do |name|
-                  @virtuoso_writer.new_triple actor_uri,
-                                              schemas['base_freebase']+'/common/topic/alias',
-                                              name
+                # birthplace
+                if response['/people/person/place_of_birth']
+                  response['/people/person/place_of_birth']['values'].each do |birthplace|
+                    @virtuoso_writer.new_triple actor_uri,
+                                                schemas['base_freebase']+'/people/person/place_of_birth',
+                                                schemas['base_freebase']+birthplace['id']
+                  end
                 end
 
+                # alias
+                if response['/common/topic/alias']
+                  response['/common/topic/alias']['values'].each do |alternative_name|
+                    @virtuoso_writer.new_triple actor_uri,
+                                                schemas['base_freebase']+'/common/topic/alias',
+                                                schemas['base_freebase']+alternative_name['value']
+                  end
+                end
               end
 
+              update_pav actor_uri
             end
           end
 
@@ -417,23 +446,33 @@ module FreebaseUpdater
                                           schemas['base_freebase'] + '/film/film_crewmember',
                                           literal: false
 
-              query = {
-                  'mid' => member['id'],
-                  '/common/topic/alias' => [],
-                  '/people/person/date_of_birth' => nil
-              }
               p "intermediate query..." if @verbose
-              @crawler.read_mql query do |response|
-                if birthdate = response['/people/person/date_of_birth']
-                  write_birthdate member_uri,
-                             schemas['base_freebase']+'/people/person/date_of_birth',
-                             birthdate
+              retrieve_topic member['id'] do |response|
+                # birthdate
+                if response['/people/person/date_of_birth']
+                  response['/people/person/date_of_birth']['values'].each do |birthdate|
+                    @virtuoso_writer.new_triple member_uri,
+                                                schemas['base_freebase']+'/people/person/date_of_birth',
+                                                birthdate['value']
+                  end
                 end
 
-                response['/common/topic/alias'].each do |name|
-                  @virtuoso_writer.new_triple member_uri,
-                                              schemas['base_freebase']+'/common/topic/alias',
-                                              name
+                # birthplace
+                if response['/people/person/place_of_birth']
+                  response['/people/person/place_of_birth']['values'].each do |birthplace|
+                    @virtuoso_writer.new_triple member_uri,
+                                                schemas['base_freebase']+'/people/person/place_of_birth',
+                                                schemas['base_freebase']+birthplace['id']
+                  end
+                end
+
+                # alias
+                if response['/common/topic/alias']
+                  response['/common/topic/alias']['values'].each do |alternative_name|
+                    @virtuoso_writer.new_triple member_uri,
+                                                schemas['base_freebase']+'/common/topic/alias',
+                                                schemas['base_freebase']+alternative_name['value']
+                  end
                 end
               end
 
@@ -479,38 +518,49 @@ module FreebaseUpdater
                                   schemas['base_freebase'] + '/type/object/name',
                                   person['text']
 
-      query = {
-          'mid' => person['id'],
-          'type' => [],
-          '/common/topic/alias' => [],
-          '/people/person/date_of_birth' => nil
-      }
-      p "intermediate query..." if @verbose
-      @crawler.read_mql query do |response|
-        response['type'].each do |type|
-          @virtuoso_writer.new_triple person_uri,
-                                      schemas['base_freebase'] + '/type/object/type',
-                                      schemas['base_freebase'] + type,
-                                      literal: false
-        end
 
-        if birthdate = response['/people/person/date_of_birth']
-          begin
-            write_birthdate person_uri,
-                       schemas['base_freebase']+'/people/person/date_of_birth',
-                       birthdate
-          rescue => e
-            @log.error e
+
+      p "intermediate query..." if @verbose
+      retrieve_topic person['id'] do |response|
+        # types
+        if response['/type/object/type']
+          response['/type/object/type']['values'].each do |type|
+            @virtuoso_writer.new_triple person_uri,
+                                        schemas['base_freebase']+'/type/object/type',
+                                        schemas['base_freebase'] + type['id'],
+                                        literal: false
           end
         end
 
-        response['/common/topic/alias'].each do |name|
-          @virtuoso_writer.new_triple person_uri,
-                                      schemas['base_freebase']+'/common/topic/alias',
-                                      name
+        # birthdate
+        if response['/people/person/date_of_birth']
+          response['/people/person/date_of_birth']['values'].each do |birthdate|
+            @virtuoso_writer.new_triple person_uri,
+                                        schemas['base_freebase']+'/people/person/date_of_birth',
+                                        birthdate['value']
+          end
         end
 
+        # birthplace
+        if response['/people/person/place_of_birth']
+          response['/people/person/place_of_birth']['values'].each do |birthplace|
+            @virtuoso_writer.new_triple person_uri,
+                                        schemas['base_freebase']+'/people/person/place_of_birth',
+                                        schemas['base_freebase']+birthplace['id']
+          end
+        end
+
+        # alias
+        if response['/common/topic/alias']
+          response['/common/topic/alias']['values'].each do |alternative_name|
+            @virtuoso_writer.new_triple person_uri,
+                                        schemas['base_freebase']+'/common/topic/alias',
+                                        schemas['base_freebase']+alternative_name['value']
+          end
+        end
       end
+
+
     end
 
     def update_persons(topic_description, topic_id)
@@ -590,36 +640,6 @@ module FreebaseUpdater
       @virtuoso_writer.new_triple subject,
                                   schemas['pav_lastupdateon'],
                                   RDF::Literal.new(Date.today)
-    end
-
-    def write_birthdate(subject, predicate, date)
-
-      object = if date? date
-                 RDF::Literal.new(date, datatype: RDF::XSD.date)
-               elsif (matches = year_month? date) or (matches = year? date)
-                 RDF::Literal.new(matches[:year], datatype: RDF::XSD.gYear)
-               end
-
-      return object
-
-      @virtuoso_writer.new_triple subject,
-                                  predicate,
-                                  object unless object.nil?
-    end
-
-    def date?(datestring)
-      yyyy_mm_dd = /^(?<year>(18|19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
-      yyyy_mm_dd.match datestring
-    end
-
-    def year_month?(datestring)
-      yyyy_mm = /^(?<year>(18|19|20)\d{2})-(?<month>(0[1-9]|1[012]))$/
-      yyyy_mm.match datestring
-    end
-
-    def year?(datestring)
-      yyyy = /^(?<year>(18|19|20)\d{2})$/
-      yyyy.match datestring
     end
 
     private

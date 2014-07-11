@@ -46,6 +46,9 @@ class Matcher::Virtuoso
     end
 
     def get_triples(subject_uri)
+        if subject_uri.nil?
+            return nil
+        end
         subject = RDF::URI.new(subject_uri)
         graph = @graphs['mapped']
         query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).graph(graph)
@@ -64,7 +67,7 @@ class Matcher::Virtuoso
         if entity_type.nil?
             return []
         end
-        query = "select distinct ?s from <#{graph}> where {?s ?p '#{entity_type.to_s}'.}"
+        query = "select distinct ?s from <#{graph}> where {?s ?p <#{entity_type.to_s}>.}"
         results = run_query(@endpoint, query)
         results.each_solution do |solution|
             uri_list << solution.bindings[:s]
@@ -94,6 +97,20 @@ class Matcher::Virtuoso
             end
         end
         return actor_triples
+    end
+
+    def get_same_as(entity_triples)
+        same_as = []
+        entity_uri = entity_triples.subject.to_s
+        # get entities from main_db, that have a sameAs to the entity (which is from map_db)
+        graph = @graphs['merged']
+        query = "select ?s from <#{graph}> where {?s owl:sameAs <#{entity_uri}>}"
+        results = run_query(@endpoint, query)
+        results.each_solution do |solution|
+            same_as << solution.bindings[:s]
+        end
+
+        return same_as
     end
 
     private

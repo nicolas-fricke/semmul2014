@@ -30,7 +30,7 @@ class TMDbMapper::Mapper
         subject: raw_db_uri)
 
     # add new triples
-    @virtuoso_writer.new_triple raw_db_uri, "#{@schemas['rdf']}type", "#{@schemas['lom']}Movie"
+    @virtuoso_writer.new_triple raw_db_uri, "#{@schemas['rdf']}type", "#{@schemas['schema']}Movie"
     map_movie_id(raw_db_uri)
     map_movie_titles(raw_db_uri)
     map_movie_release_dates(raw_db_uri)
@@ -104,7 +104,7 @@ class TMDbMapper::Mapper
         predicate: "#{@schemas['tmdb']}movie/production_companies"
     )
     companies.each do |production_company_raw_uri|
-      production_company_mapped_uri = "#{@schemas['base_tmdb']}/company/"
+      production_company_mapped_uri = "#{@schemas['base_tmdb']}company/"
       ids = @virtuoso_reader.get_objects_for(
           subject: production_company_raw_uri,
           predicate: "#{@schemas['tmdb']}movie/production_companies/id"
@@ -145,7 +145,7 @@ class TMDbMapper::Mapper
         predicate: "#{@schemas['tmdb']}movie/credits/cast"
     )
     casts.each do |cast_raw_uri|
-      cast_mapped_uri = "#{@schemas['base_tmdb']}/performance/"
+      cast_mapped_uri = "#{@schemas['base_tmdb']}performance/"
       ids = @virtuoso_reader.get_objects_for(
           subject: cast_raw_uri,
           predicate: "#{@schemas['tmdb']}cast/id"
@@ -187,29 +187,29 @@ class TMDbMapper::Mapper
           predicate: "#{@schemas['tmdb']}cast/character"
       )
       characters.each do |performance_character|
-        character_uri = nil
-        character_uri = "#{cast_mapped_uri}/character" if performance_character.to_s.length > 1
-        if character_uri
+        #character_uri = nil
+        #character_uri = "#{cast_mapped_uri}/character" if performance_character.to_s.length > 1
+        #if character_uri
           # try to delete existing triples for character first
-          @virtuoso_writer.delete_triple(
-              subject: character_uri)
+          #@virtuoso_writer.delete_triple(
+          #    subject: character_uri)
 
           # add new triples
-          @virtuoso_writer.new_triple(
-              cast_mapped_uri, "#{@schemas['lom']}character", character_uri, literal:false
-          )
-          @virtuoso_writer.new_triple(
-              character_uri, "#{@schemas['rdf']}type", "#{@schemas['dbpedia']}FictionalCharacter", literal:false
-          )
-          @virtuoso_writer.new_triple(
-              character_uri, "#{@schemas['rdf']}type", "#{@schemas['schema']}Person", literal:false
-          )
-          @virtuoso_writer.new_triple(
-              character_uri, "#{@schemas['schema']}name", performance_character
-          )
-          @virtuoso_writer.new_triple character_uri, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+        @virtuoso_writer.new_triple(
+            cast_mapped_uri, "#{@schemas['lom']}character", performance_character
+        )
+          #@virtuoso_writer.new_triple(
+          #    character_uri, "#{@schemas['rdf']}type", "#{@schemas['dbpedia']}FictionalCharacter", literal:false
+          #)
+          #@virtuoso_writer.new_triple(
+          #    character_uri, "#{@schemas['rdf']}type", "#{@schemas['schema']}Person", literal:false
+          #)
+          #@virtuoso_writer.new_triple(
+          #    character_uri, "#{@schemas['schema']}name", performance_character
+          #)
+          #@virtuoso_writer.new_triple character_uri, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
 
-        end
+        #end
       end if characters
       @virtuoso_writer.new_triple cast_mapped_uri, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
       @virtuoso_writer.new_triple(
@@ -229,7 +229,7 @@ class TMDbMapper::Mapper
           predicate: "#{@schemas['tmdb']}crew/job"
       )
       # check whether job is 'director'
-      if job.to_s =~ /director/i
+      if job.first.to_s.downcase == 'director'
         persons = @virtuoso_reader.get_objects_for(
             subject: crew_raw_uri,
             predicate: "#{@schemas['tmdb']}crew/person"
@@ -270,18 +270,18 @@ class TMDbMapper::Mapper
         predicate: "#{@schemas['tmdb']}person/name"
     )
     names.each do |person_name|
-      person_names = person_name.to_s.split(' ')
+      #person_names = person_name.to_s.split(' ')
       @virtuoso_writer.new_triple(
           person_uri, "#{@schemas['schema']}name", person_name
       )
 
-      @virtuoso_writer.new_triple(
-          person_uri, "#{@schemas['schema']}givenName", person_names.first
-      )
+      #@virtuoso_writer.new_triple(
+      #    person_uri, "#{@schemas['schema']}givenName", person_names.first
+      #)
 
-      @virtuoso_writer.new_triple(
-          person_uri, "#{@schemas['schema']}familyName", person_names.last
-      )
+      #@virtuoso_writer.new_triple(
+      #    person_uri, "#{@schemas['schema']}familyName", person_names.last
+      #)
     end if names
     aliases = @virtuoso_reader.get_objects_for(
         subject: person_uri,
@@ -312,19 +312,19 @@ class TMDbMapper::Mapper
         )
       end
     end if birthdates
-    birthplaces = @virtuoso_reader.get_objects_for(
-        subject: person_uri,
-        predicate: "#{@schemas['tmdb']}person/place_of_birth"
-    )
-    birthplaces.each do |place|
-      place_uri = nil
-      place_uri = @dbpedia_reader.get_place_uri place if place.to_s.length > 1
-      if place_uri
-        @virtuoso_writer.new_triple(
-            person_uri, "#{@schemas['dbpedia']}birthPlace", place_uri, literal:false
-        )
-      end
-    end if birthplaces
+    #birthplaces = @virtuoso_reader.get_objects_for(
+    #    subject: person_uri,
+    #    predicate: "#{@schemas['tmdb']}person/place_of_birth"
+    #)
+    #birthplaces.each do |place|
+    #  place_uri = nil
+    #  place_uri = @dbpedia_reader.get_place_uri place if place.to_s.length > 1
+    #  if place_uri
+    #    @virtuoso_writer.new_triple(
+    #        person_uri, "#{@schemas['dbpedia']}birthPlace", place_uri, literal:false
+    #    )
+    #  end
+    #end if birthplaces
     @virtuoso_writer.new_triple person_uri, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
   end
 

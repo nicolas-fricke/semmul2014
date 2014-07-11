@@ -74,7 +74,6 @@ class VirtuosoWriter
   end
 
   def graphs
-    file  ||= YAML.load_file '../config/namespaces.yml'
-    @graphs = file['graphs']
+    @graphs ||= YAML.load_file('../config/namespaces.yml')['graphs']
   end
 end

@@ -19,6 +19,33 @@ class VirtuosoReader
     @graph = graphs[graph.to_s]
   end
 
+  def get_predicates_and_objects_for(subject: , graph: @graph, filter: [])
+    graph = RDF::URI.new(graph)
+    subject = RDF::URI.new(subject)
+
+    begin
+      query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).filters(filter).graph(graph)
+      results = @repo.select(query)
+      hash_of_arrays_to_array_of_hashes results.bindings
+    rescue Exception => e
+      @log.error e
+    end
+  end
+
+  def get_subjects_for(predicate: , object: , graph: @graph)
+    graph = RDF::URI.new(graph)
+    predicate = RDF::URI.new(predicate)
+    object = RDF::URI.new(object)
+
+    begin
+      query = RDF::Virtuoso::Query.select.where([:s, predicate, object]).graph(graph)
+      result = @repo.select(query)
+      result.bindings[:s]
+    rescue Exception => e
+      @log.error e
+    end
+  end
+
   def get_objects_for(subject: , predicate: , graph: @graph)
     graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
@@ -48,12 +75,20 @@ class VirtuosoReader
   end
 
   private
+  def hash_of_arrays_to_array_of_hashes(hash)
+    hash.inject([]) do |array, (key,values)|
+      values.each_with_index do |value,index|
+        (array[index] ||= {})[key] = value
+      end
+      array
+    end
+  end
+
   def secrets
     @secrets ||= YAML.load_file '../config/secrets.yml'
   end
 
   def graphs
-    file  ||= YAML.load_file '../config/namespaces.yml'
-    @graphs = file['graphs']
+    @graphs ||= YAML.load_file('../config/namespaces.yml')['graphs']
   end
 end
