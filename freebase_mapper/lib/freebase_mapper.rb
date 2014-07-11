@@ -30,8 +30,8 @@ module FreebaseMapper
       @log = Logger.new('log', 'daily')
 
       puts "listening on queue #{@receiver.queue_name :movie_uri}"
-      # @receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
-      map 'http://rdf.freebase.com/ns/m/0c2l1s'
+      @receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
+      # map 'http://rdf.freebase.com/ns/m/0c2l1s'
     end
 
     def map(raw_db_uri)
