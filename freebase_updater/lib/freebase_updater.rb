@@ -12,7 +12,7 @@ module FreebaseUpdater
     def initialize
       # ========== settings ==========
       @verbose = true
-      @demo = true
+      @demo = false
       # ==============================
 
       @crawler = FreebaseCrawler::Crawler.new

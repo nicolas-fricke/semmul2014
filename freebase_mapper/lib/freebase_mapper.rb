@@ -28,8 +28,8 @@ module FreebaseMapper
       @place_finder = DBpediaReader.new
 
       puts "listening on queue #{@receiver.queue_name :movie_uri}"
-      # @receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
-      map 'http://rdf.freebase.com/ns/m/08phg9'
+      @receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
+      # map 'http://rdf.freebase.com/ns/m/08phg9'
     end
 
     def map(raw_db_uri)
