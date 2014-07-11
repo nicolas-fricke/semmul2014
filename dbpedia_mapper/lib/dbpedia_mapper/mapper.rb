@@ -169,6 +169,11 @@ class DBpediaMapper::Mapper
   end
 
 
+  def name(uri)
+    return uri.to_s[(uri.to_s.rindex('/') + 1)..-1]
+  end
+
+
   def map(subject, predicate, object, go_deeper)
     if predicate == @type
       mo = mapped_object(object)
@@ -181,13 +186,22 @@ class DBpediaMapper::Mapper
       # map dates
       if @date_formatting.include?(mp)
         begin
-          if date? object
-            date_string = RDF::Literal.new(object, datatype: RDF::XSD.date)
-            @virtuoso_writer.new_triple(subject, mp, date_string, literal:false)
+          if mp == get_property('schema', 'datePublished')
+            property_date_year = get_property('schema', 'yearPublished')
+          elsif mp == get_property('schema', 'birthDate')
+            property_date_year = get_property('schema', 'birthYear')
           end
-          if (matches = year_month? object) or (matches = year? object)
-            date_string = RDF::Literal.new(matches[:year], datatype: RDF::XSD.gYear)
+            
+          # if date is complete
+          if object.to_s=~/^(?<year>(18|19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
+            date_string = RDF::Literal.new(object.to_s, datatype: RDF::XSD.date)
             @virtuoso_writer.new_triple(subject, mp, date_string, literal:false)
+            date_string = RDF::Literal.new(object.to_s[0...4], datatype: RDF::XSD.gYear)
+            @virtuoso_writer.new_triple(subject, property_date_year, date_string, literal:false)
+          # if only year (and month) is given
+          elsif object.to_s=~/^(?<year>(18|19|20)\d{2})/
+            date_string = RDF::Literal.new(object.to_s[0...4], datatype: RDF::XSD.gYear)
+            @virtuoso_writer.new_triple(subject, property_date_year, date_string, literal:false)
           end
         rescue ArgumentError
           @log.error "Could not parse release date `#{object.to_s}' as date."
@@ -195,14 +209,19 @@ class DBpediaMapper::Mapper
 
       # map actors in performances
       elsif mp == get_property('lom', 'performance')
-        performance = get_property('lom_dbpedia', "movie/#{subject}/performance/#{object}")
-        @virtuoso_writer.new_triple(subject, get_property('lom', 'performance'), performance, literal:false)
-        @virtuoso_writer.new_triple(performance, get_property('rdf', 'type'), get_property('lom', 'Performance'), literal:false)
-        @virtuoso_writer.new_triple(performance, get_property('lom', 'actor'), object, literal:false)
-        @virtuoso_writer.new_triple(uri, @schemas['pav_lastupdateon'], RDF::Literal.new(DateTime.now, datatype: RDF::XSD.dateTime))
+        begin
+          movie = name(subject)
+          actor = name(object)
+          performance = get_property('lom_dbpedia', "movie/#{movie}/performance/#{actor}")
+          @virtuoso_writer.new_triple(subject, get_property('lom', 'performance'), performance, literal:false)
+          @virtuoso_writer.new_triple(performance, get_property('rdf', 'type'), get_property('lom', 'Performance'), literal:false)
+          @virtuoso_writer.new_triple(performance, get_property('lom', 'actor'), object, literal:false)
+          @virtuoso_writer.new_triple(performance, @schemas['pav_lastupdateon'], RDF::Literal.new(DateTime.now, datatype: RDF::XSD.dateTime))
 
-        map_entity(object, false)
-        @virtuoso_writer.new_triple(object, get_property('rdf', 'typeOf'), get_property('dbpedia', 'Actor '), literal:false)
+          map_entity(object, false)
+          @virtuoso_writer.new_triple(object, get_property('rdf', 'typeOf'), get_property('dbpedia', 'Actor '), literal:false)
+        rescue
+        end
 
       # map objects with URIs to other entities that have to be mapped
       elsif go_deeper and @further_entities.include?(mp)
@@ -231,6 +250,7 @@ class DBpediaMapper::Mapper
 # TODO: sameAs links may have the current entity as object instead of subject - then they will not be mapped right now
   def map_entity(uri, initial)
     uri = clean(uri)
+    p "mapping #{uri}"
 
     # delete existing triples
     @virtuoso_writer.delete_triple(subject: uri)
@@ -267,21 +287,6 @@ class DBpediaMapper::Mapper
 
   def set_xsd_type(literal, type)
     "#{literal}^^#{@schemas['xsd']}#{type}"
-  end
-
-  def date?(datestring)
-    yyyy_mm_dd = /^(?<year>(18|19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
-    yyyy_mm_dd.match datestring
-  end
-
-  def year_month?(datestring)
-    yyyy_mm = /^(?<year>(18|19|20)\d{2})-(?<month>(0[1-9]|1[012]))$/
-    yyyy_mm.match datestring
-  end
-
-  def year?(datestring)
-    yyyy = /^(?<year>(18|19|20)\d{2})$/
-    yyyy.match datestring
   end
 
   private
