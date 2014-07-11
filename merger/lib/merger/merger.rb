@@ -1,4 +1,8 @@
 class Merger::Merger
+  def initialize
+    @matcher = Matcher::Matcher.new()
+  end
+
   def register_receiver
     receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri) }
   end
@@ -46,8 +50,9 @@ class Merger::Merger
   end
 
   def find_matching_entity(mapped_entity_uri)
-    # TODO @Flo: Employ matcher to find matching entity within MainDB
+    # (@Flo) Employ matcher to find matching entity within MainDB
     # returns matching entity's URI or nil
+    return @matcher.find(mapped_entity_uri)
   end
 
   def create_new_entity(mapped_entity_uri:)
