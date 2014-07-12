@@ -4,8 +4,8 @@ class Merger::Merger
   end
 
   def register_receiver
-    receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri) }
-    # merge 'http://rdf.freebase.com/ns/m/0hhqv27'
+    # receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri) }
+    merge 'http://rdf.freebase.com/ns/m/0hhqv27'
   end
 
   def merge(mapped_entity_uri)
@@ -46,7 +46,7 @@ class Merger::Merger
     end
     attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_uris.each do |attribute|
-      merged_uri = merge(attribute[:o])
+      merged_uri = merge(attribute[:o]) if attribute[:o].uri?
       virtuoso_writer.new_triple existing_entity_uri, attribute[:p], merged_uri, literal: false
     end
   end
