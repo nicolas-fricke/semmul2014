@@ -4,10 +4,12 @@ class Merger::Merger
   end
 
   def register_receiver
-    receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri) }
+    # receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri) }
+    merge 'http://rdf.freebase.com/ns/m/0hhqv27'
   end
 
   def merge(mapped_entity_uri)
+    p "merging #{mapped_entity_uri}"
     main_db_entity_uri = find_merged_entity(mapped_entity_uri)
     if main_db_entity_uri
       merge_into_entity new_entity_uri: mapped_entity_uri, existing_entity_uri: main_db_entity_uri
@@ -38,13 +40,13 @@ class Merger::Merger
   def merge_into_entity(new_entity_uri:, existing_entity_uri:)
     # (@Kerstin) Per attribute from new record, merge into existing record
     virtuoso_reader.set_graph 'mapped'
-    attributes_with_literals = virtuoso_reader.get_predicates_and_objects_for new_entity_uri
+    attributes_with_literals = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_literals.each do |attribute|
       virtuoso_writer.new_triple existing_entity_uri, attribute[:p], attribute[:o]
     end
-    attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for new_entity_uri
+    attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_uris.each do |attribute|
-      merged_uri = Merger::Merger.merge(result[:o])
+      merged_uri = merge(attribute[:o]) if attribute[:o].uri?
       virtuoso_writer.new_triple existing_entity_uri, attribute[:p], merged_uri, literal: false
     end
   end
