@@ -46,7 +46,7 @@ class Merger::Merger
     end
     attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_uris.each do |attribute|
-      merged_uri = Merger::Merger.merge(result[:o])
+      merged_uri = merge(attribute[:o])
       virtuoso_writer.new_triple existing_entity_uri, attribute[:p], merged_uri, literal: false
     end
   end

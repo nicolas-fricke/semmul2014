@@ -29,6 +29,7 @@ class VirtuosoReader
       hash_of_arrays_to_array_of_hashes results.bindings
     rescue Exception => e
       @log.error e
+      nil
     end
   end
 
@@ -43,6 +44,7 @@ class VirtuosoReader
       result.bindings[:s]
     rescue Exception => e
       @log.error e
+      nil
     end
   end
 
@@ -57,6 +59,7 @@ class VirtuosoReader
       result.bindings[:o]
     rescue Exception => e
       @log.error e
+      nil
     end
   end
 
@@ -71,6 +74,7 @@ class VirtuosoReader
       result
     rescue Exception => e
       @log.error e
+      nil
     end
   end
 
