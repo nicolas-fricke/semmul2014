@@ -1,0 +1,27 @@
+weights:
+  movie: # must sum up to 1
+    title: 0.4
+    director: 0.3
+    release: 0.2
+    actors: 0.2
+  person: # must sum up to 1
+    name_alias: 0.6
+    birthdate: 0.4
+  performance: # must sum up to 1
+    character: 0.4
+    actor: 0.6
+
+  # organization: only name until now
+  # director: same as person until now
+
+settings:
+  date_std_dev_d: 90
+
+thresholds:
+  matching: 0.8
+  person_equivalence: 0.95
+  ff_lower_bound: 0.6
+
+control:
+  enable_ff: true
+  debug: false

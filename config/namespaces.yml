@@ -29,3 +29,11 @@ queues:
   raw_dbpedia: 'lom.raw_db.dbpedia.' #movie
   mapping: 'lom.mapped.' # movie_uri
   merging: 'lom.merged.' # movie_uri
+
+# main types of entities for the matcher
+types:
+  movie_type: "http://schema.org/Movie"
+  person_type: "http://schema.org/Person"
+  organization_type: "http://schema.org/Organization"
+  director_type: "http://semmul2014.hpi.de/lodofmovies.owl#Director"
+  performance_type: "http://semmul2014.hpi.de/lodofmovies.owl#Performance"

@@ -7,6 +7,7 @@ class Matcher::Triples
     def initialize(subject)
         @subject = subject
         @data = []
+        config()
     end
 
 
@@ -34,26 +35,19 @@ class Matcher::Triples
     end
 
     def get_type()
-        #movie = "http://semmul2014.hpi.de/lodofmovies.owl#Movie"
-        movie = "http://schema.org/Movie"
-        person = "http://schema.org/Person"
-        organization = "http://schema.org/Organization"
-        director = "http://semmul2014.hpi.de/lodofmovies.owl#Director"
-        performance = "http://semmul2014.hpi.de/lodofmovies.owl#Performance"
-
         types = get_objects(RDF.type)
         types.each do |type|
             case type
-                when movie
-                    return RDF::URI.new(movie)
-                when person
-                    return RDF::URI.new(person)
-                when organization
-                    return RDF::URI.new(organization)
-                when director
-                    return RDF::URI.new(director)
-                when performance
-                    return RDF::URI.new(performance)
+                when @types['movie_type']
+                    return RDF::URI.new(@types['movie_type'])
+                when @types['person_type']
+                    return RDF::URI.new(@types['person_type'])
+                when @types['organization_type']
+                    return RDF::URI.new(@types['organization_type'])
+                when @types['director_type']
+                    return RDF::URI.new(@types['director_type'])
+                when @types['performance_type']
+                    return RDF::URI.new(@types['performance_type'])
             end
         end
 
@@ -116,6 +110,16 @@ class Matcher::Triples
         end
     end
 
+    def get_fb_mid()
+        fb_mid_prop = "http://semmul2014.hpi.de/lodofmovies.owl#freebase_mid"
+        objects = get_objects(fb_mid_prop)
+        if objects.size > 0
+            return objects[0]
+        else
+            return nil
+        end
+    end
+
     def get_release_date()
         # todo: not in tmdb
         release_date_prop = "http://schema.org/datePublished"
@@ -137,6 +141,16 @@ class Matcher::Triples
         return actor_uris
     end
 
+    def get_director()
+        director_prop = "http://schema.org/director"
+        director_uris = get_objects(director_prop)
+        unless director_uris.empty?
+            return director_uris[0]
+        else
+            return nil
+        end
+
+    end
 
     def get_character()
         char_prop = "http://semmul2014.hpi.de/lodofmovies.owl#character"
@@ -146,6 +160,13 @@ class Matcher::Triples
             return nil
         end
         return char_uris[0]
+    end
+
+    private
+
+    def config
+        namespaces ||= YAML.load_file '../config/namespaces.yml'
+        @types = namespaces['types']
     end
 
 end

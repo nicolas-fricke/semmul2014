@@ -1,17 +1,13 @@
-require 'matrix'
 require 'date'
 require 'levenshtein'
 require 'set'
-
-
-
 
 class Matcher::Matcher
 
     def initialize
         @virtuoso = Matcher::Virtuoso.new
-        @default_threshold = 0.8
         @debug = false
+        config()
     end
 
     # find:
@@ -23,7 +19,7 @@ class Matcher::Matcher
         unless identic.empty?
             return identic
         else
-            matching = find_thresh_matching(entity_tripels, @default_threshold)
+            matching = find_thresh_matching(entity_tripels)
             # matching will be a list of matches (sorted), or nil
             return matching
         end
@@ -33,21 +29,13 @@ class Matcher::Matcher
     def find_same(entity_triples)
         same_entities = []
 
-        same_entities.concat(@virtuoso.get_same_as(entity_triples))
+        # removed: this is done by the merger before calling the matcher
+        #same_entities.concat(@virtuoso.get_same_as(entity_triples))
 
-        # check for imdb ids if it is a movie
         entity_type = entity_triples.get_type()
-        movie_type = "http://semmul2014.hpi.de/lodofmovies.owl#Movie"
-        if entity_type == movie_type
-            imdb_id = entity_triples.get_imdb_id()
-            @virtuoso.get_movie_subjects_by_imdb(imdb_id).each do |same_ent|
-                if !same_ent == entity_triples.subject
-                    same_entities << same_ent
-                end
-            end
+        if entity_type == @types['movie_type']
+            same_entities.concat(find_same_movie(entity_triples))
         end
-
-        # todo: use freebase_mid from dbpedia
 
         if same_entities.empty?
             return Set.new()
@@ -56,10 +44,31 @@ class Matcher::Matcher
         end
     end
 
-    def find_thresh_matching(entity_triples, threshold)
+    def find_same_movie(entity_triples)
+        same_entities = []
+        # imdb id
+        imdb_id = entity_triples.get_imdb_id()
+        @virtuoso.get_movie_subjects_by_imdb(imdb_id).each do |same_ent|
+            if !same_ent == entity_triples.subject
+                same_entities << same_ent
+            end
+        end
+        # todo: freebase_mid
+        freebase_m_id = entity_triples.get_fb_mid()
+        @virtuoso.get_movie_subjects_by_fb_mid(freebase_m_id).each do |same_mid_ent|
+            if !same_mid_ent == entity_triples.subject
+                same_entities << same_mid_ent
+            end
+        end
+
+
+        return same_entities
+    end
+
+    def find_thresh_matching(entity_triples)
         matching = find_matching(entity_triples)
         if matching.size > 0
-            if matching[-1][1] >= threshold
+            if matching[-1][1] >= @thresholds['matching']
                 matching_uri = RDF::URI.new(matching[-1][0])
                 return matching_uri
             end
@@ -86,53 +95,29 @@ class Matcher::Matcher
         end
 
         all_matches = {}
-
-        #puts "Calculating matches ..."
-        all_subjects_size = all_subjects.size
-        counter = 0
         all_subjects.each do |subject_uri|
             if entity_triples.subject != subject_uri
                 # calculate match
                 other_triples = @virtuoso.get_triples(subject_uri)
                 match = calculate_match(entity_triples, other_triples, entity_type)
-                counter += 1
-                #STDOUT.write("\r #{counter}/#{all_subjects_size}")
-                #STDOUT.flush
                 all_matches[subject_uri.to_s] = match
             end
         end
-        #puts ""
-
-        #puts "matched against #{all_matches.size} subjects"
         all_sorted_matches = all_matches.sort_by {|uri, match| match}
-
         return all_sorted_matches
     end
 
-	# match: 
-	# => movies
-	# => persons
-	# => locations
-
     def calculate_match(a_triples, b_triples, type)
-
-        # todo: put into config
-        movie = "http://schema.org/Movie"
-        person = "http://schema.org/Person"
-        organization = "http://schema.org/Organization"
-        director = "http://semmul2014.hpi.de/lodofmovies.owl#Director"
-        performance = "http://semmul2014.hpi.de/lodofmovies.owl#Performance"
-
         case type
-            when movie
+            when @types['movie_type']
                 return match_movie(a_triples, b_triples)
-            when person
+            when @types['person_type']
                 return person_match(a_triples, b_triples)
-            when director
+            when @types['director_type']
                 return person_match(a_triples, b_triples)
-            when organization
-                return 0.0 # todo: match org.
-            when performance
+            when @types['organization_type']
+                return organization_match(a_triples, b_triples)
+            when @types['performance_type']
                 return performance_match(a_triples, b_triples)
             else
                 return 0.0
@@ -157,6 +142,13 @@ class Matcher::Matcher
     end
 
 
+    def organization_match(a,b)
+        name_a = a.get_name().to_s
+        name_b = b.get_name().to_s
+        match = levenshtein_match(name_a, name_b)
+        return match
+    end
+
     def performance_match(a,b)
 
         # match character
@@ -171,44 +163,108 @@ class Matcher::Matcher
         actor_b = @virtuoso.get_triples(actor_b_uri)
         match_actor = person_match(actor_a, actor_b)
 
-        w_character = 0.4
-        w_actor = 0.6
+        w_character = @weights['performance']['character']
+        w_actor = @weights['performance']['actor']
 
         match_degree = (w_character * match_char) + (w_actor * match_actor)
         return match_degree
     end
 
 	def match_movie(a,b)
-		# title, release_date, person, distributor, actors
-
+        # title
         title_a = a.get_name.to_s
         title_b = b.get_name.to_s
         title_match = levenshtein_match(title_a, title_b)
 
-        # todo: fast-forward ?
+        # director
+        director_a = @virtuoso.get_triples(a.get_director())
+        director_b = @virtuoso.get_triples(b.get_director())
+        use_director_match = true
+        director_match = 0.0
+        if director_a.nil? or director_b.nil?
+            use_director_match = false
+        else
+            director_match = person_match(director_a, director_b)
+        end
 
+
+        # release date
         a_date = a.get_release_date
         b_date = b.get_release_date
         use_release_date = true # tmdb has no release date
-        release_date_match = 0
+        release_date_match = 0.0
         if a_date.nil? or b_date.nil?
             use_release_date = false
         else
             release_date_match = date_match(a_date, b_date)
         end
 
-        actors_match = movie_actors_match(a,b)
+        # weights
+        w_title = @weights['movie']['title']
+        w_director = @weights['movie']['director']
+        w_release = @weights['movie']['release']
+        w_actors = @weights['movie']['actors']
 
-        w_title = 0.5
-        w_release = 0.2
-        w_actors = 0.3
-        if !use_release_date
+        # todo: consolidate weight re-distribution
+        calculate_fast_forward = @control['enable_ff']
+        if !use_release_date and use_director_match
             w_title = w_title + (w_release * 0.5)
-            w_actors = w_actors + (w_release * 0.5)
+            w_director = w_director + (w_release * 0.5)
             w_release = 0
+        elsif !use_director_match and use_release_date
+            w_title += (w_director * 0.5)
+            w_director = 0
+        elsif !use_director_match and !use_release_date
+            w_title += (w_director * 0.5)
+            w_title += (w_release * 0.5)
+            calculate_fast_forward = false
         end
 
-        match_degree = (w_title * title_match) + (w_release * release_date_match) + (w_actors * actors_match)
+        # clamp
+        w_title = (w_title > 1 ? 1 : w_title)
+        w_director = (w_director > 1 ? 1 : w_director)
+
+        # fast-forward: check if already above threshold
+        if calculate_fast_forward
+            pre_match = 0
+            pre_match += (w_title * title_match)
+            pre_match += (w_release * release_date_match)
+            pre_match += (w_director * director_match)
+
+            if pre_match >= @thresholds['matching'] or pre_match <= @thresholds['ff_lower_bound']
+                return pre_match
+            end
+        end
+
+        # actors --> expensive
+        use_actors_match = true
+        actors_match = movie_actors_match(a,b)
+        if actors_match.nil?
+            actors_match = 0.0
+            w_actors = 0.0
+            # adjust other weights
+            if !use_release_date and use_director_match
+                w_title = w_title + (w_actors * 0.5)
+                w_director = w_director + (w_actors * 0.5)
+            elsif !use_director_match and use_release_date
+                w_title += (w_actors * 0.5)
+                w_release += (w_actors * 0.5)
+            elsif !use_director_match and !use_release_date
+                w_title += (w_actors * 0.5)
+                w_title += (w_actors * 0.5)
+            end
+        end
+
+        # clamp again
+        w_title = (w_title > 1 ? 1 : w_title)
+        w_director = (w_director > 1 ? 1 : w_director)
+        w_release = (w_release > 1 ? 1 : w_release)
+
+        match_degree = 0
+        match_degree += (w_title * title_match)
+        match_degree += (w_release * release_date_match)
+        match_degree += (w_actors * actors_match)
+        match_degree += (w_director * director_match)
 
 		return match_degree
 	end
@@ -247,10 +303,10 @@ class Matcher::Matcher
         # todo: birthplace match as string-match
 
         #birthplace_match = location_match(a[:birthplace],b[:birthplace])
-        # todo: vector over works
+        # todo: vector over works <-- expensive
 
-        w_name_alias = 0.5
-        w_birthdate = 1-w_name_alias
+        w_name_alias = @weights['person']['name_alias']
+        w_birthdate = @weights['person']['birthdate']
         #w_birthplace = 0.2
         if !use_birthdate
             w_name_alias += w_birthdate
@@ -282,7 +338,6 @@ class Matcher::Matcher
         return location_match
     end
 
-    #private
 
 	def levenshtein_match(a,b)
 		a = a.downcase
@@ -316,9 +371,6 @@ class Matcher::Matcher
 	  d[m][n]
 	end
 
-	def release_date_match(a,b)
-
-	end
 
 	def date_match(a,b)
 		# make dates numerical
@@ -334,7 +386,7 @@ class Matcher::Matcher
 		upper_date = DateTime.parse(upper_date.to_s)
 
 		# calculate match
-		std_dev = 3 * 30 # 6 months
+		std_dev = @settings['date_std_dev_d']
 		mean = 0
 		lower_date_i = 0
 		difference_i = (upper_date - lower_date).to_i
@@ -398,10 +450,12 @@ class Matcher::Matcher
 	#end
 
 	def movie_actors_match(a,b)
-        equivalence_threshold = 0.3 # 0.99 # matches > 99% are identic
-
         a_actors = @virtuoso.get_actor_triples(a)
         b_actors = @virtuoso.get_actor_triples(b)
+
+        if a_actors.empty? or b_actors.empty?
+            return nil
+        end
 
         # find match degrees between all actors
         all_matches = {}
@@ -417,7 +471,7 @@ class Matcher::Matcher
 
                 match = person_match(actor_a, actor_b)
                 all_matches[[actor_a, actor_b]] = match
-                if match >= equivalence_threshold
+                if match >= @thresholds['person_equivalence']
                     union_size += 1
                 end
             end
@@ -427,7 +481,22 @@ class Matcher::Matcher
         # sim = 2|A union B|/|A|+|B|
         sim = 2 * union_size / (a_actors.size.to_f + b_actors.size.to_f)
         return sim
-	end
+    end
+
+
+    def config
+        @config ||= YAML.load_file '../config/matching.yml'
+
+        namespaces ||= YAML.load_file '../config/namespaces.yml'
+        @types = namespaces['types']
+
+        matching ||= YAML.load_file '../config/matching.yml'
+        @weights = matching['weights']
+        @thresholds = matching['thresholds']
+        @control = matching['control']
+        @settings = matching['settings']
+    end
+
 end
 
 def haversine_distance(lat1,lon1,lat2,lon2)

@@ -8,7 +8,11 @@ end
 if __FILE__ == $0
 
 	m = Matcher::Matcher.new()
-    found = m.find("http://rdf.freebase.com/ns/m/03lx3k")
-    puts found
+    found = m.find("http://dbpedia.org/resource/$9.99")
+    if found.nil?
+        puts "nothing found"
+    else
+        puts "found #{found}"
+    end
 
 end
