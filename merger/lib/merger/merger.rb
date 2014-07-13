@@ -10,14 +10,18 @@ class Merger::Merger
 
   def merge(mapped_entity_uri)
     p "merging #{mapped_entity_uri}"
+    # try to find entities with sameAs links
     main_db_entity_uri = find_merged_entity(mapped_entity_uri)
     if main_db_entity_uri
       merge_into_entity new_entity_uri: mapped_entity_uri, existing_entity_uri: main_db_entity_uri
     else
+      # try to find entities that are identical
       main_db_entity_uri = find_matching_entity(mapped_entity_uri)
       if main_db_entity_uri
+        # merge the entities
         merge_into_entity new_entity_uri: mapped_entity_uri, existing_entity_uri: main_db_entity_uri
       else
+        # create a new entity in mainDB
         main_db_entity_uri = create_new_entity mapped_entity_uri: mapped_entity_uri
       end
       set_same_as_references main_db_uri: mapped_entity_uri, map_db_entry: main_db_entity_uri

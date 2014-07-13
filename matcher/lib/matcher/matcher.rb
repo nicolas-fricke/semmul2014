@@ -17,11 +17,11 @@ class Matcher::Matcher
 
         # trying to be more rubyiomatic
         unless identic.empty?
-            return identic
+            identic
         else
             matching = find_thresh_matching(entity_tripels)
             # matching will be a list of matches (sorted), or nil
-            return matching
+            matching
         end
     end
 
