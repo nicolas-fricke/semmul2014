@@ -24,7 +24,7 @@ class Merger::Merger
         # create a new entity in mainDB
         main_db_entity_uri = create_new_entity mapped_entity_uri: mapped_entity_uri
       end
-      set_same_as_references main_db_uri: mapped_entity_uri, map_db_entry: main_db_entity_uri
+      set_same_as_references main_db_uri: main_db_entity_uri, map_db_entry: mapped_entity_uri
     end
     update_provenience_information(main_db_entity_uri)
     publisher.enqueue :movie_uri, main_db_entity_uri
