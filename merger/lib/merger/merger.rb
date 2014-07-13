@@ -42,6 +42,7 @@ class Merger::Merger
   end
 
   def merge_into_entity(new_entity_uri:, existing_entity_uri:)
+    "merge_into_entity(#{new_entity_uri}, #{existing_entity_uri})"
     # (@Kerstin) Per attribute from new record, merge into existing record
     virtuoso_reader.set_graph 'mapped'
     attributes_with_literals = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
@@ -50,7 +51,12 @@ class Merger::Merger
     end
     attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_uris.each do |attribute|
-      merged_uri = merge(attribute[:o]) if attribute[:o].uri?
+      merged_uri = if merge_predicate? attribute[:p] and attribute[:o].uri?
+                     merge attribute[:o]
+                   else
+                     attribute[:o]
+                   end
+
       virtuoso_writer.new_triple existing_entity_uri, attribute[:p], merged_uri, literal: false
     end
   end
@@ -58,7 +64,9 @@ class Merger::Merger
   def find_matching_entity(mapped_entity_uri)
     # (@Flo) Employ matcher to find matching entity within MainDB
     # returns matching entity's URI or nil
-    return @matcher.find(mapped_entity_uri)
+    match = @matcher.find(mapped_entity_uri)
+    p "find_matching_entity#{mapped_entity_uri} => #{match || 'none'}"
+    match
   end
 
   def create_new_entity(mapped_entity_uri:)
@@ -85,6 +93,10 @@ class Merger::Merger
   end
 
   private
+  def merge_predicate?(predicate)
+    !(predicate == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+  end
+
   def publisher
     @publisher ||= MsgPublisher.new.tap {|p| p.set_queue 'merging' }
   end
@@ -94,7 +106,7 @@ class Merger::Merger
   end
 
   def virtuoso_writer
-    @virtuoso_writer ||= VirtuosoWriter.new.tap {|vw| vw.set_graph 'merged' }
+    @virtuoso_writer ||= VirtuosoWriter.new(verbose: false).tap {|vw| vw.set_graph 'merged' }
   end
 
   def virtuoso_reader
