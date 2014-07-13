@@ -34,9 +34,17 @@ class Merger::CopyMachine
   def copy_entities(map_db_uri, new_main_db_uri)
     results = virtuoso_reader.get_predicates_and_objects_for subject: map_db_uri, filter: ['isURI(?o)']
     results.each do |result|
-      merged_uri = merger.merge result[:o]
+      merged_uri = if merge_predicate?(result[:p])
+                     merger.merge result[:o]
+                   else
+                     result[:o]
+                   end
       virtuoso_writer.new_triple new_main_db_uri, result[:p], merged_uri, literal: false
     end
+  end
+
+  def merge_predicate?(predicate)
+    !(predicate == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
   end
 
 
