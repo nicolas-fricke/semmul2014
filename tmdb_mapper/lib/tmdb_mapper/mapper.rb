@@ -42,14 +42,14 @@ class TMDbMapper::Mapper
   end
 
   def map_movie_id(raw_db_uri)
-    ids = @virtuoso_reader.get_objects_for(
+    tmdb_ids = @virtuoso_reader.get_objects_for(
         subject: raw_db_uri,
         predicate: "#{@schemas['tmdb']}movie/id"
     )
-    ids.each do |id|
+    tmdb_ids.each do |tmdb_id|
       @virtuoso_writer.new_triple(
-          raw_db_uri, "#{@schemas['lom']}id", id
-      ) if id.to_s.length > 1
+          raw_db_uri, "#{@schemas['lom']}tmdb_id", tmdb_id
+      ) if tmdb_id.to_s.length > 1
     end if ids
     imdb_ids = @virtuoso_reader.get_objects_for(
         subject: raw_db_uri,
@@ -120,7 +120,7 @@ class TMDbMapper::Mapper
             production_company_mapped_uri, "#{@schemas['rdf']}type", "#{@schemas['schema']}Organization", literal: false
         ) if production_company_id.to_s.length > 1
         @virtuoso_writer.new_triple(
-            production_company_mapped_uri, "#{@schemas['lom']}id", production_company_id
+            production_company_mapped_uri, "#{@schemas['lom']}tmdb_id", production_company_id
         ) if production_company_id.to_s.length > 1
       end if ids
       names = @virtuoso_reader.get_objects_for(
@@ -161,7 +161,7 @@ class TMDbMapper::Mapper
             cast_mapped_uri, "#{@schemas['rdf']}type", "#{@schemas['lom']}Performance", literal: false
         ) if cast_id.to_s.length > 1
         @virtuoso_writer.new_triple(
-            cast_mapped_uri, "#{@schemas['lom']}id", cast_id
+            cast_mapped_uri, "#{@schemas['lom']}tmdb_id", cast_id
         ) if cast_id.to_s.length > 1
       end if ids
       persons = @virtuoso_reader.get_objects_for(
@@ -262,7 +262,7 @@ class TMDbMapper::Mapper
     )
     ids.each do |person_id|
       @virtuoso_writer.new_triple(
-          person_uri, "#{@schemas['lom']}id", person_id
+          person_uri, "#{@schemas['lom']}tmdb_id", person_id
       )
     end if ids
     names = @virtuoso_reader.get_objects_for(
