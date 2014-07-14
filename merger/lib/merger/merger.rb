@@ -39,6 +39,7 @@ class Merger::Merger
         virtuoso_reader.get_subjects_for predicate: "#{schemas['owl']}sameAs",
                                          object: mapped_entity_uri
     p "find_merged_entity #{mapped_entity_uri} => #{record.nil? ? 'none' : record.first }"
+    nil # TODO: Remove when output is removed
     record.first unless record.nil? # nil if no subject is found
   end
 
@@ -112,7 +113,7 @@ class Merger::Merger
   end
 
   def virtuoso_reader
-    @virtuoso_reader ||= VirtuosoReader.new
+    @virtuoso_reader ||= VirtuosoReader.new.tap {|vw| vw.set_graph 'mapped' }
   end
 
   def schemas

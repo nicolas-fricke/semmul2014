@@ -35,7 +35,7 @@ class Merger::CopyMachine
     "copying #{map_db_uri} to #{new_main_db_uri}"
     results = virtuoso_reader.get_predicates_and_objects_for subject: map_db_uri, filter: ['isURI(?o)']
     results.each do |result|
-      merged_uri = if merge_predicate?(result[:p]) and result[:o].uri?
+      merged_uri = if merge_predicate? result[:p] and result[:o].uri? # TODO: double check for URI, since filter on select already prevents returning literals
                      merger.merge result[:o]
                    else
                      result[:o]
@@ -60,11 +60,11 @@ class Merger::CopyMachine
   end
 
   def virtuoso_writer
-    @virtuoso_writer ||= VirtuosoWriter.new
+    @virtuoso_writer ||= VirtuosoWriter.new(verbose: false).tap {|vw| vw.set_graph 'merged' }
   end
 
   def virtuoso_reader
-    @virtuoso_reader ||= VirtuosoReader.new
+    @virtuoso_reader ||= VirtuosoReader.new.tap {|vw| vw.set_graph 'mapped' }
   end
 
   def merger
