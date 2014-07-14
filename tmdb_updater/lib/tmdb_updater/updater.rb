@@ -18,8 +18,15 @@ class TMDbUpdater::Updater
     @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
   end
 
+  def start_demo(demoset = [])
+    p "starting TMDb Updater in demo mode"
+    demoset.each { |movie_id| update movie_id }
+    p "TMDb Updater done"
+  end
+
   # TODO what if triple already in database? overwrite?
   def update(movie_id)
+    p "updating #{movie_id}"
     # all data about movie with movie_id
     movie_details = get_movie_for_id movie_id
     uri_movie = "#{@schemas['base_tmdb']}movie/#{movie_id}"

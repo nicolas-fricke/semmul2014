@@ -78,6 +78,14 @@
     <rdfs:domain rdf:resource="&schema;Thing"/>
   </owl:ObjectProperty>
 
+  <!-- Creative Work: runtime -->
+  <owl:ObjectProperty rdf:about="&lom;runtime">
+    <rdfs:label xml:lang="en">runtime</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the runtime of a movie or TV episode in minutes.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;integer"/>
+    <rdfs:domain rdf:resource="&schema;CreativeWork"/>
+  </owl:ObjectProperty>
+
   <!-- Creative Work: yearPublished -->
     <owl:ObjectProperty rdf:about="&lom;yearPublished">
       <rdfs:label xml:lang="en">yearPublished</rdfs:label>

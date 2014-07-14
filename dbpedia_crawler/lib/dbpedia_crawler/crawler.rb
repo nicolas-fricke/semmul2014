@@ -264,6 +264,15 @@ public
     end
   end
 
+  def start_demo(demoset = [])
+    puts "starting Dbpedia Crawler in demo mode"
+    demoset.each do |uri|
+      command = convert_command(uri, "movie").merge({ retries: 0 })
+      execute(command, nil)
+    end
+    p "Dbpedia Crawler done"
+  end
+
   # Start the crawler. Pushes the initial command (to query all relevant
   # IDs) to the command queue and enters an inifinite loop which gets and
   # executes commands.

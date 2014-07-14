@@ -6,17 +6,24 @@ class Matcher::Matcher
 
   def initialize
     @virtuoso = Matcher::Virtuoso.new
-    @debug = false
-    config
+
+    namespaces = YAML.load_file '../config/namespaces.yml'
+    @types = namespaces['types']
+
+    matching ||= YAML.load_file '../config/matching.yml'
+    @weights = matching['weights']
+    @thresholds = matching['thresholds']
+    @control = matching['control']
+    @settings = matching['settings']
   end
 
   def find(entity_uri)
-    entity_triples = @virtuoso.get_triples(entity_uri)
-    identic = find_same entity_triples
+    entity_triples = @virtuoso.get_triples(entity_uri)  #TODO this has to run on the mapped DB!!!
+    identical = find_same entity_triples
 
     # try to find identical entities
-    unless identic.empty?
-        identic
+    unless identical.empty?
+      identical
     else
       # try to find very similar entities
       find_thresh_matching entity_triples
@@ -27,7 +34,7 @@ class Matcher::Matcher
     if entity_triples.get_type == @types['movie_type']
       return Set.new find_same_movie(entity_triples)
     end
-    return Set.new
+    Set.new
   end
 
   def find_same_movie(entity_triples)
@@ -106,6 +113,32 @@ class Matcher::Matcher
     end
   end
 
+  def evaluation_same(a_triples, b_triples)
+      # check if these two entities are the same
+
+      # fb_mid
+      a_fb_mid = a_triples.get_fb_mid()
+      b_fb_mid = b_triples.get_fb_mid()
+      unless a_fb_mid.nil? and b_fb_mid.nil?
+          return a_fb_mid == b_fb_mid
+      end
+
+      # imdb_id
+      a_imdb_id = a_triples.get_imdb_id()
+      b_imdb_id = b_triples.get_imdb_id()
+      unless a_imdb_id.nil? and b_imdb_id.nil?
+          return  a_imdb_id == b_imdb_id
+      end
+
+      return false
+  end
+
+
+  def evaluation_match(a_triples, b_triples)
+      entity_type = a_triples.get_type
+      calculate_match(a_triples, b_triples, entity_type)
+  end
+
   # def type_match(a,b)
   #   return 0 if a.nil? or b.nil?
   #   type_uri = RDF::URI.new "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -126,7 +159,7 @@ class Matcher::Matcher
 
 
   def organization_match(a,b)
-    return 0 if a.nil? or b.nil? # TODO cirrect for levensthein?
+    return 0 if a.nil? or b.nil?
     name_a = a.get_name.to_s
     name_b = b.get_name.to_s
     levenshtein_match name_a, name_b
@@ -465,19 +498,6 @@ class Matcher::Matcher
     2 * union_size / (a_actors.size.to_f + b_actors.size.to_f)
   end
 
-
-  def config
-      @config ||= YAML.load_file '../config/matching.yml'
-
-      namespaces ||= YAML.load_file '../config/namespaces.yml'
-      @types = namespaces['types']
-
-      matching ||= YAML.load_file '../config/matching.yml'
-      @weights = matching['weights']
-      @thresholds = matching['thresholds']
-      @control = matching['control']
-      @settings = matching['settings']
-  end
 
 end
 
