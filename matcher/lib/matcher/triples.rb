@@ -34,10 +34,9 @@ class Matcher::Triples
       result
     end
 
-    def get_type()
-      types = get_objects(RDF.type)
-      types.each do |type|
-        case type
+    def get_type
+      get_objects(RDF.type).each do |type|
+        result = case type
           when @types['movie_type']
             RDF::URI.new(@types['movie_type'])
           when @types['person_type']
@@ -48,10 +47,10 @@ class Matcher::Triples
             RDF::URI.new(@types['director_type'])
           when @types['performance_type']
             RDF::URI.new(@types['performance_type'])
-          else
-            nil # if no type matched any of the above return nil
-        end
+          end
+        return result if result
       end
+      nil # no type found
     end
 
     def get_name()
