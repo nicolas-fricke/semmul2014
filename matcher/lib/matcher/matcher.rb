@@ -10,7 +10,6 @@ class Matcher::Matcher
         config()
     end
 
-    # find:
     def find(entity_uri)
         entity_tripels = @virtuoso.get_triples(entity_uri)
         identic = find_same(entity_tripels)

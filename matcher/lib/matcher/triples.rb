@@ -5,168 +5,139 @@ class Matcher::Triples
     attr_accessor :subject
 
     def initialize(subject)
-        @subject = subject
-        @data = []
-        config()
+      @subject = subject
+      @data = []
+      config
     end
 
 
     def to_s
-        name = get_name()
-        if !name.nil?
-            return "<Matcher::Triples (" + name.to_s + ") " + @subject.to_s + ">"
-        else
-            return "<Matcher::Triples " + @subject.to_s + ">"
-        end
+      name = get_name()
+      unless name.nil?
+        "<Matcher::Triples (#{name.to_s}) #{@subject.to_s}>"
+      else
+        "<Matcher::Triples #{@subject.to_s}>"
+      end
     end
 
     def add_p_o(p_o_hash)
-        @data << p_o_hash
+      @data << p_o_hash
     end
 
     def get_objects(p_uri)
-        result = []
-        @data.each do |p_o_hash|
-            if p_o_hash[:p] == p_uri
-                result << p_o_hash[:o]
-            end
+      result = []
+      @data.each do |p_o_hash|
+        if p_o_hash[:p] == p_uri
+          result << p_o_hash[:o]
         end
-        return result
+      end
+      result
     end
 
     def get_type()
-        types = get_objects(RDF.type)
-        types.each do |type|
-            case type
-                when @types['movie_type']
-                    return RDF::URI.new(@types['movie_type'])
-                when @types['person_type']
-                    return RDF::URI.new(@types['person_type'])
-                when @types['organization_type']
-                    return RDF::URI.new(@types['organization_type'])
-                when @types['director_type']
-                    return RDF::URI.new(@types['director_type'])
-                when @types['performance_type']
-                    return RDF::URI.new(@types['performance_type'])
-            end
+      types = get_objects(RDF.type)
+      types.each do |type|
+        case type
+          when @types['movie_type']
+            RDF::URI.new(@types['movie_type'])
+          when @types['person_type']
+            RDF::URI.new(@types['person_type'])
+          when @types['organization_type']
+            RDF::URI.new(@types['organization_type'])
+          when @types['director_type']
+            RDF::URI.new(@types['director_type'])
+          when @types['performance_type']
+            RDF::URI.new(@types['performance_type'])
+          else
+            nil # if no type matched any of the above return nil
         end
-
-        # if no type matched any of the above return nil
-        return nil
-
+      end
     end
 
     def get_name()
-        name_p = "http://schema.org/name"
-        return get_objects(name_p)[0]
+      get_objects("http://schema.org/name").first
     end
 
     def get_alternative_names()
-        alternate_name_prop = "http://schema.org/alternateName"
-        return get_objects(alternate_name_prop)
+      get_objects("http://schema.org/alternateName")
     end
 
     def get_birthdate()
-        birthdate_prop = "http://schema.org/birthDate"
-        birthdate_literals = get_objects(birthdate_prop)
-        if birthdate_literals.size > 0
-            birthdate_literal =  birthdate_literals[0]
-            return _parse_date(birthdate_literal)
-        else
-            return nil
-        end
+      birthdate_literals = get_objects("http://schema.org/birthDate")
+      if birthdate_literals.size > 0
+        birthdate_literal =  birthdate_literals.first
+        _parse_date(birthdate_literal)
+      else
+        nil
+      end
     end
 
     def _parse_date(literal_string)
-        literal_string = literal_string.to_s.split("^^").first
-        # only one number (e.g. "1934") --> use July 1. as date
-        begin
-            if _only_one_number(literal_string)
-                return Date.parse(literal_string+"-07-01")
-            else
-                return Date.parse(literal_string)
-            end
-        rescue ArgumentError
-            return nil
+      literal_string = literal_string.to_s.split("^^").first
+      # only one number (e.g. "1934") --> use July 1. as date
+      begin
+        if _only_one_number(literal_string)
+          Date.parse(literal_string+"-07-01")
+        else
+          Date.parse(literal_string)
         end
+      rescue ArgumentError
+        nil
+      end
     end
 
     def _only_one_number(string)
-        number = !/\d+/.match(string).nil?
-        no_letters = /[a-zA-Z]+/.match(string).nil?
-        no_non_digits = /\D+/.match(string).nil?
+      number = !/\d+/.match(string).nil?
+      no_letters = /[a-zA-Z]+/.match(string).nil?
+      no_non_digits = /\D+/.match(string).nil?
 
-        return (number and no_letters and no_non_digits)
+      number and no_letters and no_non_digits
     end
 
 
     def get_imdb_id()
-        imdb_prop = "http://semmul2014.hpi.de/lodofmovies.owl#imdb_id"
-        objects = get_objects(imdb_prop)
-        if objects.size > 0
-            return objects[0]
-        else
-            return nil
-        end
+      objects = get_objects("http://semmul2014.hpi.de/lodofmovies.owl#imdb_id")
+      objects.first unless objects.empty?
     end
 
     def get_fb_mid()
-        fb_mid_prop = "http://semmul2014.hpi.de/lodofmovies.owl#freebase_mid"
-        objects = get_objects(fb_mid_prop)
-        if objects.size > 0
-            return objects[0]
-        else
-            return nil
-        end
+      fb_mid_prop = "http://semmul2014.hpi.de/lodofmovies.owl#freebase_mid"
+      objects = get_objects(fb_mid_prop)
+      objects.first unless objects.empty?
     end
 
     def get_release_date()
-        # todo: not in tmdb
-        release_date_prop = "http://schema.org/datePublished"
-        releasedate_literals = get_objects(release_date_prop)
-        if releasedate_literals.size > 0
-            return _parse_date(releasedate_literals[0])
-        end
+      # todo: not in tmdb
+      release_date_prop = "http://schema.org/datePublished"
+      releasedate_literals = get_objects(release_date_prop)
+      _parse_date releasedate_literals.first unless releasedate_literals.empty?
     end
 
     def get_performances()
-        performance_prop = "http://semmul2014.hpi.de/lodofmovies.owl#performance"
-        performance_uris = get_objects(performance_prop)
-        return performance_uris
+      performance_prop = "http://semmul2014.hpi.de/lodofmovies.owl#performance"
+      get_objects performance_prop
     end
 
     def get_actor()
-        actor_prop = "http://semmul2014.hpi.de/lodofmovies.owl#actor"
-        actor_uris = get_objects(actor_prop)
-        return actor_uris
+      actor_prop = "http://semmul2014.hpi.de/lodofmovies.owl#actor"
+      get_objects actor_prop
     end
 
     def get_director()
-        director_prop = "http://schema.org/director"
-        director_uris = get_objects(director_prop)
-        unless director_uris.empty?
-            return director_uris[0]
-        else
-            return nil
-        end
-
+      director_uris = get_objects("http://schema.org/director")
+      director_uris.first unless director_uris.empty?
     end
 
     def get_character()
-        char_prop = "http://semmul2014.hpi.de/lodofmovies.owl#character"
-        char_uris = get_objects(char_prop)
-
-        if char_uris.empty?
-            return nil
-        end
-        return char_uris[0]
+      char_uris = get_objects("http://semmul2014.hpi.de/lodofmovies.owl#character")
+      char_uris.first unless char_uris.empty?
     end
 
     private
 
     def config
-        namespaces ||= YAML.load_file '../config/namespaces.yml'
-        @types = namespaces['types']
+      @namespaces ||= YAML.load_file '../config/namespaces.yml'
+      @types = @namespaces['types']
     end
 
 end
