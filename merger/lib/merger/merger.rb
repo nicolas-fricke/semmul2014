@@ -4,11 +4,12 @@ class Merger::Merger
   end
 
   def register_receiver
-    # receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri) }
-    merge 'http://rdf.freebase.com/ns/m/0hhqv27'
+    # receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri, is_movie: true) }
+    merge 'http://rdf.freebase.com/ns/m/0hhqv27', is_movie: true
+    # merge 'http://semmul2014.hpi.de/tmdb/movie/13475', is_movie: true
   end
 
-  def merge(mapped_entity_uri)
+  def merge(mapped_entity_uri, is_movie: false)
     p "merging #{mapped_entity_uri}"
     # try to find entities with sameAs links
     main_db_entity_uri = find_merged_entity(mapped_entity_uri)
@@ -22,7 +23,7 @@ class Merger::Merger
         merge_into_entity new_entity_uri: mapped_entity_uri, existing_entity_uri: main_db_entity_uri
       else
         # create a new entity in mainDB
-        main_db_entity_uri = create_new_entity mapped_entity_uri: mapped_entity_uri
+        main_db_entity_uri = create_new_entity mapped_entity_uri: mapped_entity_uri, is_movie: is_movie
       end
       set_same_as_references main_db_uri: main_db_entity_uri, map_db_entry: mapped_entity_uri
     end
@@ -69,10 +70,10 @@ class Merger::Merger
     match
   end
 
-  def create_new_entity(mapped_entity_uri:)
+  def create_new_entity(mapped_entity_uri:, is_movie: false)
     p "create_new_entity #{mapped_entity_uri}"
     # (@Nico) Copy entity from MapDB into MainDB and update URIs to match MainDB schema
-    copy_machine = Merger::CopyMachine.new mapped_entity_uri, with_merger: self
+    copy_machine = Merger::CopyMachine.new mapped_entity_uri, with_merger: self, type: (is_movie ? :movie : :generic)
     copy_machine.process # returns newly created entity URI
   end
 
