@@ -66,9 +66,16 @@ module FreebaseCrawler
     end
 
     private
+
     def api_key
       @secrets ||= YAML.load_file '../config/secrets.yml'
+      raise "fill config/secrets.yml!" unless key_valid?
       @secrets['services']['freebase']['api_key']
+    end
+
+    def key_valid?
+      key = @secrets['services']['freebase']['api_key']
+      return (not key.nil? and not key == "API_KEY")
     end
   end
 end

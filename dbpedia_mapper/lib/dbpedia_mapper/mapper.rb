@@ -256,7 +256,7 @@ class DBpediaMapper::Mapper
     @virtuoso_writer.delete_triple(subject: uri)
 
     values = @virtuoso_reader.get_values_for(subject: uri)
-    if values != true
+    if values != true and not values.nil?
       values.each_solution do |v|
         p = v.bindings[:p]
         o = v.bindings[:o]
