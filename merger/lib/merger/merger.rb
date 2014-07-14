@@ -1,16 +1,22 @@
 class Merger::Merger
   def initialize
-    @matcher = Matcher::Matcher.new()
+    @matcher = Matcher::Matcher.new
+
+    @merged_uris = []
   end
 
   def register_receiver
     # receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri, is_movie: true) }
-    merge 'http://rdf.freebase.com/ns/m/0hhqv27', is_movie: true
-    # merge 'http://semmul2014.hpi.de/tmdb/movie/13475', is_movie: true
+    # merge 'http://rdf.freebase.com/ns/m/0hhqv27', is_movie: true
+    # merge 'http://semmul2014.hpi.de/tmdb/movie/54138', is_movie: true
+    merge 'http://dbpedia.org/resource/Star_Trek_Into_Darkness', is_movie: true
   end
 
   def merge(mapped_entity_uri, is_movie: false)
     p "merging #{mapped_entity_uri}"
+    return if @merged_uris.include? mapped_entity_uri
+    @merged_uris << mapped_entity_uri
+
     # try to find entities with sameAs links
     main_db_entity_uri = find_merged_entity(mapped_entity_uri)
     if main_db_entity_uri
