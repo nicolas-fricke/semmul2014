@@ -125,217 +125,226 @@ class Matcher::Matcher
     end
 
     def type_match(a,b)
-        type_uri = RDF::URI.new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
-        types_a = a.get_o(type_uri)
-        types_b = b.get_o(type_uri)
+      return 0 if a.nil? or b.nil?
+      type_uri = RDF::URI.new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
+      types_a = a.get_o(type_uri)
+      types_b = b.get_o(type_uri)
 
-        # check if one of the types matches
-        types_a.each do |type_a|
-            types_b.each do |type_b|
-                if types_a == types_b
-                    return true
-                end
-            end
-        end
+      # check if one of the types matches
+      types_a.each do |type_a|
+          types_b.each do |type_b|
+              if types_a == types_b
+                  return true
+              end
+          end
+      end
 
-        return false
+      return false
     end
 
 
     def organization_match(a,b)
-        name_a = a.get_name().to_s
-        name_b = b.get_name().to_s
-        match = levenshtein_match(name_a, name_b)
-        return match
+      return 0 if a.nil? or b.nil?
+      name_a = a.get_name().to_s
+      name_b = b.get_name().to_s
+      match = levenshtein_match(name_a, name_b)
+      return match
     end
 
     def performance_match(a,b)
+      return 0 if a.nil? or b.nil?
 
-        # match character
-        character_a = a.get_character().to_s
-        character_b = b.get_character().to_s
-        match_char = levenshtein_match(character_a, character_b)
+      # # match character
+      # character_a = a.get_character().to_s
+      # character_b = b.get_character().to_s
+      # match_char = levenshtein_match(character_a, character_b)
 
-        # match actor
-        actor_a_uri = a.get_actor()[0]
-        actor_b_uri = b.get_actor()[0]
-        actor_a = @virtuoso.get_triples(actor_a_uri)
-        actor_b = @virtuoso.get_triples(actor_b_uri)
-        match_actor = person_match(actor_a, actor_b)
+      # match actor
+      actor_a_uri = a.get_actor()[0]
+      actor_b_uri = b.get_actor()[0]
+      actor_a = @virtuoso.get_triples(actor_a_uri)
+      actor_b = @virtuoso.get_triples(actor_b_uri)
+      match_actor = person_match(actor_a, actor_b)
 
-        w_character = @weights['performance']['character']
-        w_actor = @weights['performance']['actor']
+      w_character = @weights['performance']['character']
+      w_actor = @weights['performance']['actor']
 
-        match_degree = (w_character * match_char) + (w_actor * match_actor)
-        return match_degree
+      # match_degree = (w_character * match_char) + (w_actor * match_actor)
+      match_actor # TODO fix weights
     end
 
 	def match_movie(a,b)
-        # title
-        title_a = a.get_name.to_s
-        title_b = b.get_name.to_s
-        title_match = levenshtein_match(title_a, title_b)
+    return 0 if a.nil? or b.nil?
+      # title
+      title_a = a.get_name.to_s
+      title_b = b.get_name.to_s
+      title_match = levenshtein_match(title_a, title_b)
 
-        # director
-        director_a = @virtuoso.get_triples(a.get_director())
-        director_b = @virtuoso.get_triples(b.get_director())
-        use_director_match = true
-        director_match = 0.0
-        if director_a.nil? or director_b.nil?
-            use_director_match = false
-        else
-            director_match = person_match(director_a, director_b)
-        end
+      # director
+      director_a = @virtuoso.get_triples(a.get_director())
+      director_b = @virtuoso.get_triples(b.get_director())
+      use_director_match = true
+      director_match = 0.0
+      if director_a.nil? or director_b.nil?
+          use_director_match = false
+      else
+          director_match = person_match(director_a, director_b)
+      end
 
 
-        # release date
-        a_date = a.get_release_date
-        b_date = b.get_release_date
-        use_release_date = true # tmdb has no release date
-        release_date_match = 0.0
-        if a_date.nil? or b_date.nil?
-            use_release_date = false
-        else
-            release_date_match = date_match(a_date, b_date)
-        end
+      # release date
+      a_date = a.get_release_date
+      b_date = b.get_release_date
+      use_release_date = true # tmdb has no release date
+      release_date_match = 0.0
+      if a_date.nil? or b_date.nil?
+          use_release_date = false
+      else
+          release_date_match = date_match(a_date, b_date)
+      end
 
-        # weights
-        w_title = @weights['movie']['title']
-        w_director = @weights['movie']['director']
-        w_release = @weights['movie']['release']
-        w_actors = @weights['movie']['actors']
+      # weights
+      w_title = @weights['movie']['title']
+      w_director = @weights['movie']['director']
+      w_release = @weights['movie']['release']
+      w_actors = @weights['movie']['actors']
 
-        # todo: consolidate weight re-distribution
-        calculate_fast_forward = @control['enable_ff']
-        if !use_release_date and use_director_match
-            w_title = w_title + (w_release * 0.5)
-            w_director = w_director + (w_release * 0.5)
-            w_release = 0
-        elsif !use_director_match and use_release_date
-            w_title += (w_director * 0.5)
-            w_director = 0
-        elsif !use_director_match and !use_release_date
-            w_title += (w_director * 0.5)
-            w_title += (w_release * 0.5)
-            calculate_fast_forward = false
-        end
+      # todo: consolidate weight re-distribution
+      calculate_fast_forward = @control['enable_ff']
+      if !use_release_date and use_director_match
+          w_title = w_title + (w_release * 0.5)
+          w_director = w_director + (w_release * 0.5)
+          w_release = 0
+      elsif !use_director_match and use_release_date
+          w_title += (w_director * 0.5)
+          w_director = 0
+      elsif !use_director_match and !use_release_date
+          w_title += (w_director * 0.5)
+          w_title += (w_release * 0.5)
+          calculate_fast_forward = false
+      end
 
-        # clamp
-        w_title = (w_title > 1 ? 1 : w_title)
-        w_director = (w_director > 1 ? 1 : w_director)
+      # clamp
+      w_title = (w_title > 1 ? 1 : w_title)
+      w_director = (w_director > 1 ? 1 : w_director)
 
-        # fast-forward: check if already above threshold
-        if calculate_fast_forward
-            pre_match = 0
-            pre_match += (w_title * title_match)
-            pre_match += (w_release * release_date_match)
-            pre_match += (w_director * director_match)
+      # fast-forward: check if already above threshold
+      if calculate_fast_forward
+          pre_match = 0
+          pre_match += (w_title * title_match)
+          pre_match += (w_release * release_date_match)
+          pre_match += (w_director * director_match)
 
-            if pre_match >= @thresholds['matching'] or pre_match <= @thresholds['ff_lower_bound']
-                return pre_match
-            end
-        end
+          if pre_match >= @thresholds['matching'] or pre_match <= @thresholds['ff_lower_bound']
+              return pre_match
+          end
+      end
 
-        # actors --> expensive
-        use_actors_match = true
-        actors_match = movie_actors_match(a,b)
-        if actors_match.nil?
-            actors_match = 0.0
-            w_actors = 0.0
-            # adjust other weights
-            if !use_release_date and use_director_match
-                w_title = w_title + (w_actors * 0.5)
-                w_director = w_director + (w_actors * 0.5)
-            elsif !use_director_match and use_release_date
-                w_title += (w_actors * 0.5)
-                w_release += (w_actors * 0.5)
-            elsif !use_director_match and !use_release_date
-                w_title += (w_actors * 0.5)
-                w_title += (w_actors * 0.5)
-            end
-        end
+      # actors --> expensive
+      use_actors_match = true
+      actors_match = movie_actors_match(a,b)
+      if actors_match.nil?
+          actors_match = 0.0
+          w_actors = 0.0
+          # adjust other weights
+          if !use_release_date and use_director_match
+              w_title = w_title + (w_actors * 0.5)
+              w_director = w_director + (w_actors * 0.5)
+          elsif !use_director_match and use_release_date
+              w_title += (w_actors * 0.5)
+              w_release += (w_actors * 0.5)
+          elsif !use_director_match and !use_release_date
+              w_title += (w_actors * 0.5)
+              w_title += (w_actors * 0.5)
+          end
+      end
 
-        # clamp again
-        w_title = (w_title > 1 ? 1 : w_title)
-        w_director = (w_director > 1 ? 1 : w_director)
-        w_release = (w_release > 1 ? 1 : w_release)
+      # clamp again
+      w_title = (w_title > 1 ? 1 : w_title)
+      w_director = (w_director > 1 ? 1 : w_director)
+      w_release = (w_release > 1 ? 1 : w_release)
 
-        match_degree = 0
-        match_degree += (w_title * title_match)
-        match_degree += (w_release * release_date_match)
-        match_degree += (w_actors * actors_match)
-        match_degree += (w_director * director_match)
+      match_degree = 0
+      match_degree += (w_title * title_match)
+      match_degree += (w_release * release_date_match)
+      match_degree += (w_actors * actors_match)
+      match_degree += (w_director * director_match)
 
 		return match_degree
 	end
 
     def person_match(a,b)
-
-        # --> match names
-        names_a = []
+      return 0 if a.nil? or b.nil?
+      # --> match names
+      names_a = []
+      if a
         a.get_alternative_names.each do |alt_name_a|
             names_a << alt_name_a.to_s
         end
         names_a << a.get_name.to_s
+      end
 
-        names_b = []
+      names_b = []
+      if b
         b.get_alternative_names.each do |alt_name_b|
             names_b << alt_name_b.to_s
         end
         names_b << b.get_name.to_s
+      end
 
-        # todo: first_name, last_name, name will be given with different info
-        name_alias_match = max_name_or_alias_match(names_a, names_b)
+      # todo: first_name, last_name, name will be given with different info
+      name_alias_match = max_name_or_alias_match(names_a, names_b)
 
-        # --> birthdate match
-        birth_date_a = a.get_birthdate()
-        birth_date_b = b.get_birthdate()
-        birthdate_match = 0
-        if !birth_date_a.nil? and !birth_date_b.nil?
-            use_birthdate = true
-            birthdate_match = date_match(a.get_birthdate, b.get_birthdate)
-        else
-            # if there is no birthdate, then we cannot use 0, as this would distort the result
-            # in this case, we have to rely on the known information
-            use_birthdate = false
-        end
+      # --> birthdate match
+      birth_date_a = a.get_birthdate()
+      birth_date_b = b.get_birthdate()
+      birthdate_match = 0
+      if !birth_date_a.nil? and !birth_date_b.nil?
+          use_birthdate = true
+          birthdate_match = date_match(a.get_birthdate, b.get_birthdate)
+      else
+          # if there is no birthdate, then we cannot use 0, as this would distort the result
+          # in this case, we have to rely on the known information
+          use_birthdate = false
+      end
 
-        # todo: birthplace match as string-match
+      # todo: birthplace match as string-match
 
-        #birthplace_match = location_match(a[:birthplace],b[:birthplace])
-        # todo: vector over works <-- expensive
+      #birthplace_match = location_match(a[:birthplace],b[:birthplace])
+      # todo: vector over works <-- expensive
 
-        w_name_alias = @weights['person']['name_alias']
-        w_birthdate = @weights['person']['birthdate']
-        #w_birthplace = 0.2
-        if !use_birthdate
-            w_name_alias += w_birthdate
-        end
+      w_name_alias = @weights['person']['name_alias']
+      w_birthdate = @weights['person']['birthdate']
+      #w_birthplace = 0.2
+      if !use_birthdate
+          w_name_alias += w_birthdate
+      end
 
-        person_match = (w_name_alias*name_alias_match) + (w_birthdate*birthdate_match) # + (w_birthplace*birthplace_match)
+      (w_name_alias*name_alias_match) + (w_birthdate*birthdate_match) # + (w_birthplace*birthplace_match)
     end
 
     def location_match(a,b)
-        # location distance
-        a_pos = {:lat  => a[:latitude], :long => a[:longitude]}
-        b_pos = {:lat => b[:latitude], :long => b[:longitude]}
-        distance_match = lat_long_match(a_pos, b_pos)
+      return 0 if a.nil? or b.nil?
+      # location distance
+      a_pos = {:lat  => a[:latitude], :long => a[:longitude]}
+      b_pos = {:lat => b[:latitude], :long => b[:longitude]}
+      distance_match = lat_long_match(a_pos, b_pos)
 
-        # location name
-        names_a = a[:aliases]
-        names_a << a[:name]
-        names_b = b[:aliases]
-        names_b << b[:name]
-        name_match = max_name_or_alias_match(names_a, names_b)
+      # location name
+      names_a = a[:aliases]
+      names_a << a[:name]
+      names_b = b[:aliases]
+      names_b << b[:name]
+      name_match = max_name_or_alias_match(names_a, names_b)
 
-        # todo: country
-        # todo: is contained by
+      # todo: country
+      # todo: is contained by
 
-        w_distance = 0.7
-        w_name = 1-w_distance
+      w_distance = 0.7
+      w_name = 1-w_distance
 
-        location_match = (w_distance * distance_match) + (w_name * name_match)
-        return location_match
+      location_match = (w_distance * distance_match) + (w_name * name_match)
+      return location_match
     end
 
 
