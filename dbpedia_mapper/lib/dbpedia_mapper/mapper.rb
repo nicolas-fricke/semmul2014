@@ -195,13 +195,13 @@ class DBpediaMapper::Mapper
           # if date is complete
           if object.to_s=~/^(?<year>(18|19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
             date_string = RDF::Literal.new(object.to_s, datatype: RDF::XSD.date)
-            @virtuoso_writer.new_triple(subject, mp, date_string, literal:false)
+            @virtuoso_writer.new_triple(subject, mp, date_string)
             date_string = RDF::Literal.new(object.to_s[0...4], datatype: RDF::XSD.gYear)
-            @virtuoso_writer.new_triple(subject, property_date_year, date_string, literal:false)
+            @virtuoso_writer.new_triple(subject, property_date_year, date_string)
           # if only year (and month) is given
           elsif object.to_s=~/^(?<year>(18|19|20)\d{2})/
             date_string = RDF::Literal.new(object.to_s[0...4], datatype: RDF::XSD.gYear)
-            @virtuoso_writer.new_triple(subject, property_date_year, date_string, literal:false)
+            @virtuoso_writer.new_triple(subject, property_date_year, date_string)
           end
         rescue ArgumentError
           @log.error "Could not parse release date `#{object.to_s}' as date."
@@ -235,8 +235,8 @@ class DBpediaMapper::Mapper
       elsif mp == get_property('schema', 'sameAs') and object.start_with?('http://rdf.freebase.com/ns/')
         mp = get_property('lom', 'freebase_mid')
         object = "#{object}"
-        mo = "m/" + object[29, 20]
-        @virtuoso_writer.new_triple(subject, mp, mo, literal:false)        
+        mo = 'm/' + object[29, 20]
+        @virtuoso_writer.new_triple(subject, mp, mo)
 
       # map everything else
       elsif mp != nil and mp != ""
