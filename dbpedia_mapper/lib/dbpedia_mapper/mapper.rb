@@ -159,18 +159,16 @@ class DBpediaMapper::Mapper
   end
 
   def mapped_object(object)
-    mo = @object_mappings["#{object}"]
-    return "#{mo}"
+    @object_mappings["#{object}"].to_s
   end
 
   def mapped_property(property)
-    mp = @property_mappings["#{property}"]
-    return "#{mp}"
+    @property_mappings["#{property}"].to_s
   end
 
 
   def name(uri)
-    return uri.to_s[(uri.to_s.rindex('/') + 1)..-1]
+    uri.to_s[(uri.to_s.rindex('/') + 1)..-1]
   end
 
 
