@@ -6,13 +6,14 @@ require 'rdf/virtuoso'
 require 'logger'
 
 class VirtuosoReader
-  def initialize
+  def initialize(graph: nil)
     @log = Logger.new('log', 'daily')
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                            update_uri: 'http://localhost:8890/sparql-auth',
                                            username: secrets['databases']['virtuoso']['username'],
                                            password: secrets['databases']['virtuoso']['password'],
                                            auth_method: 'digest')
+    set_graph graph
   end
 
   def set_graph(graph)

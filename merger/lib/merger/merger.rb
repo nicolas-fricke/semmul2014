@@ -34,9 +34,8 @@ class Merger::Merger
   def find_merged_entity(mapped_entity_uri)
     # (@Kerstin) Check if record in MainDB exists, that looks like { ?s sameAs mapped_entity_uri }
     # returns either merged_uri from MainDB entry or nil
-    virtuoso_reader.set_graph 'merged'
     record =
-        virtuoso_reader.get_subjects_for predicate: "#{schemas['owl']}sameAs",
+        virtuoso_reader_merged.get_subjects_for predicate: "#{schemas['owl']}sameAs",
                                          object: mapped_entity_uri
     p "find_merged_entity #{mapped_entity_uri} => #{record.nil? ? 'none' : record.first }"
     nil # TODO: Remove when output is removed
@@ -46,12 +45,11 @@ class Merger::Merger
   def merge_into_entity(new_entity_uri:, existing_entity_uri:)
     "merge_into_entity(#{new_entity_uri}, #{existing_entity_uri})"
     # (@Kerstin) Per attribute from new record, merge into existing record
-    virtuoso_reader.set_graph 'mapped'
-    attributes_with_literals = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
+    attributes_with_literals = virtuoso_reader_mapped.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_literals.each do |attribute|
       virtuoso_writer.new_triple existing_entity_uri, attribute[:p], attribute[:o]
     end
-    attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
+    attributes_with_uris = virtuoso_reader_mapped.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_uris.each do |attribute|
       merged_uri = if merge_predicate?(attribute[:p]) and attribute[:o].uri?
                      merge attribute[:o]
@@ -112,8 +110,12 @@ class Merger::Merger
     @virtuoso_writer ||= VirtuosoWriter.new(verbose: false).tap {|vw| vw.set_graph 'merged' }
   end
 
-  def virtuoso_reader
-    @virtuoso_reader ||= VirtuosoReader.new.tap {|vw| vw.set_graph 'mapped' }
+  def virtuoso_reader_mapped
+    @virtuoso_reader ||= VirtuosoReader.new graph: 'mapped'
+  end
+
+  def virtuoso_reader_merged
+    @virtuoso_reader ||= VirtuosoReader.new graph: 'merged'
   end
 
   def schemas

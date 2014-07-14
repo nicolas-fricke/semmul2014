@@ -8,7 +8,7 @@ require 'logger'
 require_relative 'query'
 
 class VirtuosoWriter
-  def initialize(verbose: true)
+  def initialize(graph: nil, verbose: true)
     @verbose = verbose
     @log = Logger.new('log', 'daily')
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
@@ -16,6 +16,7 @@ class VirtuosoWriter
                                            username: secrets['databases']['virtuoso']['username'],
                                            password: secrets['databases']['virtuoso']['password'],
                                            auth_method: 'digest')
+    set_graph graph
   end
 
   def set_graph(graph)
