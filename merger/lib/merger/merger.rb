@@ -38,6 +38,7 @@ class Merger::Merger
     record =
         virtuoso_reader.get_subjects_for predicate: "#{schemas['owl']}sameAs",
                                          object: mapped_entity_uri
+    p "find_merged_entity #{mapped_entity_uri} => #{record.nil? ? 'none' : record.first }"
     record.first unless record.nil? # nil if no subject is found
   end
 
@@ -51,7 +52,7 @@ class Merger::Merger
     end
     attributes_with_uris = virtuoso_reader.get_predicates_and_objects_for subject: new_entity_uri
     attributes_with_uris.each do |attribute|
-      merged_uri = if merge_predicate? attribute[:p] and attribute[:o].uri?
+      merged_uri = if merge_predicate?(attribute[:p]) and attribute[:o].uri?
                      merge attribute[:o]
                    else
                      attribute[:o]
@@ -65,11 +66,12 @@ class Merger::Merger
     # (@Flo) Employ matcher to find matching entity within MainDB
     # returns matching entity's URI or nil
     match = @matcher.find(mapped_entity_uri)
-    p "find_matching_entity#{mapped_entity_uri} => #{match || 'none'}"
+    p "find_matching_entity #{mapped_entity_uri} => #{match || 'none'}"
     match
   end
 
   def create_new_entity(mapped_entity_uri:)
+    p "create_new_entity #{mapped_entity_uri}"
     # (@Nico) Copy entity from MapDB into MainDB and update URIs to match MainDB schema
     copy_machine = Merger::CopyMachine.new mapped_entity_uri, with_merger: self
     copy_machine.process # returns newly created entity URI
