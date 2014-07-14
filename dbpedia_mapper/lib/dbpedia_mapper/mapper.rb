@@ -35,6 +35,9 @@ class DBpediaMapper::Mapper
     
     @literals = [get_property('schema', 'name'), get_property('lom', 'imdb_id'), get_property('lom', 'freebase_mid'), get_property('schema', 'datePublished'), get_property('schema', 'givenName'), get_property('schema', 'familyName'), get_property('schema', 'birthDate'), get_property('schema', 'alternateName')]
 
+    @runtimes_minutes = [get_property('dbpedia', 'Work/runtime'), get_property('lom', 'runtime')]
+    @runtimes_seconds = [get_property('dbprop', 'runtime/60'), get_property('dbpedia', 'runtime/60'), get_property('dbpedia', 'runtime')]
+
     @object_mappings = {
       get_property('owl', 'Thing') => get_property('schema', 'Thing'),
       get_property('dbpedia', 'Work') => get_property('schema', 'CreativeWork'),
@@ -147,6 +150,15 @@ class DBpediaMapper::Mapper
       get_property('dbprop', 'alternativeNames') => get_property('schema', 'alternateName'), # literal, string
       get_property('dbpedia', 'alias') => get_property('schema', 'alternateName'),
       get_property('schema', 'alternateName') => get_property('schema', 'alternateName'),
+
+      get_property('dbpedia', 'abstract') => get_property('schema', 'description'), # literal, string
+      get_property('schema', 'description') => get_property('schema', 'description'),
+
+      get_property('dbpedia', 'Work/runtime') => get_property('lom', 'runtime'), # literal, double (in minutes)
+      get_property('dbprop', 'runtime/60') => get_property('lom', 'runtime'),
+      get_property('dbpedia', 'runtime/60') => get_property('lom', 'runtime'),
+      get_property('dbpedia', 'runtime') => get_property('lom', 'runtime'),
+      get_property('lom', 'runtime') => get_property('lom', 'runtime'),
     }
 
     @type = get_property('rdf', 'type')
@@ -235,6 +247,14 @@ class DBpediaMapper::Mapper
         object = object.to_s
         mo = 'm/' + object[29, 20]
         @virtuoso_writer.new_triple(subject, mp, mo)
+
+      # map minutes runtimes
+      elsif @runtimes_minutes.include?(predicate)
+        @virtuoso_writer.new_triple(subject, mp, RDF::Literal.new(object.to_s.to_i, datatype: RDF::XSD.integer))
+
+      # map seconds runtimes
+      elsif @runtimes_seconds.include?(predicate)
+        @virtuoso_writer.new_triple(subject, mp, RDF::Literal.new(object.to_s.to_i / 60, datatype: RDF::XSD.integer))
 
       # map everything else
       elsif mp != nil and mp != ""
