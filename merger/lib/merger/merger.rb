@@ -107,7 +107,7 @@ class Merger::Merger
   end
 
   def virtuoso_writer
-    @virtuoso_writer ||= VirtuosoWriter.new(verbose: false).tap {|vw| vw.set_graph 'merged' }
+    @virtuoso_writer ||= VirtuosoWriter.new verbose: false, graph: 'merged'
   end
 
   def virtuoso_reader_mapped

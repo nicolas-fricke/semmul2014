@@ -60,11 +60,11 @@ class Merger::CopyMachine
   end
 
   def virtuoso_writer
-    @virtuoso_writer ||= VirtuosoWriter.new(verbose: false).tap {|vw| vw.set_graph 'merged' }
+    @virtuoso_writer ||= VirtuosoWriter.new verbose: false, graph: 'merged'
   end
 
   def virtuoso_reader
-    @virtuoso_reader ||= VirtuosoReader.new.tap {|vw| vw.set_graph 'mapped' }
+    @virtuoso_reader ||= VirtuosoReader.new graph: 'mapped'
   end
 
   def merger
