@@ -30,7 +30,7 @@ class TMDbMapper::Mapper
         subject: raw_db_uri)
 
     # add new triples
-    @virtuoso_writer.new_triple raw_db_uri, "#{@schemas['rdf']}type", "#{@schemas['schema']}Movie"
+    @virtuoso_writer.new_triple raw_db_uri, "#{@schemas['rdf']}type", "#{@schemas['schema']}Movie", literal: false
     map_movie_id(raw_db_uri)
     map_movie_titles(raw_db_uri)
     map_movie_release_dates(raw_db_uri)
@@ -178,7 +178,7 @@ class TMDbMapper::Mapper
 
         # add new triples
         @virtuoso_writer.new_triple(
-            person_uri, "#{@schemas['rdf']}type", "#{@schemas['dbpedia']}Actor"
+            person_uri, "#{@schemas['rdf']}type", "#{@schemas['dbpedia']}Actor", literal: false
         ) if person_uri.to_s.length > 1
         map_person person_uri
       end if persons
@@ -244,7 +244,7 @@ class TMDbMapper::Mapper
 
           # add new triples
           @virtuoso_writer.new_triple(
-              person_uri, "#{@schemas['rdf']}type", "#{@schemas['lom']}Director"
+              person_uri, "#{@schemas['rdf']}type", "#{@schemas['lom']}Director", literal: false
           )
           map_person person_uri
         end if persons
