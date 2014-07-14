@@ -53,7 +53,7 @@ class Matcher::Matcher
                 same_entities << same_ent
             end
         end
-        # todo: freebase_mid
+        # freebase_mid
         freebase_m_id = entity_triples.get_fb_mid()
         @virtuoso.get_movie_subjects_by_fb_mid(freebase_m_id).each do |same_mid_ent|
             if !same_mid_ent == entity_triples.subject
@@ -152,8 +152,8 @@ class Matcher::Matcher
     def performance_match(a,b)
 
         # match character
-        character_a = @virtuoso.get_triples(a.get_character()).get_name().to_s
-        character_b = @virtuoso.get_triples(b.get_character()).get_name().to_s
+        character_a = a.get_character().to_s
+        character_b = b.get_character().to_s
         match_char = levenshtein_match(character_a, character_b)
 
         # match actor
