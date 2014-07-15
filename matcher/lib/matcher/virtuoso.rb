@@ -43,7 +43,7 @@ class Matcher::Virtuoso
     end
 
     def get_entities_of_type(entity_type)
-        graph = @graphs['merged']
+        graph = @graphs['merged'] # TODO whats going on here???
         if @control['debug']
             graph = @graphs['mapped']
         end
@@ -61,7 +61,7 @@ class Matcher::Virtuoso
 
     def get_movie_subjects_by_imdb(imdb_id)
         s_list = []
-        graph = @graphs['merged']
+        graph = @graphs['merged'] # TODO whats going on here???
         if @control['debug']
             graph = @graphs['mapped']
         end
@@ -70,7 +70,7 @@ class Matcher::Virtuoso
         results.each_solution do |solution|
             s_list << solution.bindings[:s]
         end
-        return s_list
+        s_list
     end
 
     def get_movie_subjects_by_fb_mid(fb_mid)

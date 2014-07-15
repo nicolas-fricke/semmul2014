@@ -11,127 +11,114 @@ class Matcher::Matcher
   end
 
   def find(entity_uri)
-    entity_tripels = @virtuoso.get_triples(entity_uri)
-    identic = find_same entity_tripels
+    entity_triples = @virtuoso.get_triples(entity_uri)
+    identic = find_same entity_triples
 
-    # trying to be more rubyiomatic
+    # try to find identical entities
     unless identic.empty?
         identic
     else
-      # matching will be a list of matches (sorted), or nil
-      find_thresh_matching entity_tripels
+      # try to find very similar entities
+      find_thresh_matching entity_triples
     end
   end
 
-
   def find_same(entity_triples)
-    same_entities = []
-
-    entity_type = entity_triples.get_type
-    if entity_type == @types['movie_type']
-      same_entities.concat find_same_movie(entity_triples)
+    if entity_triples.get_type == @types['movie_type']
+      return Set.new find_same_movie(entity_triples)
     end
-
-    if same_entities.empty?
-      Set.new
-    else
-      Set.new same_entities
-    end
+    return Set.new
   end
 
   def find_same_movie(entity_triples)
-      same_entities = []
-      # imdb id
-      imdb_id = entity_triples.get_imdb_id()
+    # try to find certain indicators for identity of two movies
+    same_entities = []
+    # imdb id
+    if imdb_id = entity_triples.get_imdb_id
       @virtuoso.get_movie_subjects_by_imdb(imdb_id).each do |same_ent|
-          if !same_ent == entity_triples.subject
-              same_entities << same_ent
-          end
+        unless same_ent == entity_triples.subject
+            same_entities << same_ent
+        end
       end
-      # freebase_mid
-      freebase_m_id = entity_triples.get_fb_mid()
+    end
+    # freebase_mid
+    if freebase_m_id = entity_triples.get_fb_mid
       @virtuoso.get_movie_subjects_by_fb_mid(freebase_m_id).each do |same_mid_ent|
-          if !same_mid_ent == entity_triples.subject
-              same_entities << same_mid_ent
-          end
+        unless same_mid_ent == entity_triples.subject
+            same_entities << same_mid_ent
+        end
       end
+    end
 
-
-      return same_entities
+    same_entities
   end
 
   def find_thresh_matching(entity_triples)
-      matching = find_matching(entity_triples)
-      if matching.size > 0
-          if matching[-1][1] >= @thresholds['matching']
-              matching_uri = RDF::URI.new(matching[-1][0])
-              return matching_uri
-          end
+    matching = find_matching entity_triples
+    unless matching.empty?
+      if matching[-1][1] >= @thresholds['matching']
+        return RDF::URI.new(matching[-1][0])
       end
-      return nil
+    end
+    nil
   end
 
   def find_best_matching(entity_triples)
-      matching = find_matching(entity_triples)
-      if matching.size > 0
-          matching_uri = RDF::URI.new(matching[-1][0])
-          return matching_uri
-      end
-      return nil
+    matching = find_matching(entity_triples)
+    unless matching.empty?
+      return RDF::URI.new(matching[-1][0])
+    end
+    nil
   end
 
   def find_matching(entity_triples)
-      entity_type = entity_triples.get_type
+    entity_type = entity_triples.get_type
 
-      # get all with same type from virtuoso
-      all_subjects = @virtuoso.get_entities_of_type(entity_type)
-      if @debug
-          all_subjects = all_subjects[1..5]
-      end
+    # get all entities with same type from virtuoso
+    all_subjects = @virtuoso.get_entities_of_type entity_type
 
-      all_matches = {}
-      all_subjects.each do |subject_uri|
-          if entity_triples.subject != subject_uri
-              # calculate match
-              other_triples = @virtuoso.get_triples(subject_uri)
-              match = calculate_match(entity_triples, other_triples, entity_type)
-              all_matches[subject_uri.to_s] = match
-          end
+    all_matches = {}
+    all_subjects.each do |subject_uri|
+      unless entity_triples.subject == subject_uri
+        # calculate match
+        other_triples = @virtuoso.get_triples subject_uri
+        match = calculate_match entity_triples, other_triples, entity_type
+        all_matches[subject_uri.to_s] = (match.nan? ? 0.0 : match)
       end
-      all_sorted_matches = all_matches.sort_by {|uri, match| match}
-      return all_sorted_matches
+    end
+    all_matches.sort_by {|uri, match| match}
   end
 
   def calculate_match(a_triples, b_triples, type)
-      case type
-          when @types['movie_type']
-              return match_movie(a_triples, b_triples)
-          when @types['person_type']
-              return person_match(a_triples, b_triples)
-          when @types['director_type']
-              return person_match(a_triples, b_triples)
-          when @types['organization_type']
-              return organization_match(a_triples, b_triples)
-          when @types['performance_type']
-              return performance_match(a_triples, b_triples)
-          else
-              return 0.0
-      end
+    case type
+      when @types['movie_type']
+        match_movie a_triples, b_triples
+      when @types['person_type']
+        person_match a_triples, b_triples
+      when @types['director_type']
+        person_match a_triples, b_triples
+      when @types['organization_type']
+        organization_match a_triples, b_triples
+      when @types['performance_type']
+        performance_match a_triples, b_triples
+      else
+        0.0
+    end
   end
 
   def type_match(a,b)
     return 0 if a.nil? or b.nil?
-    type_uri = RDF::URI.new("http://www.w3.org/1999/02/22-rdf-syntax-ns#type")
-    types_a = a.get_o(type_uri)
-    types_b = b.get_o(type_uri)
+    type_uri = RDF::URI.new "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+    types_a = a.get_o type_uri
+    types_b = b.get_o type_uri
 
     # check if one of the types matches
     types_a.each do |type_a|
-        types_b.each do |type_b|
-            if types_a == types_b
-                return true
-            end
+      types_b.each do |type_b|
+        if types_a == types_b
+          return true
         end
+      end
     end
 
     return false
@@ -140,10 +127,9 @@ class Matcher::Matcher
 
   def organization_match(a,b)
     return 0 if a.nil? or b.nil?
-    name_a = a.get_name().to_s
-    name_b = b.get_name().to_s
-    match = levenshtein_match(name_a, name_b)
-    return match
+    name_a = a.get_name.to_s
+    name_b = b.get_name.to_s
+    levenshtein_match name_a, name_b
   end
 
   def performance_match(a,b)
@@ -155,118 +141,118 @@ class Matcher::Matcher
     # match_char = levenshtein_match(character_a, character_b)
 
     # match actor
-    actor_a_uri = a.get_actor()[0]
-    actor_b_uri = b.get_actor()[0]
-    actor_a = @virtuoso.get_triples(actor_a_uri)
-    actor_b = @virtuoso.get_triples(actor_b_uri)
-    match_actor = person_match(actor_a, actor_b)
+    actor_a_uri = a.get_actor.first
+    actor_b_uri = b.get_actor.first
+    actor_a = @virtuoso.get_triples actor_a_uri
+    actor_b = @virtuoso.get_triples actor_b_uri
+    match_actor = person_match actor_a, actor_b
 
-    w_character = @weights['performance']['character']
-    w_actor = @weights['performance']['actor']
+    # w_character = @weights['performance']['character']
+    # w_actor = @weights['performance']['actor']
 
     # match_degree = (w_character * match_char) + (w_actor * match_actor)
     match_actor # TODO fix weights
   end
 
-def match_movie(a,b)
-  return 0 if a.nil? or b.nil?
-    # title
-    title_a = a.get_name.to_s
-    title_b = b.get_name.to_s
-    title_match = levenshtein_match(title_a, title_b)
+  def match_movie(a,b)
+    return 0 if a.nil? or b.nil?
+      # title
+      title_a = a.get_name.to_s
+      title_b = b.get_name.to_s
+      title_match = levenshtein_match title_a, title_b
 
-    # director
-    director_a = @virtuoso.get_triples(a.get_director())
-    director_b = @virtuoso.get_triples(b.get_director())
-    use_director_match = true
-    director_match = 0.0
-    if director_a.nil? or director_b.nil?
-        use_director_match = false
-    else
-        director_match = person_match(director_a, director_b)
-    end
+      # director
+      director_a = @virtuoso.get_triples a.get_director
+      director_b = @virtuoso.get_triples b.get_director
+      use_director_match = true
+      director_match = 0.0
+      if director_a.nil? or director_b.nil?
+          use_director_match = false
+      else
+          director_match = person_match director_a, director_b
+      end
 
 
-    # release date
-    a_date = a.get_release_date
-    b_date = b.get_release_date
-    use_release_date = true # tmdb has no release date
-    release_date_match = 0.0
-    if a_date.nil? or b_date.nil?
-        use_release_date = false
-    else
-        release_date_match = date_match(a_date, b_date)
-    end
+      # release date
+      a_date = a.get_release_date
+      b_date = b.get_release_date
+      use_release_date = true # tmdb has no release date
+      release_date_match = 0.0
+      if a_date.nil? or b_date.nil?
+          use_release_date = false
+      else
+          release_date_match = date_match a_date, b_date
+      end
 
-    # weights
-    w_title = @weights['movie']['title']
-    w_director = @weights['movie']['director']
-    w_release = @weights['movie']['release']
-    w_actors = @weights['movie']['actors']
+      # weights
+      w_title = @weights['movie']['title']
+      w_director = @weights['movie']['director']
+      w_release = @weights['movie']['release']
+      w_actors = @weights['movie']['actors']
 
-    # todo: consolidate weight re-distribution
-    calculate_fast_forward = @control['enable_ff']
-    if !use_release_date and use_director_match
-        w_title = w_title + (w_release * 0.5)
-        w_director = w_director + (w_release * 0.5)
-        w_release = 0
-    elsif !use_director_match and use_release_date
-        w_title += (w_director * 0.5)
-        w_director = 0
-    elsif !use_director_match and !use_release_date
-        w_title += (w_director * 0.5)
-        w_title += (w_release * 0.5)
-        calculate_fast_forward = false
-    end
+      # todo: consolidate weight re-distribution
+      calculate_fast_forward = @control['enable_ff']
+      if !use_release_date and use_director_match
+          w_title = w_title + (w_release * 0.5)
+          w_director = w_director + (w_release * 0.5)
+          w_release = 0
+      elsif !use_director_match and use_release_date
+          w_title += (w_director * 0.5)
+          w_director = 0
+      elsif !use_director_match and !use_release_date
+          w_title += (w_director * 0.5)
+          w_title += (w_release * 0.5)
+          calculate_fast_forward = false
+      end
 
-    # clamp
-    w_title = (w_title > 1 ? 1 : w_title)
-    w_director = (w_director > 1 ? 1 : w_director)
+      # clamp
+      w_title = (w_title > 1 ? 1 : w_title)
+      w_director = (w_director > 1 ? 1 : w_director)
 
-    # fast-forward: check if already above threshold
-    if calculate_fast_forward
-        pre_match = 0
-        pre_match += (w_title * title_match)
-        pre_match += (w_release * release_date_match)
-        pre_match += (w_director * director_match)
+      # fast-forward: check if already above threshold
+      if calculate_fast_forward
+          pre_match = 0
+          pre_match += (w_title * title_match)
+          pre_match += (w_release * release_date_match)
+          pre_match += (w_director * director_match)
 
-        if pre_match >= @thresholds['matching'] or pre_match <= @thresholds['ff_lower_bound']
-            return pre_match
-        end
-    end
+          if pre_match >= @thresholds['matching'] or pre_match <= @thresholds['ff_lower_bound']
+              return pre_match
+          end
+      end
 
-    # actors --> expensive
-    use_actors_match = true
-    actors_match = movie_actors_match(a,b)
-    if actors_match.nil?
-        actors_match = 0.0
-        w_actors = 0.0
-        # adjust other weights
-        if !use_release_date and use_director_match
-            w_title = w_title + (w_actors * 0.5)
-            w_director = w_director + (w_actors * 0.5)
-        elsif !use_director_match and use_release_date
-            w_title += (w_actors * 0.5)
-            w_release += (w_actors * 0.5)
-        elsif !use_director_match and !use_release_date
-            w_title += (w_actors * 0.5)
-            w_title += (w_actors * 0.5)
-        end
-    end
+      # actors --> expensive
+      use_actors_match = true
+      actors_match = movie_actors_match a,b
+      if actors_match.nil?
+          actors_match = 0.0
+          w_actors = 0.0
+          # adjust other weights
+          if !use_release_date and use_director_match
+              w_title = w_title + (w_actors * 0.5)
+              w_director = w_director + (w_actors * 0.5)
+          elsif !use_director_match and use_release_date
+              w_title += (w_actors * 0.5)
+              w_release += (w_actors * 0.5)
+          elsif !use_director_match and !use_release_date
+              w_title += (w_actors * 0.5)
+              w_title += (w_actors * 0.5)
+          end
+      end
 
-    # clamp again
-    w_title = (w_title > 1 ? 1 : w_title)
-    w_director = (w_director > 1 ? 1 : w_director)
-    w_release = (w_release > 1 ? 1 : w_release)
+      # clamp again
+      w_title = (w_title > 1 ? 1 : w_title)
+      w_director = (w_director > 1 ? 1 : w_director)
+      w_release = (w_release > 1 ? 1 : w_release)
 
-    match_degree = 0
-    match_degree += (w_title * title_match)
-    match_degree += (w_release * release_date_match)
-    match_degree += (w_actors * actors_match)
-    match_degree += (w_director * director_match)
+      match_degree = 0
+      match_degree += (w_title * title_match)
+      match_degree += (w_release * release_date_match)
+      match_degree += (w_actors * actors_match)
+      match_degree += (w_director * director_match)
 
-  return match_degree
-end
+    return match_degree
+  end
 
   def person_match(a,b)
     return 0 if a.nil? or b.nil?
@@ -274,7 +260,7 @@ end
     names_a = []
     if a
       a.get_alternative_names.each do |alt_name_a|
-          names_a << alt_name_a.to_s
+        names_a << alt_name_a.to_s
       end
       names_a << a.get_name.to_s
     end
@@ -282,7 +268,7 @@ end
     names_b = []
     if b
       b.get_alternative_names.each do |alt_name_b|
-          names_b << alt_name_b.to_s
+        names_b << alt_name_b.to_s
       end
       names_b << b.get_name.to_s
     end
@@ -291,16 +277,16 @@ end
     name_alias_match = max_name_or_alias_match(names_a, names_b)
 
     # --> birthdate match
-    birth_date_a = a.get_birthdate()
-    birth_date_b = b.get_birthdate()
+    birth_date_a = a.get_birthdate
+    birth_date_b = b.get_birthdate
     birthdate_match = 0
     if !birth_date_a.nil? and !birth_date_b.nil?
-        use_birthdate = true
-        birthdate_match = date_match(a.get_birthdate, b.get_birthdate)
+      use_birthdate = true
+      birthdate_match = date_match a.get_birthdate, b.get_birthdate
     else
-        # if there is no birthdate, then we cannot use 0, as this would distort the result
-        # in this case, we have to rely on the known information
-        use_birthdate = false
+      # if there is no birthdate, then we cannot use 0, as this would distort the result
+      # in this case, we have to rely on the known information
+      use_birthdate = false
     end
 
     # todo: birthplace match as string-match
@@ -323,14 +309,14 @@ end
     # location distance
     a_pos = {:lat  => a[:latitude], :long => a[:longitude]}
     b_pos = {:lat => b[:latitude], :long => b[:longitude]}
-    distance_match = lat_long_match(a_pos, b_pos)
+    distance_match = lat_long_match a_pos, b_pos
 
     # location name
     names_a = a[:aliases]
     names_a << a[:name]
     names_b = b[:aliases]
     names_b << b[:name]
-    name_match = max_name_or_alias_match(names_a, names_b)
+    name_match = max_name_or_alias_match names_a, names_b
 
     # todo: country
     # todo: is contained by
@@ -338,153 +324,145 @@ end
     w_distance = 0.7
     w_name = 1-w_distance
 
-    location_match = (w_distance * distance_match) + (w_name * name_match)
-    return location_match
+    (w_distance * distance_match) + (w_name * name_match)
   end
 
+  def levenshtein_match(a,b)
+    a = a.downcase
+    b = b.downcase
+    normalizer = (a.size >= b.size ? a.size : b.size)
+    1 - (levenshtein_distance(a,b) / normalizer.to_f)
+  end
 
-def levenshtein_match(a,b)
-  a = a.downcase
-  b = b.downcase
-  normalizer = (a.size >= b.size ? a.size : b.size)
-  match_degree =  1 - (levenshtein_distance(a,b) / normalizer.to_f)
-  return match_degree
-end
+  def levenshtein_distance(s, t)
+    m = s.length
+    n = t.length
+    return m if n == 0
+    return n if m == 0
+    d = Array.new(m+1) {Array.new(n+1)}
 
-def levenshtein_distance(s, t)
-  m = s.length
-  n = t.length
-  return m if n == 0
-  return n if m == 0
-  d = Array.new(m+1) {Array.new(n+1)}
-
-  (0..m).each {|i| d[i][0] = i}
-  (0..n).each {|j| d[0][j] = j}
-  (1..n).each do |j|
-    (1..m).each do |i|
-      d[i][j] = if s[i-1] == t[j-1]  # adjust index into string
-                  d[i-1][j-1]       # no operation required
-                else
-                  [ d[i-1][j]+1,    # deletion
-                    d[i][j-1]+1,    # insertion
-                    d[i-1][j-1]+1,  # substitution
-                  ].min
-                end
+    (0..m).each {|i| d[i][0] = i}
+    (0..n).each {|j| d[0][j] = j}
+    (1..n).each do |j|
+      (1..m).each do |i|
+        d[i][j] = if s[i-1] == t[j-1]  # adjust index into string
+                    d[i-1][j-1]       # no operation required
+                  else
+                    [ d[i-1][j]+1,    # deletion
+                      d[i][j-1]+1,    # insertion
+                      d[i-1][j-1]+1,  # substitution
+                    ].min
+                  end
+      end
     end
-  end
-  d[m][n]
-end
-
-
-def date_match(a,b)
-  # make dates numerical
-  if a >= b
-    lower_date = b
-    upper_date = a
-  else
-    lower_date = a
-    upper_date = b
+    d[m][n]
   end
 
-  lower_date = DateTime.parse(lower_date.to_s)
-  upper_date = DateTime.parse(upper_date.to_s)
 
-  # calculate match
-  std_dev = @settings['date_std_dev_d']
-  mean = 0
-  lower_date_i = 0
-  difference_i = (upper_date - lower_date).to_i
-  match_degree = normal_slope(difference_i, mean, std_dev)
-  # ignore too small values
-  if match_degree < 0.001
-    return 0
+  def date_match(a,b)
+    # make dates numerical
+    if a >= b
+      lower_date = b
+      upper_date = a
+    else
+      lower_date = a
+      upper_date = b
+    end
+
+    lower_date = DateTime.parse(lower_date.to_s)
+    upper_date = DateTime.parse(upper_date.to_s)
+
+    # calculate match
+    std_dev = @settings['date_std_dev_d']
+    mean = 0
+    lower_date_i = 0
+    difference_i = (upper_date - lower_date).to_i
+    match_degree = normal_slope(difference_i, mean, std_dev)
+    # ignore too small values
+    if match_degree < 0.001
+      return 0
+    end
+
+    match_degree
   end
 
-  return match_degree
-end
+  def lat_long_match(a,b)
+    d = haversine_distance(a[:lat], a[:long], b[:lat], b[:long])
+    normal_slope(d,0, 10) # sigma = 36 km
+  end
 
-def lat_long_match(a,b)
-  d = haversine_distance(a[:lat], a[:long], b[:lat], b[:long])
-  return normal_slope(d,0, 10) # sigma = 36 km
-end
-
-def max_name_or_alias_match(names_a, names_b)
-  max_match = 0
+  def max_name_or_alias_match(names_a, names_b)
+    max_match = 0
       names_a.each do |name_a|
-          names_b.each do |name_b|
-              match = levenshtein_match(name_a.downcase, name_b.downcase)
-              if match > max_match
-                  max_match = match
-              end
+        names_b.each do |name_b|
+          match = levenshtein_match(name_a.downcase, name_b.downcase)
+          if match > max_match
+            max_match = match
           end
+        end
       end
-      return max_match
-end
-
-def name_alias_match(a,b)
-  name_a = a[:name].downcase
-  name_b = b[:name].downcase
-  aliases_a = a[:aliases]
-  aliases_b = b[:aliases]
-
-  # name match
-  name_match = levenshtein_distance(name_a,name_b)
-
-  # find the max matching alias
-  max_alias_a = nil
-  max_alias_match = 0
-  aliases_a.each do |alias_a|
-    aliases_b.each do |alias_b|
-      alias_match = levenshtein_match(alias_a, alias_b)
-      if alias_match > max_alias_match
-        max_alias_a = alias_a
-        max_alias_match = alias_match
-      end
-    end
+    max_match
   end
 
-  # calculate match
-  name_weight = 0.25
-  max_alias_weight = 1 - name_weight
-  name_alias_match = (name_weight * name_match) + (max_alias_weight * max_alias_match)
-  return name_alias_match
-end
+  def name_alias_match(a,b)
+    name_a = a[:name].downcase
+    name_b = b[:name].downcase
+    aliases_a = a[:aliases]
+    aliases_b = b[:aliases]
 
-#def distributor_match(a,b)
-#end
+    # name match
+    name_match = levenshtein_distance name_a,name_b
 
-def movie_actors_match(a,b)
-      a_actors = @virtuoso.get_actor_triples(a)
-      b_actors = @virtuoso.get_actor_triples(b)
-
-      if a_actors.empty? or b_actors.empty?
-          return nil
+    # find the max matching alias
+    max_alias_a = nil
+    max_alias_match = 0
+    aliases_a.each do |alias_a|
+      aliases_b.each do |alias_b|
+        alias_match = levenshtein_match(alias_a, alias_b)
+        if alias_match > max_alias_match
+          max_alias_a = alias_a
+          max_alias_match = alias_match
+        end
       end
+    end
 
-      # find match degrees between all actors
-      all_matches = {}
-      union_size = 0.0
+    # calculate match
+    name_weight = 0.25
+    max_alias_weight = 1 - name_weight
+    (name_weight * name_match) + (max_alias_weight * max_alias_match)
+  end
 
-      a_actors.each do |actor_a|
-          b_actors.each do |actor_b|
-              # todo: actor match that includes works
-              if all_matches.has_key?([actor_b, actor_a])
-                  all_matches[[actor_a, actor_b]] = all_matches[[actor_b, actor_a]]
-                  next
-              end
+  def movie_actors_match(a,b)
+    a_actors = @virtuoso.get_actor_triples(a)
+    b_actors = @virtuoso.get_actor_triples(b)
 
-              match = person_match(actor_a, actor_b)
-              all_matches[[actor_a, actor_b]] = match
-              if match >= @thresholds['person_equivalence']
-                  union_size += 1
-              end
-          end
+    if a_actors.empty? or b_actors.empty?
+      return nil
+    end
+
+    # find match degrees between all actors
+    all_matches = {}
+    union_size = 0.0
+
+    a_actors.each do |actor_a|
+      b_actors.each do |actor_b|
+        # todo: actor match that includes works
+        if all_matches.has_key?([actor_b, actor_a])
+          all_matches[[actor_a, actor_b]] = all_matches[[actor_b, actor_a]]
+          next
+        end
+
+        match = person_match(actor_a, actor_b)
+        all_matches[[actor_a, actor_b]] = match
+        if match >= @thresholds['person_equivalence']
+          union_size += 1
+        end
       end
+    end
 
-      # use dice coefficient to measure similarity between actor sets
-      # sim = 2|A union B|/|A|+|B|
-      sim = 2 * union_size / (a_actors.size.to_f + b_actors.size.to_f)
-      return sim
+    # use dice coefficient to measure similarity between actor sets
+    # sim = 2|A union B|/|A|+|B|
+    2 * union_size / (a_actors.size.to_f + b_actors.size.to_f)
   end
 
 
