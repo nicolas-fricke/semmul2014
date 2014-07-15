@@ -6,50 +6,59 @@ class Merger::Merger
   def register_receiver
     # receiver.subscribe(type: :movie_uri) { |movie_uri| merge(movie_uri, is_movie: true) }
 
+    # %w(
+    # http://rdf.freebase.com/ns/m/0gtxbqr
+    # http://rdf.freebase.com/ns/m/06zkfsy
+    # http://rdf.freebase.com/ns/m/0lq6fb5
+    # http://rdf.freebase.com/ns/m/05jzt3
+    # http://rdf.freebase.com/ns/m/02ktj7
+    # http://rdf.freebase.com/ns/m/02dr9j
+    # http://semmul2014.hpi.de/tmdb/movie/152601
+    # http://semmul2014.hpi.de/tmdb/movie/254
+    # http://rdf.freebase.com/ns/m/08phg9
+    # http://dbpedia.org/resource/Star_Trek_(film)
+    # http://dbpedia.org/resource/Bambi
+    # http://dbpedia.org/resource/Margin_Call_(film)
+    # http://rdf.freebase.com/ns/m/0hhqv27
+    # http://rdf.freebase.com/ns/m/04j1zjw
+    # http://rdf.freebase.com/ns/m/07f_t4
+    # http://rdf.freebase.com/ns/m/0dtfn
+    # http://dbpedia.org/resource/Star_Trek_Into_Darkness
+    # http://dbpedia.org/resource/300_(film)
+    # http://dbpedia.org/resource/Star_Wars_Episode_IV:_A_New_Hope
+    # http://dbpedia.org/resource/Fast_&_Furious_6
+    # http://dbpedia.org/resource/Despicable_Me
+    # http://dbpedia.org/resource/Her_(film)
+    # http://dbpedia.org/resource/Walk_the_Line
+    # http://dbpedia.org/resource/King_Kong_(1976_film)
+    # http://dbpedia.org/resource/King_Kong_(2005_film)
+    # http://semmul2014.hpi.de/tmdb/movie/13475
+    # http://semmul2014.hpi.de/tmdb/movie/3170
+    # http://semmul2014.hpi.de/tmdb/movie/1271
+    # http://rdf.freebase.com/ns/m/0cc7hmk
+    # http://semmul2014.hpi.de/tmdb/movie/54138
+    # http://semmul2014.hpi.de/tmdb/movie/11
+    # http://semmul2014.hpi.de/tmdb/movie/50839
+    # http://semmul2014.hpi.de/tmdb/movie/69
+    # http://semmul2014.hpi.de/tmdb/movie/82992
+    # http://semmul2014.hpi.de/tmdb/movie/20352
+    # http://semmul2014.hpi.de/tmdb/movie/10730
+    # ).each do |movie_uri|
+
+
+    # two different king kong versions and star trek into darkness
     %w(
-    http://rdf.freebase.com/ns/m/0gtxbqr
-    http://rdf.freebase.com/ns/m/06zkfsy
-    http://rdf.freebase.com/ns/m/0lq6fb5
-    http://rdf.freebase.com/ns/m/05jzt3
-    http://rdf.freebase.com/ns/m/02ktj7
-    http://rdf.freebase.com/ns/m/02dr9j
-    http://semmul2014.hpi.de/tmdb/movie/152601
-    http://semmul2014.hpi.de/tmdb/movie/254
-    http://rdf.freebase.com/ns/m/08phg9
-    http://dbpedia.org/resource/Star_Trek_(film)
-    http://dbpedia.org/resource/Bambi
-    http://dbpedia.org/resource/Margin_Call_(film)
-    http://rdf.freebase.com/ns/m/0hhqv27
-    http://rdf.freebase.com/ns/m/04j1zjw
-    http://rdf.freebase.com/ns/m/07f_t4
-    http://rdf.freebase.com/ns/m/0dtfn
-    http://dbpedia.org/resource/Star_Trek_Into_Darkness
-    http://dbpedia.org/resource/300_(film)
-    http://dbpedia.org/resource/Star_Wars_Episode_IV:_A_New_Hope
-    http://dbpedia.org/resource/Fast_&_Furious_6
-    http://dbpedia.org/resource/Despicable_Me
-    http://dbpedia.org/resource/Her_(film)
-    http://dbpedia.org/resource/Walk_the_Line
     http://dbpedia.org/resource/King_Kong_(1976_film)
-    http://dbpedia.org/resource/King_Kong_(2005_film)
-    http://semmul2014.hpi.de/tmdb/movie/13475
-    http://semmul2014.hpi.de/tmdb/movie/3170
-    http://semmul2014.hpi.de/tmdb/movie/1271
-    http://rdf.freebase.com/ns/m/0cc7hmk
-    http://semmul2014.hpi.de/tmdb/movie/54138
-    http://semmul2014.hpi.de/tmdb/movie/11
-    http://semmul2014.hpi.de/tmdb/movie/50839
-    http://semmul2014.hpi.de/tmdb/movie/69
-    http://semmul2014.hpi.de/tmdb/movie/82992
-    http://semmul2014.hpi.de/tmdb/movie/20352
+    http://rdf.freebase.com/ns/m/02ktj7
     http://semmul2014.hpi.de/tmdb/movie/10730
+    http://dbpedia.org/resource/King_Kong_(2005_film)
+    http://rdf.freebase.com/ns/m/02dr9j
+    http://semmul2014.hpi.de/tmdb/movie/254
+    http://dbpedia.org/resource/Star_Trek_Into_Darkness
+    http://rdf.freebase.com/ns/m/0hhqv27
+    http://semmul2014.hpi.de/tmdb/movie/54138
     ).each do |movie_uri|
 
-    # %w(
-    # http://dbpedia.org/resource/Star_Trek_Into_Darkness
-    # http://rdf.freebase.com/ns/m/0hhqv27
-    # http://semmul2014.hpi.de/tmdb/movie/54138
-    # ).each do |movie_uri|
       merge movie_uri, is_movie: true
     end
   end

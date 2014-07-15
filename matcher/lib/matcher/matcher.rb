@@ -86,7 +86,7 @@ class Matcher::Matcher
         all_matches[subject_uri.to_s] = (match.nan? ? 0.0 : match)
       end
     end
-    all_matches.sort_by {|uri, match| match}
+    all_matches.sort_by {|_, match| match}
   end
 
   def calculate_match(a_triples, b_triples, type)
@@ -106,27 +106,27 @@ class Matcher::Matcher
     end
   end
 
-  def type_match(a,b)
-    return 0 if a.nil? or b.nil?
-    type_uri = RDF::URI.new "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-    types_a = a.get_o type_uri
-    types_b = b.get_o type_uri
-
-    # check if one of the types matches
-    types_a.each do |type_a|
-      types_b.each do |type_b|
-        if types_a == types_b
-          return true
-        end
-      end
-    end
-
-    return false
-  end
+  # def type_match(a,b)
+  #   return 0 if a.nil? or b.nil?
+  #   type_uri = RDF::URI.new "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
+  #   types_a = a.get_o type_uri
+  #   types_b = b.get_o type_uri
+  #
+  #   # check if one of the types matches
+  #   types_a.each do |type_a|
+  #     types_b.each do |type_b|
+  #       if type_a == type_b
+  #         return true
+  #       end
+  #     end
+  #   end
+  #
+  #   return false
+  # end
 
 
   def organization_match(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0 if a.nil? or b.nil? # TODO cirrect for levensthein?
     name_a = a.get_name.to_s
     name_b = b.get_name.to_s
     levenshtein_match name_a, name_b
