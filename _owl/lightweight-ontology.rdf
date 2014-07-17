@@ -46,6 +46,12 @@
     <rdfs:comment xml:lang="en">Defines the performances of a movie or television series.</rdfs:comment>
   </owl:Class>
 
+  <!-- Release -->
+  <owl:Class rdf:about="&lom;Release">
+    <rdfs:label xml:lang="en">Release</rdfs:label>
+    <rdfs:comment xml:lang="en">Defines a release of a movie or television series.</rdfs:comment>
+  </owl:Class>
+
   <!-- PROPERTIES -->
 
   <!-- Thing: id -->
@@ -102,6 +108,30 @@
     <rdfs:comment xml:lang="en">Specifies the actor of a performance.</rdfs:comment>
     <rdfs:range rdf:resource="&dbpedia;Actor"/>
     <rdfs:domain rdf:resource="&lom;Performance"/>
+  </owl:ObjectProperty>
+
+  <!-- Release: country -->
+  <owl:ObjectProperty rdf:about="&lom;country">
+    <rdfs:label xml:lang="en">country</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the country of a release.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&lom;Release"/>
+  </owl:ObjectProperty>
+
+  <!-- Release: date -->
+  <owl:ObjectProperty rdf:about="&lom;date">
+    <rdfs:label xml:lang="en">date</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the date of a release.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;date"/>
+    <rdfs:domain rdf:resource="&lom;Release"/>
+  </owl:ObjectProperty>
+
+  <!-- Release: certification -->
+  <owl:ObjectProperty rdf:about="&lom;certification">
+    <rdfs:label xml:lang="en">certification</rdfs:label>
+    <rdfs:comment xml:lang="en">Specifies the certification of a release.</rdfs:comment>
+    <rdfs:range rdf:resource="&xsd;string"/>
+    <rdfs:domain rdf:resource="&lom;Release"/>
   </owl:ObjectProperty>
 
 </rdf:RDF>
