@@ -113,6 +113,32 @@ class Matcher::Matcher
     end
   end
 
+  def evaluation_same(a_triples, b_triples)
+      # check if these two entities are the same
+
+      # fb_mid
+      a_fb_mid = a_triples.get_fb_mid()
+      b_fb_mid = b_triples.get_fb_mid()
+      unless a_fb_mid.nil? and b_fb_mid.nil?
+          return a_fb_mid == b_fb_mid
+      end
+
+      # imdb_id
+      a_imdb_id = a_triples.get_imdb_id()
+      b_imdb_id = b_triples.get_imdb_id()
+      unless a_imdb_id.nil? and b_imdb_id.nil?
+          return  a_imdb_id == b_imdb_id
+      end
+
+      return false
+  end
+
+
+  def evaluation_match(a_triples, b_triples)
+      entity_type = a_triples.get_type
+      calculate_match(a_triples, b_triples, entity_type)
+  end
+
   # def type_match(a,b)
   #   return 0 if a.nil? or b.nil?
   #   type_uri = RDF::URI.new "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
@@ -133,7 +159,7 @@ class Matcher::Matcher
 
 
   def organization_match(a,b)
-    return 0 if a.nil? or b.nil? # TODO correct for levenshtein?
+    return 0 if a.nil? or b.nil?
     name_a = a.get_name.to_s
     name_b = b.get_name.to_s
     levenshtein_match name_a, name_b
