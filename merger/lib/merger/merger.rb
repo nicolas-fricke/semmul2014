@@ -46,14 +46,21 @@ class Merger::Merger
     # ).each do |movie_uri|
 
 
-    # two different king kong versions and star trek into darkness
+    # # two different king kong versions and star trek into darkness
+    # %w(
+    # http://dbpedia.org/resource/King_Kong_(1976_film)
+    # http://rdf.freebase.com/ns/m/02ktj7
+    # http://semmul2014.hpi.de/tmdb/movie/10730
+    # http://dbpedia.org/resource/King_Kong_(2005_film)
+    # http://rdf.freebase.com/ns/m/02dr9j
+    # http://semmul2014.hpi.de/tmdb/movie/254
+    # http://dbpedia.org/resource/Star_Trek_Into_Darkness
+    # http://rdf.freebase.com/ns/m/0hhqv27
+    # http://semmul2014.hpi.de/tmdb/movie/54138
+    # ).each do |movie_uri|
+
+    # star trek only
     %w(
-    http://dbpedia.org/resource/King_Kong_(1976_film)
-    http://rdf.freebase.com/ns/m/02ktj7
-    http://semmul2014.hpi.de/tmdb/movie/10730
-    http://dbpedia.org/resource/King_Kong_(2005_film)
-    http://rdf.freebase.com/ns/m/02dr9j
-    http://semmul2014.hpi.de/tmdb/movie/254
     http://dbpedia.org/resource/Star_Trek_Into_Darkness
     http://rdf.freebase.com/ns/m/0hhqv27
     http://semmul2014.hpi.de/tmdb/movie/54138

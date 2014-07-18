@@ -9,7 +9,7 @@ module FreebaseUpdater
 
   class FreebaseUpdater::Updater
 
-    def initialize
+    def initialize(demoset = [])
       # ========== settings ==========
       @verbose = true
       @demo = false
@@ -20,33 +20,24 @@ module FreebaseUpdater
       @virtuoso_writer = VirtuosoWriter.new verbose: @verbose
       @virtuoso_writer.set_graph 'raw'
 
-      @receiver = MsgConsumer.new
-      @receiver.set_queue 'source_freebase'
-
       @publisher = MsgPublisher.new
       @publisher.set_queue 'raw_freebase'
 
       @log = Logger.new('log', 'daily')
+    end
 
-      if @demo
-        %w(
-          /m/08phg9
-          /m/0hhqv27
-          /m/04j1zjw
-          /m/07f_t4
-          /m/0dtfn
-          /m/0cc7hmk
-          /m/0gtxbqr
-          /m/06zkfsy
-          /m/0lq6fb5
-          /m/05jzt3
-          /m/02ktj7
-          /m/02dr9j
-          ).each { |movie_id| update movie_id }
-      else
-        puts "listening on queue #{@receiver.queue_name :movie_id}"
-        @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
-      end
+    def register_receiver
+      @receiver = MsgConsumer.new
+      @receiver.set_queue 'source_freebase'
+
+      puts "listening on queue #{@receiver.queue_name :movie_id}"
+      @receiver.subscribe(type: :movie_id) { |movie_id| update(movie_id) }
+    end
+
+    def start_demo(demoset = [])
+      p "starting Freebase Updater in demo mode"
+      demoset.each { |movie_id| update movie_id }
+      p "Freebase Updater done"
     end
 
     def update(topic_id)

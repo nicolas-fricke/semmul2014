@@ -6,17 +6,24 @@ class Matcher::Matcher
 
   def initialize
     @virtuoso = Matcher::Virtuoso.new
-    @debug = false
-    config
+
+    namespaces = YAML.load_file '../config/namespaces.yml'
+    @types = namespaces['types']
+
+    matching ||= YAML.load_file '../config/matching.yml'
+    @weights = matching['weights']
+    @thresholds = matching['thresholds']
+    @control = matching['control']
+    @settings = matching['settings']
   end
 
   def find(entity_uri)
     entity_triples = @virtuoso.get_triples(entity_uri)
-    identic = find_same entity_triples
+    identical = find_same entity_triples
 
     # try to find identical entities
-    unless identic.empty?
-        identic
+    unless identical.empty?
+      identical
     else
       # try to find very similar entities
       find_thresh_matching entity_triples
@@ -126,7 +133,7 @@ class Matcher::Matcher
 
 
   def organization_match(a,b)
-    return 0 if a.nil? or b.nil? # TODO cirrect for levensthein?
+    return 0 if a.nil? or b.nil? # TODO correct for levenshtein?
     name_a = a.get_name.to_s
     name_b = b.get_name.to_s
     levenshtein_match name_a, name_b
@@ -465,19 +472,6 @@ class Matcher::Matcher
     2 * union_size / (a_actors.size.to_f + b_actors.size.to_f)
   end
 
-
-  def config
-      @config ||= YAML.load_file '../config/matching.yml'
-
-      namespaces ||= YAML.load_file '../config/namespaces.yml'
-      @types = namespaces['types']
-
-      matching ||= YAML.load_file '../config/matching.yml'
-      @weights = matching['weights']
-      @thresholds = matching['thresholds']
-      @control = matching['control']
-      @settings = matching['settings']
-  end
 
 end
 
