@@ -21,11 +21,11 @@ class VirtuosoReader
   end
 
   def get_predicates_and_objects_for(subject: , graph: @graph, filter: [])
-    graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
 
     begin
-      query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).filters(filter).graph(graph)
+      query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).filters(filter).to_s
+      query.insert query.index('WHERE'),"FROM <#{graph}> "
       results = @repo.select(query)
       hash_of_arrays_to_array_of_hashes results.bindings
     rescue Exception => e
@@ -35,12 +35,13 @@ class VirtuosoReader
   end
 
   def get_subjects_for(predicate: , object: , graph: @graph)
-    graph = RDF::URI.new(graph)
     predicate = RDF::URI.new(predicate)
     object = RDF::URI.new(object)
 
     begin
-      query = RDF::Virtuoso::Query.select.where([:s, predicate, object]).graph(graph)
+      # for some reason `.graph` is ignored
+      query = RDF::Virtuoso::Query.select.where([:s, predicate, object]).to_s
+      query.insert query.index('WHERE'),"FROM <#{graph}> "
       result = @repo.select(query)
       result.bindings[:s]
     rescue Exception => e
@@ -50,12 +51,13 @@ class VirtuosoReader
   end
 
   def get_objects_for(subject: , predicate: , graph: @graph)
-    graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
     predicate = RDF::URI.new(predicate)
 
     begin
-      query = RDF::Virtuoso::Query.select.where([subject, predicate, :o]).graph(graph)
+      # for some reason `.graph` is ignored
+      query = RDF::Virtuoso::Query.select.where([subject, predicate, :o]).to_s
+      query.insert query.index('WHERE'),"FROM <#{graph}> "
       result = @repo.select(query)
       result.bindings[:o]
     rescue Exception => e
@@ -65,11 +67,11 @@ class VirtuosoReader
   end
 
   def get_values_for(subject: , graph: @graph)
-    graph = RDF::URI.new(graph)
     subject = RDF::URI.new(subject)
 
     begin
-      query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).graph(graph)
+      query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).to_s
+      query.insert query.index('WHERE'),"FROM <#{graph}> "
       result = @repo.select(query)
       yield result if block_given?
       result

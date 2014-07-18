@@ -18,7 +18,7 @@ class Matcher::Matcher
   end
 
   def find(entity_uri)
-    entity_triples = @virtuoso.get_triples(entity_uri)
+    entity_triples = @virtuoso.get_triples(entity_uri)  #TODO this has to run on the mapped DB!!!
     identical = find_same entity_triples
 
     # try to find identical entities
@@ -34,7 +34,7 @@ class Matcher::Matcher
     if entity_triples.get_type == @types['movie_type']
       return Set.new find_same_movie(entity_triples)
     end
-    return Set.new
+    Set.new
   end
 
   def find_same_movie(entity_triples)
