@@ -18,7 +18,7 @@ class Matcher::Matcher
   end
 
   def find(entity_uri)
-    entity_triples = @virtuoso.get_triples(entity_uri)  #TODO this has to run on the mapped DB!!!
+    entity_triples = @virtuoso.get_triples(entity_uri, graph: 'mapped')
     identical = find_same entity_triples
 
     # try to find identical entities
@@ -88,7 +88,7 @@ class Matcher::Matcher
     all_subjects.each do |subject_uri|
       unless entity_triples.subject == subject_uri
         # calculate match
-        other_triples = @virtuoso.get_triples subject_uri
+        other_triples = @virtuoso.get_triples subject_uri # get from merged
         match = calculate_match entity_triples, other_triples, entity_type
         all_matches[subject_uri.to_s] = (match.nan? ? 0.0 : match)
       end
@@ -140,7 +140,7 @@ class Matcher::Matcher
   end
 
   # def type_match(a,b)
-  #   return 0 if a.nil? or b.nil?
+  #   return 0.0 if a.nil? or b.nil?
   #   type_uri = RDF::URI.new "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
   #   types_a = a.get_o type_uri
   #   types_b = b.get_o type_uri
@@ -159,14 +159,14 @@ class Matcher::Matcher
 
 
   def organization_match(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0.0 if a.nil? or b.nil?
     name_a = a.get_name.to_s
     name_b = b.get_name.to_s
     levenshtein_match name_a, name_b
   end
 
   def performance_match(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0.0 if a.nil? or b.nil?
 
     # # match character
     # character_a = a.get_character().to_s
@@ -176,7 +176,7 @@ class Matcher::Matcher
     # match actor
     actor_a_uri = a.get_actor.first
     actor_b_uri = b.get_actor.first
-    actor_a = @virtuoso.get_triples actor_a_uri
+    actor_a = @virtuoso.get_triples actor_a_uri, graph: 'mapped'
     actor_b = @virtuoso.get_triples actor_b_uri
     match_actor = person_match actor_a, actor_b
 
@@ -188,14 +188,17 @@ class Matcher::Matcher
   end
 
   def match_movie(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0.0 if a.nil? or b.nil?
       # title
       title_a = a.get_name.to_s
       title_b = b.get_name.to_s
       title_match = levenshtein_match title_a, title_b
 
       # director
-      director_a = @virtuoso.get_triples a.get_director
+
+      # as we are merging from the mapped to merged graph, a comes from mapped b from merged
+      # TODO make this more flexible, maybe pass the graph from which the triples were retrieved
+      director_a = @virtuoso.get_triples a.get_director, graph: 'mapped'
       director_b = @virtuoso.get_triples b.get_director
       use_director_match = true
       director_match = 0.0
@@ -288,7 +291,7 @@ class Matcher::Matcher
   end
 
   def person_match(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0.0 if a.nil? or b.nil?
     # --> match names
     names_a = []
     if a
@@ -315,7 +318,7 @@ class Matcher::Matcher
     birthdate_match = 0
     if !birth_date_a.nil? and !birth_date_b.nil?
       use_birthdate = true
-      birthdate_match = date_match a.get_birthdate, b.get_birthdate
+      birthdate_match = date_match a.get_birthdate, b.get_birthdate #TODO
     else
       # if there is no birthdate, then we cannot use 0, as this would distort the result
       # in this case, we have to rely on the known information
@@ -338,7 +341,7 @@ class Matcher::Matcher
   end
 
   def location_match(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0.0 if a.nil? or b.nil?
     # location distance
     a_pos = {:lat  => a[:latitude], :long => a[:longitude]}
     b_pos = {:lat => b[:latitude], :long => b[:longitude]}

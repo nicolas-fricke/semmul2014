@@ -24,13 +24,13 @@ class Matcher::Virtuoso
     result
   end
 
-  def get_triples(subject_uri)
+  def get_triples(subject_uri, graph: 'merged')
     if subject_uri.nil?
       return nil
     end
     subject = RDF::URI.new(subject_uri)
     query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).to_s
-    query.insert query.index('WHERE'),"FROM <#{@graph}> "
+    query.insert query.index('WHERE'),"FROM <#{@graphs[graph]}> "
     triples = Matcher::Triples.new(subject)
 
     solutions = run_query(@endpoint, query)

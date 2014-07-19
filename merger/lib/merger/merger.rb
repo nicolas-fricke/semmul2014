@@ -79,7 +79,7 @@ class Merger::Merger
                         existing_uri: main_db_uri
     else
       # try to find entities that are identical
-      if find_matching_entity mapped_uri
+      if main_db_uri = find_matching_entity(mapped_uri)
         # merge the entities
         merge_into_entity new_uri: mapped_uri,
                           existing_uri: main_db_uri
