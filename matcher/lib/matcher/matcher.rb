@@ -22,7 +22,7 @@ class Matcher::Matcher
     identical = find_same entity_triples
 
     # try to find identical entities
-    unless identical.empty?
+    if identical
       identical
     else
       # try to find very similar entities
@@ -32,9 +32,8 @@ class Matcher::Matcher
 
   def find_same(entity_triples)
     if entity_triples.get_type == @types['movie_type']
-      return Set.new find_same_movie(entity_triples)
+      find_same_movie(entity_triples)
     end
-    Set.new
   end
 
   def find_same_movie(entity_triples)
@@ -57,7 +56,10 @@ class Matcher::Matcher
       end
     end
 
-    same_entities
+    if same_entities.size > 1
+      p ">>>>>>>> found more than one identical entities"
+    end
+    same_entities.first
   end
 
   def find_thresh_matching(entity_triples)
@@ -199,7 +201,7 @@ class Matcher::Matcher
       # as we are merging from the mapped to merged graph, a comes from mapped b from merged
       # TODO make this more flexible, maybe pass the graph from which the triples were retrieved
       director_a = @virtuoso.get_triples a.get_director, graph: 'mapped'
-      director_b = @virtuoso.get_triples b.get_director
+      director_b = @virtuoso.get_triples b.get_director # TODO get_director returns only the first result, for some reason this
       use_director_match = true
       director_match = 0.0
       if director_a.nil? or director_b.nil?

@@ -55,7 +55,9 @@ class Matcher::Virtuoso
 
   def get_movie_subjects_by_imdb(imdb_id)
     s_list = []
-    query = "select distinct ?s from <#{@graph}> where {?s <http://semmul2014.hpi.de/lodofmovies.owl#imdb_id> '#{imdb_id}'. ?s rdf:type '#{@types['movie_type']}'}"
+    query = "select distinct ?s from <#{@graph}> where {
+                    ?s <http://semmul2014.hpi.de/lodofmovies.owl#imdb_id> '#{imdb_id}'.
+                    ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#{@types['movie_type']}>}"
     results = run_query(@endpoint, query)
     results.each_solution do |solution|
       s_list << solution.bindings[:s]
