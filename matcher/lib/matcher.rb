@@ -2,7 +2,7 @@ module Matcher
     require_relative 'matcher/matcher'
     require_relative 'matcher/virtuoso'
     require_relative 'matcher/triples'
-    require relative 'matcher/evaluation'
+    # require_relative 'matcher/evaluation'
 end
 
 

@@ -245,7 +245,7 @@ class DBpediaMapper::Mapper
       elsif mp == get_property('schema', 'sameAs') and object.start_with?('http://rdf.freebase.com/ns/')
         mp = get_property('lom', 'freebase_mid')
         object = object.to_s
-        mo = 'm/' + object[29, 20]
+        mo = '/m/' + object[29, 20]
         @virtuoso_writer.new_triple(subject, mp, mo)
 
       # map minutes runtimes

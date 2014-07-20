@@ -24,13 +24,13 @@ class Matcher::Virtuoso
     result
   end
 
-  def get_triples(subject_uri)
+  def get_triples(subject_uri, graph: 'merged')
     if subject_uri.nil?
       return nil
     end
     subject = RDF::URI.new(subject_uri)
     query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).to_s
-    query.insert query.index('WHERE'),"FROM <#{@graph}> "
+    query.insert query.index('WHERE'),"FROM <#{@graphs[graph]}> "
     triples = Matcher::Triples.new(subject)
 
     solutions = run_query(@endpoint, query)
@@ -55,7 +55,9 @@ class Matcher::Virtuoso
 
   def get_movie_subjects_by_imdb(imdb_id)
     s_list = []
-    query = "select distinct ?s from <#{@graph}> where {?s <http://semmul2014.hpi.de/lodofmovies.owl#imdb_id> '#{imdb_id}'. ?s rdf:type '#{@types['movie_type']}'}"
+    query = "select distinct ?s from <#{@graph}> where {
+                    ?s <http://semmul2014.hpi.de/lodofmovies.owl#imdb_id> '#{imdb_id}'.
+                    ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#{@types['movie_type']}>}"
     results = run_query(@endpoint, query)
     results.each_solution do |solution|
       s_list << solution.bindings[:s]
