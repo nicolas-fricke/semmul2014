@@ -236,7 +236,7 @@ class DBpediaMapper::Mapper
       # map objects with URIs to other entities that have to be mapped
       elsif go_deeper and @further_entities.include?(mp)
         map_entity(object, false)
-        if mp == get_property('schema', 'Director')
+        if mp == get_property('schema', 'director')
           @virtuoso_writer.new_triple(object, get_property('rdf', 'typeOf'), get_property('lom', 'Director'), literal:false)
         end
         @virtuoso_writer.new_triple(subject, mp, clean(object), literal:@literals.include?(mp))
