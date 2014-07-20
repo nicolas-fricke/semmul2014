@@ -59,15 +59,19 @@ class Merger::Merger
     # http://semmul2014.hpi.de/tmdb/movie/54138
     # ).each do |movie_uri|
 
-    # star trek only
-    %w(
-    http://dbpedia.org/resource/Star_Trek_Into_Darkness
-    http://rdf.freebase.com/ns/m/0hhqv27
-    http://semmul2014.hpi.de/tmdb/movie/54138
-    ).each do |movie_uri|
+    # # star trek only
+    # %w(
+    # http://dbpedia.org/resource/Star_Trek_Into_Darkness
+    # http://rdf.freebase.com/ns/m/0hhqv27
+    # http://semmul2014.hpi.de/tmdb/movie/54138
+    # ).each do |movie_uri|
+    #
+    #   merge movie_uri, is_movie: true
+    # end
 
-      merge movie_uri, is_movie: true
-    end
+    merge 'http://dbpedia.org/resource/Star_Trek_Into_Darkness', is_movie: true
+    merge 'http://rdf.freebase.com/ns/m/0hhqv27', is_movie: true
+    merge 'http://semmul2014.hpi.de/tmdb/movie/54138', is_movie: true
   end
 
   def merge(mapped_uri, is_movie: false)
@@ -107,13 +111,18 @@ class Merger::Merger
 
   def merge_into_entity(new_uri:, existing_uri:)
     # Per attribute from new record, merge into existing record
-    mapped_reader.get_predicates_and_objects_for(subject: new_uri).each do |attribute|
+    literals = mapped_reader.get_predicates_and_objects_for subject: new_uri,
+                                                            filter: ['isLiteral(?o)']
+    literals.each do |attribute| # TODO try to merge better
       virtuoso_writer.new_triple existing_uri, 
                                  attribute[:p], 
                                  attribute[:o]
     end
-    mapped_reader.get_predicates_and_objects_for(subject: new_uri).each do |attribute|
-      merged_uri = if attribute[:o].uri? and should_be_merged?(attribute[:p])
+    uris = mapped_reader.get_predicates_and_objects_for subject: new_uri,
+                                                              filter: ['isURI(?o)']
+    uris.each do |attribute|
+      # URIs should be merged recursively
+      merged_uri = if should_be_merged?(attribute[:p])
                      merge attribute[:o]
                    else
                      attribute[:o]
@@ -152,6 +161,7 @@ class Merger::Merger
 
   private
   def should_be_merged?(predicate)
+    # types and sameAs links are URIs, but should not be merged (has to be treated like literal)
     !(%w(
       http://www.w3.org/1999/02/22-rdf-syntax-ns#type
       http://schema.org/sameAs
