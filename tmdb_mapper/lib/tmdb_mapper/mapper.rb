@@ -26,6 +26,7 @@ class TMDbMapper::Mapper
 
   def map(raw_db_uri)
     # try to delete existing triples for movie first
+    p "mapping #{raw_db_uri}"
     @virtuoso_writer.delete_triple(
         subject: raw_db_uri)
 
@@ -50,7 +51,7 @@ class TMDbMapper::Mapper
       @virtuoso_writer.new_triple(
           raw_db_uri, "#{@schemas['lom']}tmdb_id", tmdb_id
       ) if tmdb_id.to_s.length > 1
-    end if ids
+    end if tmdb_ids
     imdb_ids = @virtuoso_reader.get_objects_for(
         subject: raw_db_uri,
         predicate: "#{@schemas['tmdb']}movie/imdb_id"
