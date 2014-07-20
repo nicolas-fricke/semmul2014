@@ -36,6 +36,8 @@ module FreebaseMapper
 
     def map(raw_db_uri)
       begin
+        # map according to this schema
+        # https://github.com/nicolas-fricke/semmul2014/wiki/Extended-Ontology#example-movie-with-all-possible-classes-and-properties
         start_time = Time.now
         p "mapping #{raw_db_uri}"
         @virtuoso_writer.new_triple raw_db_uri,
@@ -50,6 +52,9 @@ module FreebaseMapper
         map_cast raw_db_uri
         map_director raw_db_uri
         map_production_companies raw_db_uri
+        map_description raw_db_uri
+        map_genres raw_db_uri
+        map_runtime raw_db_uri
 
 
 
@@ -104,7 +109,6 @@ module FreebaseMapper
       ids = @virtuoso_reader.get_objects_for subject: raw_db_uri,
                                                 predicate: "#{schemas['base_freebase']}/type/object/mid"
       ids.each do |id|
-        @id = id # needed elseway
         @virtuoso_writer.new_triple raw_db_uri,
                                     "#{schemas['lom']}freebase_mid",
                                     id
@@ -175,6 +179,16 @@ module FreebaseMapper
 
         update_pav company_uri
       end if companies
+    end
+
+    def map_description(raw_db_uri)
+      descriptions = @virtuoso_reader.get_objects_for subject: raw_db_uri,
+                                                      predicate: "#{schemas['base_freebase']}/common/topic/description"
+      descriptions.each do |description|
+        @virtuoso_writer.new_triple raw_db_uri,
+                                    "#{schemas['schema']}description",
+                                    description
+      end if descriptions
     end
 
     def map_director(raw_db_uri)
@@ -304,16 +318,29 @@ module FreebaseMapper
       end if performances
     end
 
+    def map_genres(raw_db_uri)
+      genre_uris = @virtuoso_reader.get_objects_for subject: raw_db_uri,
+                                                    predicate: "#{schemas['base_freebase']}/film/film/genre"
+      genre_uris.each do |genre_uri|
+        genre_names = @virtuoso_reader.get_objects_for subject: raw_db_uri,
+                                                       predicate: "#{schemas['base_freebase']}/type/object/name"
+        genre_names.each do |genre_name|
+          @virtuoso_writer.new_triple raw_db_uri,
+                                      "#{schemas['schema']}genre",
+                                      genre_name
+        end if genre_names
+      end if genre_uris
+    end
 
-    # def map_description(raw_db_uri)
-    #   descriptions = @virtuoso_reader.get_objects_for subject: raw_db_uri,
-    #                                                   predicate: "#{schemas['base_freebase']}/common/topic/description"
-    #   descriptions.each do |description|
-    #     @virtuoso_writer.new_triple raw_db_uri,
-    #                                 "#{schemas['schema']}description",
-    #                                 description
-    #   end if descriptions
-    # end
+    def map_runtime(raw_db_uri)
+      runtimes = @virtuoso_reader.get_objects_for subject: raw_db_uri,
+                                                  predicate: "#{schemas['base_freebase']}/film/film_cut/runtime"
+      runtimes.each do |runtime|
+          @virtuoso_writer.new_triple raw_db_uri,
+                                      "#{schemas['lom']}runtime",
+                                      RDF::Literal(Integer runtime)
+      end if runtimes
+    end
 
     private
 
