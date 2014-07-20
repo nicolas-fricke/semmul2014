@@ -167,8 +167,8 @@ class DBpediaMapper::Mapper
   def register_receiver
     @receiver = MsgConsumer.new
     @receiver.set_queue 'raw_dbpedia'
-    # @receiver.subscribe(type: "movie") { |movie_uri| map_entity(movie_uri, true) }
-    map_entity("http://dbpedia.org/resource/Star_Trek_(film)", true)
+    @receiver.subscribe(type: "movie") { |movie_uri| map_entity(movie_uri, true) }
+    # map_entity("http://dbpedia.org/resource/Star_Trek_(film)", true)
   end
 
   def mapped_object(object)
