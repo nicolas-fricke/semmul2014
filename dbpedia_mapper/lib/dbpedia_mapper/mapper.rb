@@ -13,7 +13,7 @@ class DBpediaMapper::Mapper
     @virtuoso_writer = VirtuosoWriter.new
     @virtuoso_writer.set_graph('mapped')
     @virtuoso_reader = VirtuosoReader.new
-    @virtuoso_reader.set_graph 'http://example.com/raw/'
+    @virtuoso_reader.set_graph 'raw'
 
     @publisher = MsgPublisher.new
     @publisher.set_queue('mapping')
@@ -167,7 +167,8 @@ class DBpediaMapper::Mapper
   def register_receiver
     @receiver = MsgConsumer.new
     @receiver.set_queue 'raw_dbpedia'
-    @receiver.subscribe(type: "movie") { |movie_uri| map_entity(movie_uri, true) }
+    # @receiver.subscribe(type: "movie") { |movie_uri| map_entity(movie_uri, true) }
+    map_entity("http://dbpedia.org/resource/Star_Trek_(film)", true)
   end
 
   def mapped_object(object)
