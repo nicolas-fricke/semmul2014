@@ -171,6 +171,14 @@ class DBpediaMapper::Mapper
     # map_entity("http://dbpedia.org/resource/Star_Trek_(film)", true)
   end
 
+  def start_demo(demoset = [])
+    p "starting dbpedia mapper in demo mode"
+    demoset.each do |movie_uri|
+      map_entity movie_uri, true
+    end
+    p "dbpedia mapper done"
+  end
+
   def mapped_object(object)
     @object_mappings["#{object}"].to_s
   end

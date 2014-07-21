@@ -12,9 +12,6 @@ module FreebaseMapper
   class FreebaseMapper::Mapper
 
     def initialize
-      @receiver = MsgConsumer.new
-      @receiver.set_queue 'raw_freebase'
-
       @publisher = MsgPublisher.new
       @publisher.set_queue 'mapping'
 
@@ -28,10 +25,22 @@ module FreebaseMapper
       @place_finder = DBpediaReader.new
 
       @log = Logger.new('log', 'daily')
+    end
+
+    def register_receiver
+      @receiver = MsgConsumer.new
+      @receiver.set_queue 'raw_freebase'
 
       puts "listening on queue #{@receiver.queue_name :movie_uri}"
       @receiver.subscribe(type: :movie_uri) { |movie_uri| map movie_uri }
-      # map 'http://rdf.freebase.com/ns/m/0c2l1s'
+    end
+
+    def start_demo(demoset = [])
+      p "start freebase mapper in dmeo mode"
+      demoset.each do |movie_uri|
+        map movie_uri
+      end
+      p "freebase mapper done"
     end
 
     def map(raw_db_uri)

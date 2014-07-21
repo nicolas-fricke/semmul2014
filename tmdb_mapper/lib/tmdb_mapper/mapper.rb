@@ -24,6 +24,14 @@ class TMDbMapper::Mapper
     @receiver.subscribe(type: :movie_uri) { |movie_uri| map(movie_uri) }
   end
 
+  def start_demo(demoset = [])
+    p "start tmdb mapper in demo mode"
+    demoset.each do |movie_uri|
+      map movie_uri
+    end
+    p "tmdb mapper done"
+  end
+
   def map(raw_db_uri)
     # try to delete existing triples for movie first
     p "mapping #{raw_db_uri}"
