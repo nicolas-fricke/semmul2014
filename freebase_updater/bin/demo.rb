@@ -13,8 +13,12 @@ def parse_movie_file(path)
   end.reject {|l| l.nil? }
 end
 
+DEFAULT_PATH = '../demo/movie_links.csv'
+
 if ARGV.first
   FreebaseUpdater::Updater.new.start_demo parse_movie_file(ARGV.first)
+elsif File.exists? DEFAULT_PATH
+  FreebaseUpdater::Updater.new.start_demo parse_movie_file(File.absolute_path DEFAULT_PATH)
 else
-  p "please specify the path to the CSV file"
+  p "please specify a cvs file"
 end

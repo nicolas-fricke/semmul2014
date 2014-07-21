@@ -4,6 +4,8 @@ require 'yaml'
 require 'csv'
 require_relative '../lib/dbpedia_crawler'
 
+DEFAULT_PATH = '../demo/movie_links.csv'
+
 def parse_movie_file(path)
   p path
   movie_links = []
@@ -75,7 +77,13 @@ public
       configuration.each_key { |key| configuration[key].merge! (global_configuration[key] || {}) }
       configuration.each_key { |key| configuration[key].merge! (arguments[key] || {}) }
       # start crawler
-      DBpediaCrawler::Crawler.new(configuration).start_demo parse_movie_file(ARGV.first)
+      if ARGV.first
+        DBpediaCrawler::Crawler.new(configuration).start_demo parse_movie_file(ARGV.first)
+      elsif File.exists? DEFAULT_PATH
+        DBpediaCrawler::Crawler.new(configuration).start_demo parse_movie_file(File.absolute_path DEFAULT_PATH)
+      else
+        p "please specify a cvs file"
+      end
     rescue Exception => e
       puts "### STOP: Uncaptured error while running the crawler:"
       puts e.message, e.backtrace
