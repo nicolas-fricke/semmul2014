@@ -1,12 +1,12 @@
-star trek,http://dbpedia.org/resource/Star_Trek_(film),http://www.freebase.com/m/08phg9,https://www.themoviedb.org/movie/13475-star-trek,
-star trek into darkness,http://dbpedia.org/resource/Star_Trek_Into_Darkness,http://www.freebase.com/m/0hhqv27,https://www.themoviedb.org/movie/54138-star-trek-into-darkness,
-bambi,http://dbpedia.org/resource/Bambi,http://www.freebase.com/m/04j1zjw,https://www.themoviedb.org/movie/3170-bambi,
-300,http://dbpedia.org/resource/300_(film),http://www.freebase.com/m/07f_t4,https://www.themoviedb.org/movie/1271-300,
-star wars,http://dbpedia.org/resource/Star_Wars_Episode_IV:_A_New_Hope,http://www.freebase.com/m/0dtfn,https://www.themoviedb.org/movie/11-star-wars-episode-iv-a-new-hope,
-margin call,http://dbpedia.org/resource/Margin_Call_(film),http://www.freebase.com/m/0cc7hmk,https://www.themoviedb.org/movie/50839,
-fast and furious 6,http://dbpedia.org/resource/Fast_&_Furious_6,http://www.freebase.com/m/0gtxbqr,https://www.themoviedb.org/movie/82992-fast-furious-6,
-despicable me,http://dbpedia.org/resource/Despicable_Me,http://www.freebase.com/m/06zkfsy,https://www.themoviedb.org/movie/20352-despicable-me,
-her,http://dbpedia.org/resource/Her_(film),http://www.freebase.com/m/0lq6fb5,https://www.themoviedb.org/movie/152601-her,
-walk the line,http://dbpedia.org/resource/Walk_the_Line,http://www.freebase.com/m/05jzt3,https://www.themoviedb.org/movie/69-walk-the-line,
-king kong (1976),http://dbpedia.org/resource/King_Kong_(1976_film),http://www.freebase.com/m/02ktj7,https://www.themoviedb.org/movie/10730-king-kong,
-king kong (2005),http://dbpedia.org/resource/King_Kong_(2005_film),http://www.freebase.com/m/02dr9j,https://www.themoviedb.org/movie/254-king-kong,
+star trek,http://dbpedia.org/resource/Star_Trek_(film),http://rdf.freebase.com/ns/m/08phg9,http://semmul2014.hpi.de/tmdb/movie/13475
+star trek into darkness,http://dbpedia.org/resource/Star_Trek_Into_Darkness,http://rdf.freebase.com/ns/m/0hhqv27,http://semmul2014.hpi.de/tmdb/movie/54138
+bambi,http://dbpedia.org/resource/Bambi,http://rdf.freebase.com/ns/m/04j1zjw,http://semmul2014.hpi.de/tmdb/movie/3170
+300,http://dbpedia.org/resource/300_(film),http://rdf.freebase.com/ns/m/07f_t4,http://semmul2014.hpi.de/tmdb/movie/1271
+star wars,http://dbpedia.org/resource/Star_Wars_Episode_IV:_A_New_Hope,http://rdf.freebase.com/ns/m/0dtfn,http://semmul2014.hpi.de/tmdb/movie/11
+margin call,http://dbpedia.org/resource/Margin_Call_(film),http://rdf.freebase.com/ns/m/0cc7hmk,http://semmul2014.hpi.de/tmdb/movie/50839
+fast and furious 6,http://dbpedia.org/resource/Fast_&_Furious_6,http://rdf.freebase.com/ns/m/0gtxbqr,http://semmul2014.hpi.de/tmdb/movie/82992
+despicable me,http://dbpedia.org/resource/Despicable_Me,http://rdf.freebase.com/ns/m/06zkfsy,http://semmul2014.hpi.de/tmdb/movie/20352
+her,http://dbpedia.org/resource/Her_(film),http://rdf.freebase.com/ns/m/0lq6fb5,http://semmul2014.hpi.de/tmdb/movie/152601
+walk the line,http://dbpedia.org/resource/Walk_the_Line,http://rdf.freebase.com/ns/m/05jzt3,http://semmul2014.hpi.de/tmdb/movie/69
+king kong (1976),http://dbpedia.org/resource/King_Kong_(1976_film),http://rdf.freebase.com/ns/m/02ktj7,http://semmul2014.hpi.de/tmdb/movie/10730
+king kong (2005),http://dbpedia.org/resource/King_Kong_(2005_film),http://rdf.freebase.com/ns/m/02dr9j,http://semmul2014.hpi.de/tmdb/movie/254
