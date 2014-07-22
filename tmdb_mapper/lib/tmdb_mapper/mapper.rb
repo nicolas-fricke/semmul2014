@@ -33,6 +33,10 @@ class TMDbMapper::Mapper
     @virtuoso_writer.new_triple raw_db_uri, "#{@schemas['rdf']}type", "#{@schemas['schema']}Movie", literal: false
     map_movie_id(raw_db_uri)
     map_movie_titles(raw_db_uri)
+    map_movie_description(raw_db_uri)
+    map_movie_genres(raw_db_uri)
+    map_movie_runtime(raw_db_uri)
+    map_movie_tagline(raw_db_uri)
     map_movie_release_dates(raw_db_uri)
     map_movie_production_companies(raw_db_uri)
     map_cast(raw_db_uri)
@@ -50,7 +54,7 @@ class TMDbMapper::Mapper
       @virtuoso_writer.new_triple(
           raw_db_uri, "#{@schemas['lom']}tmdb_id", tmdb_id
       ) if tmdb_id.to_s.length > 1
-    end if ids
+    end if tmdb_ids
     imdb_ids = @virtuoso_reader.get_objects_for(
         subject: raw_db_uri,
         predicate: "#{@schemas['tmdb']}movie/imdb_id"
@@ -75,27 +79,142 @@ class TMDbMapper::Mapper
     end if titles
   end
 
+  def map_movie_description(raw_db_uri)
+    description = @virtuoso_reader.get_objects_for(
+        subject: raw_db_uri,
+        predicate: "#{@schemas['tmdb']}movie/overview"
+    )
+    if description
+      description.each do |d|
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{@schemas['schema']}description", d
+        ) if d.to_s.length > 1
+      end if description
+    end
+  end
+
+  def map_movie_genres(raw_db_uri)
+    genre_uris = @virtuoso_reader.get_objects_for(
+        subject: raw_db_uri,
+        predicate: "#{@schemas['tmdb']}movie/genres"
+    )
+    if genre_uris
+      genre_uris.each do |uri|
+        genres = @virtuoso_reader.get_objects_for(
+            subject: uri,
+            predicate: "#{@schemas['tmdb']}genres/name"
+        )
+        genres.each do |genre|
+          @virtuoso_writer.new_triple(
+              raw_db_uri, "#{@schemas['schema']}genre", genre
+          ) if genre.to_s.length > 1
+        end if genres
+      end if genre_uris
+    end
+  end
+
+  def map_movie_runtime(raw_db_uri)
+    runtime = @virtuoso_reader.get_objects_for(
+        subject: raw_db_uri,
+        predicate: "#{@schemas['tmdb']}movie/runtime"
+    )
+    if runtime
+      runtime.each do |time|
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{@schemas['lom']}runtime", time
+        ) if time.to_s.length > 1
+      end if runtime
+    end
+  end
+
+  def map_movie_tagline(raw_db_uri)
+    taglines = @virtuoso_reader.get_objects_for(
+        subject: raw_db_uri,
+        predicate: "#{@schemas['tmdb']}movie/tagline"
+    )
+    if taglines
+      taglines.each do |tagline|
+        @virtuoso_writer.new_triple(
+            raw_db_uri, "#{@schemas['schema']}headline", tagline
+        ) if tagline.to_s.length > 1
+      end if taglines
+    end
+  end
+
   def map_movie_release_dates(raw_db_uri)
     dates = @virtuoso_reader.get_objects_for(
       subject: raw_db_uri,
       predicate: "#{@schemas['tmdb']}movie/release_date"
     )
-    dates.each do |release_date|
-      # if date is complete
-      if release_date.to_s=~/^(?<year>(19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
+    if dates
+      dates.each do |release_date|
+        # if date is complete
+        if release_date.to_s=~/^(?<year>(19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
+          @virtuoso_writer.new_triple(
+              raw_db_uri, "#{@schemas['schema']}datePublished", (set_xsd_type release_date, 'date')
+          )
+          @virtuoso_writer.new_triple(
+              raw_db_uri, "#{@schemas['lom']}yearPublished", (set_xsd_type release_date.to_s[0...4], 'gYear')
+          )
+        # if only year (and month) is given
+        elsif release_date.to_s=~/^(?<year>(19|20)\d{2})/
+          @virtuoso_writer.new_triple(
+              raw_db_uri, "#{@schemas['lom']}yearPublished", (set_xsd_type release_date.to_s[0...4], 'gYear')
+          )
+        end
+      end if dates
+    end
+
+    release_countries = @virtuoso_reader.get_objects_for(
+        subject: raw_db_uri,
+        predicate: "#{@schemas['tmdb']}movie/releases/countries"
+    )
+    if release_countries
+      release_countries.each do |country_uri|
+        isos = @virtuoso_reader.get_objects_for(
+            subject: country_uri,
+            predicate: "#{@schemas['tmdb']}movie/releases/countries/iso_3166_1"
+        )
+        # should be only one entry
         @virtuoso_writer.new_triple(
-            raw_db_uri, "#{@schemas['schema']}datePublished", (set_xsd_type release_date, 'date')
+            raw_db_uri, "#{@schemas['lom']}release", country_uri, literal:false
         )
         @virtuoso_writer.new_triple(
-            raw_db_uri, "#{@schemas['lom']}yearPublished", (set_xsd_type release_date.to_s[0...4], 'gYear')
+            country_uri, "#{@schemas['rdf']}type", "#{@schemas['lom']}Release", literal:false
         )
-      # if only year (and month) is given
-      elsif release_date.to_s=~/^(?<year>(19|20)\d{2})/
-        @virtuoso_writer.new_triple(
-            raw_db_uri, "#{@schemas['lom']}yearPublished", (set_xsd_type release_date.to_s[0...4], 'gYear')
+        isos.each do |iso|
+          @virtuoso_writer.new_triple(
+              country_uri, "#{@schemas['lom']}country", iso
+          )
+        end if isos
+        dates = @virtuoso_reader.get_objects_for(
+            subject: country_uri,
+            predicate: "#{@schemas['tmdb']}movie/releases/countries/release_date"
         )
-      end
-    end if dates
+        if dates
+          dates.each do |date|
+            # if date is complete
+            if date.to_s=~/^(?<year>(19|20)\d{2})-(?<month>(0[1-9]|1[012]))\-(?<day>(0[1-9]|[12][0-9]|3[01]))$/
+              @virtuoso_writer.new_triple(
+                  country_uri, "#{@schemas['lom']}date", (set_xsd_type date, 'date')
+              )
+            end
+          end if dates
+        end
+        certs = @virtuoso_reader.get_objects_for(
+            subject: country_uri,
+            predicate: "#{@schemas['tmdb']}movie/releases/countries/certification"
+        )
+        if certs
+          certs.each do |cert|
+            @virtuoso_writer.new_triple(
+                country_uri, "#{@schemas['lom']}certification", cert
+            ) if cert.to_s.length > 1
+          end if certs
+        end
+        @virtuoso_writer.new_triple country_uri, @schemas['pav_lastupdateon'], (set_xsd_type DateTime.now, 'dateTime')
+      end if release_countries
+    end
   end
 
   def map_movie_production_companies(raw_db_uri)
