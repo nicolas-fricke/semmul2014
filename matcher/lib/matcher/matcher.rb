@@ -6,17 +6,24 @@ class Matcher::Matcher
 
   def initialize
     @virtuoso = Matcher::Virtuoso.new
-    @debug = false
-    config
+
+    namespaces = YAML.load_file '../config/namespaces.yml'
+    @types = namespaces['types']
+
+    matching ||= YAML.load_file '../config/matching.yml'
+    @weights = matching['weights']
+    @thresholds = matching['thresholds']
+    @control = matching['control']
+    @settings = matching['settings']
   end
 
   def find(entity_uri)
-    entity_triples = @virtuoso.get_triples(entity_uri)
-    identic = find_same entity_triples
+    entity_triples = @virtuoso.get_triples(entity_uri, graph: 'mapped')
+    identical = find_same entity_triples
 
     # try to find identical entities
-    unless identic.empty?
-        identic
+    if identical
+      identical
     else
       # try to find very similar entities
       find_thresh_matching entity_triples
@@ -25,9 +32,8 @@ class Matcher::Matcher
 
   def find_same(entity_triples)
     if entity_triples.get_type == @types['movie_type']
-      return Set.new find_same_movie(entity_triples)
+      find_same_movie(entity_triples)
     end
-    return Set.new
   end
 
   def find_same_movie(entity_triples)
@@ -50,7 +56,10 @@ class Matcher::Matcher
       end
     end
 
-    same_entities
+    if same_entities.size > 1
+      p ">>>>>>>> found more than one identical entities"
+    end
+    same_entities.first
   end
 
   def find_thresh_matching(entity_triples)
@@ -81,7 +90,7 @@ class Matcher::Matcher
     all_subjects.each do |subject_uri|
       unless entity_triples.subject == subject_uri
         # calculate match
-        other_triples = @virtuoso.get_triples subject_uri
+        other_triples = @virtuoso.get_triples subject_uri # get from merged
         match = calculate_match entity_triples, other_triples, entity_type
         all_matches[subject_uri.to_s] = (match.nan? ? 0.0 : match)
       end
@@ -106,8 +115,34 @@ class Matcher::Matcher
     end
   end
 
+  def evaluation_same(a_triples, b_triples)
+      # check if these two entities are the same
+
+      # fb_mid
+      a_fb_mid = a_triples.get_fb_mid()
+      b_fb_mid = b_triples.get_fb_mid()
+      unless a_fb_mid.nil? and b_fb_mid.nil?
+          return a_fb_mid == b_fb_mid
+      end
+
+      # imdb_id
+      a_imdb_id = a_triples.get_imdb_id()
+      b_imdb_id = b_triples.get_imdb_id()
+      unless a_imdb_id.nil? and b_imdb_id.nil?
+          return  a_imdb_id == b_imdb_id
+      end
+
+      return false
+  end
+
+
+  def evaluation_match(a_triples, b_triples)
+      entity_type = a_triples.get_type
+      calculate_match(a_triples, b_triples, entity_type)
+  end
+
   # def type_match(a,b)
-  #   return 0 if a.nil? or b.nil?
+  #   return 0.0 if a.nil? or b.nil?
   #   type_uri = RDF::URI.new "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
   #   types_a = a.get_o type_uri
   #   types_b = b.get_o type_uri
@@ -126,14 +161,14 @@ class Matcher::Matcher
 
 
   def organization_match(a,b)
-    return 0 if a.nil? or b.nil? # TODO cirrect for levensthein?
+    return 0.0 if a.nil? or b.nil?
     name_a = a.get_name.to_s
     name_b = b.get_name.to_s
     levenshtein_match name_a, name_b
   end
 
   def performance_match(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0.0 if a.nil? or b.nil?
 
     # # match character
     # character_a = a.get_character().to_s
@@ -143,7 +178,7 @@ class Matcher::Matcher
     # match actor
     actor_a_uri = a.get_actor.first
     actor_b_uri = b.get_actor.first
-    actor_a = @virtuoso.get_triples actor_a_uri
+    actor_a = @virtuoso.get_triples actor_a_uri, graph: 'mapped'
     actor_b = @virtuoso.get_triples actor_b_uri
     match_actor = person_match actor_a, actor_b
 
@@ -155,15 +190,18 @@ class Matcher::Matcher
   end
 
   def match_movie(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0.0 if a.nil? or b.nil?
       # title
       title_a = a.get_name.to_s
       title_b = b.get_name.to_s
       title_match = levenshtein_match title_a, title_b
 
       # director
-      director_a = @virtuoso.get_triples a.get_director
-      director_b = @virtuoso.get_triples b.get_director
+
+      # as we are merging from the mapped to merged graph, a comes from mapped b from merged
+      # TODO make this more flexible, maybe pass the graph from which the triples were retrieved
+      director_a = @virtuoso.get_triples a.get_director, graph: 'mapped'
+      director_b = @virtuoso.get_triples b.get_director # TODO get_director returns only the first result, for some reason this
       use_director_match = true
       director_match = 0.0
       if director_a.nil? or director_b.nil?
@@ -255,7 +293,7 @@ class Matcher::Matcher
   end
 
   def person_match(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0.0 if a.nil? or b.nil?
     # --> match names
     names_a = []
     if a
@@ -282,7 +320,7 @@ class Matcher::Matcher
     birthdate_match = 0
     if !birth_date_a.nil? and !birth_date_b.nil?
       use_birthdate = true
-      birthdate_match = date_match a.get_birthdate, b.get_birthdate
+      birthdate_match = date_match a.get_birthdate, b.get_birthdate #TODO
     else
       # if there is no birthdate, then we cannot use 0, as this would distort the result
       # in this case, we have to rely on the known information
@@ -305,7 +343,7 @@ class Matcher::Matcher
   end
 
   def location_match(a,b)
-    return 0 if a.nil? or b.nil?
+    return 0.0 if a.nil? or b.nil?
     # location distance
     a_pos = {:lat  => a[:latitude], :long => a[:longitude]}
     b_pos = {:lat => b[:latitude], :long => b[:longitude]}
@@ -465,19 +503,6 @@ class Matcher::Matcher
     2 * union_size / (a_actors.size.to_f + b_actors.size.to_f)
   end
 
-
-  def config
-      @config ||= YAML.load_file '../config/matching.yml'
-
-      namespaces ||= YAML.load_file '../config/namespaces.yml'
-      @types = namespaces['types']
-
-      matching ||= YAML.load_file '../config/matching.yml'
-      @weights = matching['weights']
-      @thresholds = matching['thresholds']
-      @control = matching['control']
-      @settings = matching['settings']
-  end
 
 end
 

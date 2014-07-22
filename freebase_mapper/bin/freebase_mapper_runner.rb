@@ -1,4 +1,4 @@
 require_relative '../lib/freebase_mapper'
 
-FreebaseMapper::Mapper.new
+FreebaseMapper::Mapper.new.register_receiver
 

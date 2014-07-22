@@ -5,6 +5,8 @@ require 'rdf'
 require 'rdf/virtuoso'
 
 
+#Virtuoso.new.tap {|v| v.graph = v.graphs['mapped']}
+
 class Matcher::Virtuoso
   def initialize
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
@@ -22,23 +24,20 @@ class Matcher::Virtuoso
     result
   end
 
-  def get_triples(subject_uri)
+  def get_triples(subject_uri, graph: 'merged')
     if subject_uri.nil?
       return nil
     end
     subject = RDF::URI.new(subject_uri)
-    graph = @graphs['merged']
-    if @control['debug']
-      graph = @graphs['mapped']
-    end
-    query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).graph(graph)
+    query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).to_s
+    query.insert query.index('WHERE'),"FROM <#{@graphs[graph]}> "
     triples = Matcher::Triples.new(subject)
 
     solutions = run_query(@endpoint, query)
     solutions.each_solution do |solution|
       triples.add_p_o(solution.bindings)
     end
-    return triples
+    triples
   end
 
   def get_entities_of_type(entity_type)
@@ -56,7 +55,9 @@ class Matcher::Virtuoso
 
   def get_movie_subjects_by_imdb(imdb_id)
     s_list = []
-    query = "select distinct ?s from <#{@graphs['merged']}> where {?s <http://semmul2014.hpi.de/lodofmovies.owl#imdb_id> '#{imdb_id}'. ?s rdf:type '#{@types['movie_type']}'}"
+    query = "select distinct ?s from <#{@graph}> where {
+                    ?s <http://semmul2014.hpi.de/lodofmovies.owl#imdb_id> '#{imdb_id}'.
+                    ?s <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <#{@types['movie_type']}>}"
     results = run_query(@endpoint, query)
     results.each_solution do |solution|
       s_list << solution.bindings[:s]
@@ -66,11 +67,7 @@ class Matcher::Virtuoso
 
   def get_movie_subjects_by_fb_mid(fb_mid)
     s_list = []
-    graph = @graphs['merged']
-    if @control['debug']
-      graph = @graphs['mapped']
-    end
-    query = "select  distinct ?s from <#{graph}> where {?s ?p ?o.
+    query = "select  distinct ?s from <#{@graph}> where {?s ?p ?o.
                     ?s <http://semmul2014.hpi.de/lodofmovies.owl#freebase_mid> ?mid.
                     FILTER (REGEX(STR(?mid), '#{fb_mid.to_s}', 'i'))}"
     results = run_query(@endpoint, query)
@@ -97,11 +94,7 @@ class Matcher::Virtuoso
     same_as = []
     entity_uri = entity_triples.subject.to_s
     # get entities from main_db, that have a sameAs to the entity (which is from map_db)
-    graph = @graphs['merged']
-    if @control['debug']
-      graph = @graphs['mapped']
-    end
-    query = "select ?s from <#{graph}> where {?s owl:sameAs <#{entity_uri}>}"
+    query = "select ?s from <#{@graph}> where {?s owl:sameAs <#{entity_uri}>}"
     results = run_query(@endpoint, query)
     results.each_solution do |solution|
       same_as << solution.bindings[:s]
@@ -121,6 +114,7 @@ class Matcher::Virtuoso
     @control = matching['control']
     namespaces = YAML.load_file '../config/namespaces.yml'
     @graphs = namespaces['graphs']
+    @graph = @graphs['merged']
     @types = namespaces['types']
   end
 end

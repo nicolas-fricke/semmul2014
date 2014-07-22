@@ -25,14 +25,15 @@ class Merger::CopyMachine
   end
 
   def copy_literals(map_db_uri, new_main_db_uri)
-    results = virtuoso_reader.get_predicates_and_objects_for subject: map_db_uri, filter: ['isLiteral(?o)']
+    results = virtuoso_reader.get_predicates_and_objects_for subject: map_db_uri,
+                                                             filter: ['isLiteral(?o)']
     results.each do |result|
       virtuoso_writer.new_triple new_main_db_uri, result[:p], result[:o]
     end
   end
 
   def copy_entities(map_db_uri, new_main_db_uri)
-    "copying #{map_db_uri} to #{new_main_db_uri}"
+    p "copying #{map_db_uri} to #{new_main_db_uri}"
     results = virtuoso_reader.get_predicates_and_objects_for subject: map_db_uri, filter: ['isURI(?o)']
     results.each do |result|
       merged_uri = if should_be_merged? result[:p]

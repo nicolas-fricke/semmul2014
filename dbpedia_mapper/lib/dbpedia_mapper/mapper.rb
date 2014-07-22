@@ -13,7 +13,7 @@ class DBpediaMapper::Mapper
     @virtuoso_writer = VirtuosoWriter.new
     @virtuoso_writer.set_graph('mapped')
     @virtuoso_reader = VirtuosoReader.new
-    @virtuoso_reader.set_graph 'http://example.com/raw/'
+    @virtuoso_reader.set_graph 'raw'
 
     @publisher = MsgPublisher.new
     @publisher.set_queue('mapping')
@@ -34,6 +34,9 @@ class DBpediaMapper::Mapper
     @further_entities = [get_property('schema', 'director'), get_property('schema', 'productionCompany'), get_property('dbpedia', 'birthPlace'), get_property('dbpedia', 'actor')]
     
     @literals = [get_property('schema', 'name'), get_property('lom', 'imdb_id'), get_property('lom', 'freebase_mid'), get_property('schema', 'datePublished'), get_property('schema', 'givenName'), get_property('schema', 'familyName'), get_property('schema', 'birthDate'), get_property('schema', 'alternateName')]
+
+    @runtimes_minutes = [get_property('dbpedia', 'Work/runtime'), get_property('lom', 'runtime')]
+    @runtimes_seconds = [get_property('dbprop', 'runtime/60'), get_property('dbpedia', 'runtime/60'), get_property('dbpedia', 'runtime')]
 
     @object_mappings = {
       get_property('owl', 'Thing') => get_property('schema', 'Thing'),
@@ -147,6 +150,15 @@ class DBpediaMapper::Mapper
       get_property('dbprop', 'alternativeNames') => get_property('schema', 'alternateName'), # literal, string
       get_property('dbpedia', 'alias') => get_property('schema', 'alternateName'),
       get_property('schema', 'alternateName') => get_property('schema', 'alternateName'),
+
+      get_property('dbpedia', 'abstract') => get_property('schema', 'description'), # literal, string
+      get_property('schema', 'description') => get_property('schema', 'description'),
+
+      get_property('dbpedia', 'Work/runtime') => get_property('lom', 'runtime'), # literal, double (in minutes)
+      get_property('dbprop', 'runtime/60') => get_property('lom', 'runtime'),
+      get_property('dbpedia', 'runtime/60') => get_property('lom', 'runtime'),
+      get_property('dbpedia', 'runtime') => get_property('lom', 'runtime'),
+      get_property('lom', 'runtime') => get_property('lom', 'runtime'),
     }
 
     @type = get_property('rdf', 'type')
@@ -156,6 +168,15 @@ class DBpediaMapper::Mapper
     @receiver = MsgConsumer.new
     @receiver.set_queue 'raw_dbpedia'
     @receiver.subscribe(type: "movie") { |movie_uri| map_entity(movie_uri, true) }
+    # map_entity("http://dbpedia.org/resource/Star_Trek_(film)", true)
+  end
+
+  def start_demo(demoset = [])
+    p "starting dbpedia mapper in demo mode"
+    demoset.each do |movie_uri|
+      map_entity movie_uri, true
+    end
+    p "dbpedia mapper done"
   end
 
   def mapped_object(object)
@@ -224,7 +245,7 @@ class DBpediaMapper::Mapper
       # map objects with URIs to other entities that have to be mapped
       elsif go_deeper and @further_entities.include?(mp)
         map_entity(object, false)
-        if mp == get_property('schema', 'Director')
+        if mp == get_property('schema', 'director')
           @virtuoso_writer.new_triple(object, get_property('rdf', 'typeOf'), get_property('lom', 'Director'), literal:false)
         end
         @virtuoso_writer.new_triple(subject, mp, clean(object), literal:@literals.include?(mp))
@@ -233,8 +254,16 @@ class DBpediaMapper::Mapper
       elsif mp == get_property('schema', 'sameAs') and object.start_with?('http://rdf.freebase.com/ns/')
         mp = get_property('lom', 'freebase_mid')
         object = object.to_s
-        mo = 'm/' + object[29, 20]
+        mo = '/m/' + object[29, 20]
         @virtuoso_writer.new_triple(subject, mp, mo)
+
+      # map minutes runtimes
+      elsif @runtimes_minutes.include?(predicate)
+        @virtuoso_writer.new_triple(subject, mp, RDF::Literal.new(object.to_s.to_i, datatype: RDF::XSD.integer))
+
+      # map seconds runtimes
+      elsif @runtimes_seconds.include?(predicate)
+        @virtuoso_writer.new_triple(subject, mp, RDF::Literal.new(object.to_s.to_i / 60, datatype: RDF::XSD.integer))
 
       # map everything else
       elsif mp != nil and mp != ""
