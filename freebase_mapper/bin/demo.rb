@@ -5,7 +5,7 @@ DEFAULT_PATH = '../demo/movie_links.csv'
 def parse_movie_file(path)
   p path
   movie_links = []
-  CSV.foreach(path) do |name, _, fb_link, _, _|
+  CSV.foreach(path) do |name, _, fb_link, _|
     movie_links << fb_link
   end
   movie_links
