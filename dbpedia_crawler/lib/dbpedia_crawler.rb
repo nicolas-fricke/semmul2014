@@ -10,8 +10,8 @@
 # - TypeChecker: checks types using type inference
 # - Writer: provides means of persisting data
 #
-# TODO: improve and use type checking
-# TODO: query related show data (allow to name queries in fetching rules)
+# future work: improve and use type checking
+# future work: query related show data (allow to name queries in fetching rules)
 module DBpediaCrawler
 
   require_relative 'dbpedia_crawler/crawler'

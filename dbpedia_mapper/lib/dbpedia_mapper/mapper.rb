@@ -173,8 +173,11 @@ class DBpediaMapper::Mapper
 
   def start_demo(demoset = [])
     p "starting dbpedia mapper in demo mode"
+    i = 1
     demoset.each do |movie_uri|
+      puts "\nMapping Movie #{i} / #{demoset.size}\n"
       map_entity movie_uri, true
+      i += 1
     end
     p "dbpedia mapper done"
   end
