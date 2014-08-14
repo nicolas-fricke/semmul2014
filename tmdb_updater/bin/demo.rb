@@ -4,7 +4,7 @@ require_relative '../lib/tmdb_updater'
 def parse_movie_file(path)
   p path
   movie_links = []
-  CSV.foreach(path) do |name, _, _, tmdb_link|
+  CSV.foreach(path, { :col_sep => "\t" }) do |_, _, tmdb_link|
     movie_links << tmdb_link
   end
   movie_links.map do |l|
@@ -13,7 +13,7 @@ def parse_movie_file(path)
   end.reject {|l| l.nil? }
 end
 
-DEFAULT_PATH = '../demo/movie_links.csv'
+DEFAULT_PATH = '../demo/1000_Movies.tsv'
 
 if ARGV.first
   TMDbUpdater::Updater.new.start_demo parse_movie_file(ARGV.first)
