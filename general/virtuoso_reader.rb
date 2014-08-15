@@ -51,13 +51,13 @@ class VirtuosoReader
   end
 
   def exists_subject(subject:, graph: @graph)
-    subject = RDF::URI.new("http://semmul2014.hpi.de/tmdb/movie/11449")
+    subject = RDF::URI.new(subject)
     begin
       query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).to_s
       query.insert query.index('WHERE'),"FROM <#{graph}> "
       results = @repo.select(query)
 
-      return results.empty?
+      return !results.empty?
     rescue Exception => e
       puts e
       nil
