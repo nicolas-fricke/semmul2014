@@ -4,8 +4,9 @@ require 'set'
 
 class Matcher::Matcher
 
-  def initialize
-    @virtuoso = Matcher::Virtuoso.new
+  def initialize(evaluation=false)
+    @evaluation = evaluation
+    @virtuoso = Matcher::Virtuoso.new(evaluation)
 
     namespaces = YAML.load_file '../config/namespaces.yml'
     @types = namespaces['types']
@@ -136,7 +137,9 @@ class Matcher::Matcher
   end
 
 
-  def evaluation_match(a_triples, b_triples)
+  def evaluation_match(a_uri, b_uri)
+      a_triples = @virtuoso.get_triples(a_uri, graph: 'mapped')
+      b_triples = @virtuoso.get_triples(b_uri, graph: 'mapped')
       entity_type = a_triples.get_type
       calculate_match(a_triples, b_triples, entity_type)
   end
@@ -293,6 +296,9 @@ class Matcher::Matcher
   end
 
   def person_match(a,b)
+
+    # todo: family name, given name, multiple name fields
+
     return 0.0 if a.nil? or b.nil?
     # --> match names
     names_a = []
@@ -300,7 +306,7 @@ class Matcher::Matcher
       a.get_alternative_names.each do |alt_name_a|
         names_a << alt_name_a.to_s
       end
-      names_a << a.get_name.to_s
+      names_a << a.get_name.to_s.tr(",", " ")
     end
 
     names_b = []
@@ -308,7 +314,7 @@ class Matcher::Matcher
       b.get_alternative_names.each do |alt_name_b|
         names_b << alt_name_b.to_s
       end
-      names_b << b.get_name.to_s
+      names_b << b.get_name.to_s.tr(",", " ")
     end
 
     # todo: first_name, last_name, name will be given with different info

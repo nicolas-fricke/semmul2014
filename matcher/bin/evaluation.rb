@@ -1,28 +1,32 @@
 require 'csv'
-require_relative '../general/virtuoso_reader'
+require_relative '../../general/virtuoso_reader'
+require_relative '../lib/matcher'
 
-def test_demo_data(path)
+def evaluate(path)
   p path
-  movie_links = []
-  missing_count = [0,0,0]
   counter = 1
   reader = VirtuosoReader.new graph:'mapped'
+  matcher = Matcher::Matcher.new(true)
+
+  match_db_fb = [0,0] # match, no_match
+
   CSV.foreach(path, { :col_sep => "\t" }) do |dbpedia_link, fb_link, tmdb_link|
 
     begin
-      dbpedia_exists = reader.exists_subject subject: dbpedia_link
 
+      # subject uris
+      dbpedia_exists = reader.exists_subject subject: dbpedia_link
       fb_mid = fb_link.split("freebase.com/m/")[1]
       fb_uri = "http://rdf.freebase.com/ns/m/#{fb_mid}"
       fb_exists = reader.exists_subject subject: fb_uri
-
       tmdb_id = tmdb_link.split("themoviedb.org/")[1].split("/")[1][/\d+/]
       tmdb_uri = "http://semmul2014.hpi.de/tmdb/movie/#{tmdb_id}"
       tmdb_exists = reader.exists_subject subject: tmdb_uri
 
-      missing_count[0] += 1 unless dbpedia_exists
-      missing_count[1] += 1 unless fb_exists
-      missing_count[2] += 1 unless tmdb_exists
+      if dbpedia_exists and fb_exists
+        match01 = matcher.evaluation_match(dbpedia_link, fb_uri)
+      end
+
 
     rescue Exception => e
       puts e
@@ -32,13 +36,10 @@ def test_demo_data(path)
     counter += 1
   end
   puts ""
-  puts "dbpedia:  #{1000-missing_count[0]}/1000"
-  puts "freebase: #{1000-missing_count[1]}/1000"
-  puts "tmdb:     #{1000-missing_count[2]}/1000"
 
 end
 
 DEFAULT_PATH = '../demo/1000_Movies.tsv'
 
 
-test_demo_data(File.absolute_path DEFAULT_PATH)
+evaluate(File.absolute_path DEFAULT_PATH)

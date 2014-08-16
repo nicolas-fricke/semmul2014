@@ -8,13 +8,14 @@ require 'rdf/virtuoso'
 #Virtuoso.new.tap {|v| v.graph = v.graphs['mapped']}
 
 class Matcher::Virtuoso
-  def initialize
+  def initialize(evaluation=false)
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',
                                           update_uri: 'http://localhost:8890/sparql-auth',
                                           username: secrets['databases']['virtuoso']['username'],
                                           password: secrets['databases']['virtuoso']['password'],
                                           auth_method: 'digest')
     @endpoint = 'http://localhost:8890/sparql'
+    @evaluation = evaluation
     config
   end
 
@@ -28,6 +29,7 @@ class Matcher::Virtuoso
     if subject_uri.nil?
       return nil
     end
+    graph = 'mapped' if @evaluation==true
     subject = RDF::URI.new(subject_uri)
     query = RDF::Virtuoso::Query.select.where([subject, :p, :o]).to_s
     query.insert query.index('WHERE'),"FROM <#{@graphs[graph]}> "
