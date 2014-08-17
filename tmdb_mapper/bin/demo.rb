@@ -1,10 +1,10 @@
 require 'csv'
 require_relative '../lib/tmdb_mapper'
-DEFAULT_PATH = '../demo/movie_links.csv'
+DEFAULT_PATH = '../demo/1000_Movies.tsv'
 
 def parse_movie_file(path)
   movie_links = []
-  CSV.foreach(path) do |name, _, _, tmdb_uri|
+  CSV.foreach(path, { :col_sep => "\t" }) do |_, _, tmdb_uri|
     movie_links << tmdb_uri
   end
   movie_links
