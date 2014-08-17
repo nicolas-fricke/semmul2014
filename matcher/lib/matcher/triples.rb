@@ -57,6 +57,18 @@ class Matcher::Triples
       get_objects("http://schema.org/name").first
     end
 
+    def get_names()
+      get_objects("http://schema.org/name")
+    end
+
+    def get_given_name()
+      get_objects("http://schema.org/givenName")
+    end
+
+    def get_family_name()
+      get_objects("http://schema.org/familyName")
+    end
+
     def get_alternative_names()
       get_objects("http://schema.org/alternateName")
     end

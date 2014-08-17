@@ -194,13 +194,13 @@ class Matcher::Matcher
 
   def match_movie(a,b)
     return 0.0 if a.nil? or b.nil?
-      # title
+
+      # --- title ---
       title_a = a.get_name.to_s
       title_b = b.get_name.to_s
       title_match = levenshtein_match title_a, title_b
 
-      # director
-
+      # --- director ---
       # as we are merging from the mapped to merged graph, a comes from mapped b from merged
       # TODO make this more flexible, maybe pass the graph from which the triples were retrieved
       director_a = @virtuoso.get_triples a.get_director, graph: 'mapped'
@@ -213,8 +213,7 @@ class Matcher::Matcher
           director_match = person_match director_a, director_b
       end
 
-
-      # release date
+      # --- release date ---
       a_date = a.get_release_date
       b_date = b.get_release_date
       use_release_date = true # tmdb has no release date
@@ -225,13 +224,13 @@ class Matcher::Matcher
           release_date_match = date_match a_date, b_date
       end
 
-      # weights
+      # - weights -
       w_title = @weights['movie']['title']
       w_director = @weights['movie']['director']
       w_release = @weights['movie']['release']
       w_actors = @weights['movie']['actors']
 
-      # todo: consolidate weight re-distribution
+      # - fast forward -
       calculate_fast_forward = @control['enable_ff']
       if !use_release_date and use_director_match
           w_title = w_title + (w_release * 0.5)
@@ -262,9 +261,9 @@ class Matcher::Matcher
           end
       end
 
-      # actors --> expensive
+      # --- actors ---
       use_actors_match = true
-      actors_match = movie_actors_match a,b
+      actors_match = 0 #movie_actors_match a,b # todo: remove
       if actors_match.nil?
           actors_match = 0.0
           w_actors = 0.0
@@ -297,7 +296,7 @@ class Matcher::Matcher
 
   def person_match(a,b)
 
-    # todo: family name, given name, multiple name fields
+    # multiple name fields
 
     return 0.0 if a.nil? or b.nil?
     # --> match names
@@ -306,7 +305,15 @@ class Matcher::Matcher
       a.get_alternative_names.each do |alt_name_a|
         names_a << alt_name_a.to_s
       end
-      names_a << a.get_name.to_s.tr(",", " ")
+      a.get_names.each do |name|
+        names_a << name.to_s
+      end
+    end
+    a_given_name = a.get_given_name
+    a_family_name = a.get_family_name
+    full_name_a = nil
+    unless a_given_name.empty? or a_family_name.empty?
+      full_name_a = {givenName: a_given_name.to_s, familyName: a_family_name.to_s}
     end
 
     names_b = []
@@ -314,11 +321,19 @@ class Matcher::Matcher
       b.get_alternative_names.each do |alt_name_b|
         names_b << alt_name_b.to_s
       end
-      names_b << b.get_name.to_s.tr(",", " ")
+      b.get_names.each do |name|
+        names_b << name.to_s
+      end
     end
 
-    # todo: first_name, last_name, name will be given with different info
-    name_alias_match = max_name_or_alias_match(names_a, names_b)
+    b_given_name = b.get_given_name
+    b_family_name = b.get_family_name
+    full_name_b = nil
+    unless b_given_name.empty? or b_family_name.empty?
+      full_name_b = {givenName: b_given_name.to_s, familyName:  b_family_name.to_s}
+    end
+
+    name_alias_match = max_name_or_alias_match(names_a, names_b, full_name_a, full_name_b)
 
     # --> birthdate match
     birth_date_a = a.get_birthdate
@@ -332,8 +347,6 @@ class Matcher::Matcher
       # in this case, we have to rely on the known information
       use_birthdate = false
     end
-
-    # todo: birthplace match as string-match
 
     #birthplace_match = location_match(a[:birthplace],b[:birthplace])
     # todo: vector over works <-- expensive
@@ -435,7 +448,16 @@ class Matcher::Matcher
     normal_slope(d,0, 10) # sigma = 36 km
   end
 
-  def max_name_or_alias_match(names_a, names_b)
+  def max_name_or_alias_match(names_a, names_b, full_name_a=nil, full_name_b=nil)
+    full_name_match = 0
+    unless full_name_a.nil? or full_name_b.nil?
+      given_name_match = levenshtein_match(full_name_a[:givenName], full_name_b[:givenName])
+      family_name_match = levenshtein_match(full_name_a[:familyName], full_name_a[:familyName])
+      full_name_match = (given_name_match + family_name_match)/2
+      if full_name_match == 1.0
+        return 1.0
+      end
+    end
     max_match = 0
       names_a.each do |name_a|
         names_b.each do |name_b|
@@ -445,7 +467,8 @@ class Matcher::Matcher
           end
         end
       end
-    max_match
+
+    return (max_match > full_name_match ? max_match : full_name_match)
   end
 
   def name_alias_match(a,b)
