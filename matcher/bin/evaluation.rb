@@ -10,6 +10,7 @@ def evaluate(path)
 
   matching ||= YAML.load_file '../config/matching.yml'
   thresholds = matching['thresholds']
+  weights = matching['weights']
 
   matches_db_fb = []
   matches_db_tmdb = []
@@ -59,8 +60,7 @@ def evaluate(path)
           end
         end
 
-        last_db = dbpedia_link
-        last_fb = fb_uri
+
       else
         matches_db_fb << nil
         distractor_matches_db_fb << nil
@@ -111,13 +111,14 @@ def evaluate(path)
           end
         end
 
-        last_fb = fb_uri
-        last_tmdb = tmdb_uri
       else
         matches_fb_tmdb << nil
         distractor_matches_fb_tmdb << nil
       end
 
+      last_db = dbpedia_link
+      last_fb = fb_uri
+      last_tmdb = tmdb_uri
 
 
     rescue Exception => e
@@ -131,19 +132,19 @@ def evaluate(path)
   puts ""
 
   db_fb = count_matches(matches_db_fb, db_fb, thresholds)
-  db_fb = count_distractor_matches(matches_db_fb, db_fb, thresholds)
+  db_fb = count_distractor_matches(distractor_matches_db_fb, db_fb, thresholds)
   eval_db_fb = calculate_eval(db_fb)
 
   db_tmdb = count_matches(matches_db_tmdb, db_tmdb, thresholds)
-  db_tmdb = count_distractor_matches(matches_db_tmdb, db_tmdb, thresholds)
+  db_tmdb = count_distractor_matches(distractor_matches_db_tmdb, db_tmdb, thresholds)
   eval_db_tmdb = calculate_eval(db_tmdb)
 
   tmdb_fb = count_matches(matches_fb_tmdb, tmdb_fb, thresholds)
-  tmdb_fb = count_distractor_matches(matches_fb_tmdb, tmdb_fb, thresholds)
+  tmdb_fb = count_distractor_matches(distractor_matches_fb_tmdb, tmdb_fb, thresholds)
   eval_tmdb_fb = calculate_eval(tmdb_fb)
 
-
   puts "DBpedia - Freebase:"
+  puts db_fb
   puts eval_db_fb
   puts "  accuracy:  #{eval_db_fb[:accuracy]}"
   puts "  precision: #{eval_db_fb[:precision]}"
@@ -151,6 +152,7 @@ def evaluate(path)
   puts "  f-measure: #{eval_db_fb[:fmeasure]}"
 
   puts "DBpedia - TMDB:"
+  puts db_tmdb
   puts eval_db_tmdb
   puts "  accuracy:  #{eval_db_tmdb[:accuracy]}"
   puts "  precision: #{eval_db_tmdb[:precision]}"
@@ -158,6 +160,7 @@ def evaluate(path)
   puts "  f-measure: #{eval_db_tmdb[:fmeasure]}"
 
   puts "Freebase - TMDB:"
+  puts tmdb_fb
   puts eval_tmdb_fb
   puts "  accuracy:  #{eval_tmdb_fb[:accuracy]}"
   puts "  precision: #{eval_tmdb_fb[:precision]}"
@@ -171,7 +174,9 @@ def evaluate(path)
   puts "  recall:    #{(eval_db_fb[:recall]    + eval_tmdb_fb[:recall]    + eval_db_tmdb[:recall])/3}"
   puts "  f-measure: #{(eval_db_fb[:fmeasure]  + eval_tmdb_fb[:fmeasure]  + eval_db_tmdb[:fmeasure])/3}"
 
-
+  puts ""
+  puts weights
+  puts thresholds
 
 end
 

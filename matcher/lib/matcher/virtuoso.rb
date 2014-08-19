@@ -4,9 +4,6 @@ require 'sparql/client'
 require 'rdf'
 require 'rdf/virtuoso'
 
-
-#Virtuoso.new.tap {|v| v.graph = v.graphs['mapped']}
-
 class Matcher::Virtuoso
   def initialize(evaluation=false)
     @repo = RDF::Virtuoso::Repository.new('http://localhost:8890/sparql',

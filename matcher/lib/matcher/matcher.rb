@@ -144,25 +144,6 @@ class Matcher::Matcher
       calculate_match(a_triples, b_triples, entity_type)
   end
 
-  # def type_match(a,b)
-  #   return 0.0 if a.nil? or b.nil?
-  #   type_uri = RDF::URI.new "http://www.w3.org/1999/02/22-rdf-syntax-ns#type"
-  #   types_a = a.get_o type_uri
-  #   types_b = b.get_o type_uri
-  #
-  #   # check if one of the types matches
-  #   types_a.each do |type_a|
-  #     types_b.each do |type_b|
-  #       if type_a == type_b
-  #         return true
-  #       end
-  #     end
-  #   end
-  #
-  #   return false
-  # end
-
-
   def organization_match(a,b)
     return 0.0 if a.nil? or b.nil?
     name_a = a.get_name.to_s
@@ -189,7 +170,7 @@ class Matcher::Matcher
     # w_actor = @weights['performance']['actor']
 
     # match_degree = (w_character * match_char) + (w_actor * match_actor)
-    match_actor # TODO fix weights
+    match_actor
   end
 
   def match_movie(a,b)
@@ -202,9 +183,8 @@ class Matcher::Matcher
 
       # --- director ---
       # as we are merging from the mapped to merged graph, a comes from mapped b from merged
-      # TODO make this more flexible, maybe pass the graph from which the triples were retrieved
       director_a = @virtuoso.get_triples a.get_director, graph: 'mapped'
-      director_b = @virtuoso.get_triples b.get_director # TODO get_director returns only the first result, for some reason this
+      director_b = @virtuoso.get_triples b.get_director
       use_director_match = true
       director_match = 0.0
       if director_a.nil? or director_b.nil?
@@ -263,7 +243,11 @@ class Matcher::Matcher
 
       # --- actors ---
       use_actors_match = true
-      actors_match = 0 #movie_actors_match a,b # todo: remove
+      if @control['calculate_actors']
+        actors_match = movie_actors_match a,b
+      else
+        actors_match = nil
+      end
       if actors_match.nil?
           actors_match = 0.0
           w_actors = 0.0
@@ -295,9 +279,6 @@ class Matcher::Matcher
   end
 
   def person_match(a,b)
-
-    # multiple name fields
-
     return 0.0 if a.nil? or b.nil?
     # --> match names
     names_a = []
@@ -341,24 +322,20 @@ class Matcher::Matcher
     birthdate_match = 0
     if !birth_date_a.nil? and !birth_date_b.nil?
       use_birthdate = true
-      birthdate_match = date_match a.get_birthdate, b.get_birthdate #TODO
+      birthdate_match = date_match a.get_birthdate, b.get_birthdate
     else
       # if there is no birthdate, then we cannot use 0, as this would distort the result
       # in this case, we have to rely on the known information
       use_birthdate = false
     end
 
-    #birthplace_match = location_match(a[:birthplace],b[:birthplace])
-    # todo: vector over works <-- expensive
-
     w_name_alias = @weights['person']['name_alias']
     w_birthdate = @weights['person']['birthdate']
-    #w_birthplace = 0.2
     if !use_birthdate
         w_name_alias += w_birthdate
     end
 
-    (w_name_alias*name_alias_match) + (w_birthdate*birthdate_match) # + (w_birthplace*birthplace_match)
+    (w_name_alias*name_alias_match) + (w_birthdate*birthdate_match)
   end
 
   def location_match(a,b)
@@ -374,9 +351,6 @@ class Matcher::Matcher
     names_b = b[:aliases]
     names_b << b[:name]
     name_match = max_name_or_alias_match names_a, names_b
-
-    # todo: country
-    # todo: is contained by
 
     w_distance = 0.7
     w_name = 1-w_distance
@@ -415,7 +389,6 @@ class Matcher::Matcher
     d[m][n]
   end
 
-
   def date_match(a,b)
     # make dates numerical
     if a >= b
@@ -439,7 +412,6 @@ class Matcher::Matcher
     if match_degree < 0.001
       return 0
     end
-
     match_degree
   end
 
@@ -513,7 +485,6 @@ class Matcher::Matcher
 
     a_actors.each do |actor_a|
       b_actors.each do |actor_b|
-        # todo: actor match that includes works
         if all_matches.has_key?([actor_b, actor_a])
           all_matches[[actor_a, actor_b]] = all_matches[[actor_b, actor_a]]
           next
@@ -531,8 +502,6 @@ class Matcher::Matcher
     # sim = 2|A union B|/|A|+|B|
     2 * union_size / (a_actors.size.to_f + b_actors.size.to_f)
   end
-
-
 end
 
 def haversine_distance(lat1,lon1,lat2,lon2)
@@ -545,7 +514,6 @@ def haversine_distance(lat1,lon1,lat2,lon2)
 	c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
 	d = earth_radius * c
 	return d
-
 end
 
 def euclidean_distance(x1,y1,x2,y2)
@@ -560,6 +528,3 @@ end
 def radians(deg)
 	return (deg/180) * Math::PI
 end
-
-
-

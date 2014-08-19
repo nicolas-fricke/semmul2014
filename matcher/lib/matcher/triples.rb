@@ -1,7 +1,4 @@
 class Matcher::Triples
-
-    # todo: check if source is tmdb, dbpedia or freebase
-
     attr_accessor :subject
 
     def initialize(subject)
@@ -9,7 +6,6 @@ class Matcher::Triples
       @data = []
       config
     end
-
 
     def to_s
       name = get_name()
@@ -105,7 +101,6 @@ class Matcher::Triples
       number and no_letters and no_non_digits
     end
 
-
     def get_imdb_id()
       objects = get_objects("http://semmul2014.hpi.de/lodofmovies.owl#imdb_id")
       objects.first unless objects.empty?
@@ -118,7 +113,6 @@ class Matcher::Triples
     end
 
     def get_release_date()
-      # todo: not in tmdb
       release_date_prop = "http://schema.org/datePublished"
       releasedate_literals = get_objects(release_date_prop)
       _parse_date releasedate_literals.first unless releasedate_literals.empty?
